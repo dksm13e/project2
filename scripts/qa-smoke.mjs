@@ -51,6 +51,7 @@ async function fetchText(url) {
 
 let failures = 0;
 const allAssets = new Set();
+const assetFailures = [];
 
 console.log(`[qa:smoke] baseUrl=${baseUrl}`);
 
@@ -91,6 +92,7 @@ for (const asset of allAssets) {
   const { response } = await fetchText(url);
   if (response.status !== 200) {
     failures += 1;
+    assetFailures.push({ asset, status: response.status });
     console.log(`FAIL asset=${asset} status=${response.status}`);
     continue;
   }
@@ -98,6 +100,11 @@ for (const asset of allAssets) {
 }
 
 if (failures > 0) {
+  if (assetFailures.length > 0 && assetFailures.every((entry) => entry.status === 400)) {
+    console.log(
+      "[qa:smoke] hint: chunks/css returned 400. This usually means build/process mismatch (old next start with new .next). Restart server from current build and rerun."
+    );
+  }
   console.log(`[qa:smoke] completed with failures=${failures}`);
   process.exit(1);
 }

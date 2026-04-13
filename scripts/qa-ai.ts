@@ -18,20 +18,23 @@ const CASES: Case[] = [
     scenarioId: "fashion-size",
     inputs: {
       product_url: "https://example.com/item-hoodie",
-      item_type: "hoodie",
+      product_title: "Unisex heavy hoodie",
+      item_category: "худи",
       height_cm: "178",
       weight_kg: "72",
-      fit_preference: "regular",
+      desired_fit: "regular",
       usual_size: "M",
-      trusted_brand: "UnknownBrandX"
+      brand: "UnknownBrandX",
+      material_composition: "80% cotton, 20% polyester",
+      fit_priority: "плечи,рукав"
     }
   },
   {
     name: "fashion-partial",
     scenarioId: "fashion-size",
     inputs: {
-      item_type: "hoodie",
-      fit_preference: "slim"
+      product_url: "https://example.com/p/12345",
+      desired_fit: "regular"
     }
   },
   {
@@ -39,11 +42,11 @@ const CASES: Case[] = [
     scenarioId: "fashion-size",
     inputs: {
       product_url: "not-a-url ???",
-      item_type: "???",
+      product_title: "model 2024",
       height_cm: "-100",
       weight_kg: "abc",
-      fit_preference: "ultra-loose",
-      trusted_brand: "!@#"
+      desired_fit: "ultra-loose",
+      brand: "!@#"
     }
   },
   {
@@ -51,11 +54,14 @@ const CASES: Case[] = [
     scenarioId: "home-room-set",
     inputs: {
       room_type: "bedroom",
-      style: "minimal",
+      style: "japandi",
       budget_rub: "120000",
       room_area: "18",
       existing_items: "bed, lamp",
-      reference_url: "https://example.com/chair"
+      reference_url: "https://example.com/chair",
+      room_shape: "square",
+      ceiling_height: "standard",
+      main_goal: "storage"
     }
   },
   {
@@ -63,7 +69,8 @@ const CASES: Case[] = [
     scenarioId: "home-room-set",
     inputs: {
       room_type: "living",
-      budget_rub: "70000"
+      budget_rub: "70000",
+      main_goal: "cozy"
     }
   },
   {
@@ -74,7 +81,8 @@ const CASES: Case[] = [
       style: "",
       budget_rub: "-10",
       room_area: "0",
-      existing_items: "??"
+      existing_items: "??",
+      main_goal: ""
     }
   },
   {
@@ -82,17 +90,21 @@ const CASES: Case[] = [
     scenarioId: "beauty-routine",
     inputs: {
       skin_type: "combination",
-      main_goal: "hydration",
+      concerns: "dehydration,uneven-tone",
       sensitivity_level: "medium",
+      experience_level: "basic",
+      desired_steps: "3-4",
+      routine_time: "both",
       budget_rub: "6000",
-      current_routine: "cleanser + cream"
+      current_routine: "cleanser + serum + cream + SPF"
     }
   },
   {
     name: "beauty-partial",
     scenarioId: "beauty-routine",
     inputs: {
-      skin_type: "dry"
+      skin_type: "dry",
+      concerns: "dehydration"
     }
   },
   {
@@ -100,9 +112,10 @@ const CASES: Case[] = [
     scenarioId: "beauty-routine",
     inputs: {
       skin_type: "alien",
-      main_goal: "???",
+      concerns: "???",
       sensitivity_level: "999",
-      budget_rub: "-200"
+      budget_rub: "-200",
+      current_routine: "acid retinol acid retinol peel"
     }
   }
 ];
@@ -110,15 +123,24 @@ const CASES: Case[] = [
 const MODE_SPECS: ModeSpec[] = [
   {
     mode: "preview",
-    requiredKeys: ["key_insight", "main_risk", "next_step", "preview_summary"]
+    requiredKeys: ["key_insight", "main_risk", "next_step", "preview_summary", "confidence", "interpretation_limitations"]
   },
   {
     mode: "paywall_summary",
-    requiredKeys: ["product_name", "short_summary", "value_bullets", "unlock_outcome"]
+    requiredKeys: ["product_name", "short_summary", "value_bullets", "unlock_outcome", "confidence_note"]
   },
   {
     mode: "full_result",
-    requiredKeys: ["short_conclusion", "logic_explanation", "important_considerations"]
+    requiredKeys: [
+      "summary",
+      "confidence_level",
+      "confidence_score",
+      "primary_recommendation",
+      "action_steps",
+      "what_to_verify",
+      "what_to_avoid",
+      "pdf_blocks"
+    ]
   },
   {
     mode: "pdf",
@@ -147,7 +169,16 @@ for (const entry of CASES) {
         inputs: entry.inputs
       });
 
-      const ok = hasKeys(result.output, modeSpec.requiredKeys);
+      const extraKeys =
+        modeSpec.mode === "full_result"
+          ? entry.scenarioId === "fashion-size"
+            ? ["recognized_category", "main_size", "alt_size", "material_impact"]
+            : entry.scenarioId === "home-room-set"
+              ? ["set_type", "visual_strategy", "must_have", "later_buy"]
+              : ["routine_type", "main_focus", "am_steps", "pm_steps"]
+          : [];
+
+      const ok = hasKeys(result.output, [...modeSpec.requiredKeys, ...extraKeys]);
       if (!ok) {
         failures += 1;
         console.log(`FAIL case=${entry.name} mode=${modeSpec.mode} missing_required_keys`);
@@ -189,7 +220,7 @@ try {
 }
 
 try {
-  const hint = getAiSmartFieldHint("fashion-size", "fit_preference");
+  const hint = getAiSmartFieldHint("fashion-size", "desired_fit");
   const missingHint = getAiSmartFieldHint("fashion-size", "unknown_field_name");
   if (!hint || missingHint !== null) {
     failures += 1;

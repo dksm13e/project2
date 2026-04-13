@@ -1,0 +1,10 @@
+
+> ai-shopping-assistant@0.1.0 start
+> next start -H 127.0.0.1 -p 3022
+
+   ▲ Next.js 15.2.0
+   - Local:        http://127.0.0.1:3022
+   - Network:      http://127.0.0.1:3022
+
+ ✓ Starting...
+ ✓ Ready in 476ms

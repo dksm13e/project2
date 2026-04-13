@@ -3,6 +3,7 @@ import { runBeautyFormHints, runBeautyFull, runBeautyPaywall, runBeautyPdf, runB
 import { runFashionFormHints, runFashionFull, runFashionPaywall, runFashionPdf, runFashionPreview } from "@/lib/ai/fashion";
 import { runGuideEngine } from "@/lib/ai/guide";
 import { runHomeFormHints, runHomeFull, runHomePaywall, runHomePdf, runHomePreview } from "@/lib/ai/home";
+import { interpretScenarioInputs, type DomainInterpretation } from "@/lib/ai/interpretation";
 import {
   AI_OUTPUT_SCHEMAS,
   type AiMode,
@@ -32,6 +33,7 @@ export type AiResolvedRoute = {
 
 export type AiRouteResult = AiResolvedRoute & {
   prompt: string;
+  interpretation: DomainInterpretation;
   output: AiOutputUnion;
 };
 
@@ -87,29 +89,30 @@ function stringifyContext(context: AiRouteRequest["context"]): Record<string, st
 function runDomainEngine(
   domain: AiScenarioDomain,
   mode: AiMode,
-  inputs: Record<string, string>
+  inputs: Record<string, string>,
+  interpretation: DomainInterpretation
 ): AiOutputUnion {
   if (domain === "fashion") {
-    if (mode === "preview") return runFashionPreview(inputs);
-    if (mode === "paywall_summary") return runFashionPaywall(inputs);
-    if (mode === "full_result") return runFashionFull(inputs);
-    if (mode === "pdf") return runFashionPdf(inputs);
+    if (mode === "preview") return runFashionPreview(inputs, interpretation);
+    if (mode === "paywall_summary") return runFashionPaywall(inputs, interpretation);
+    if (mode === "full_result") return runFashionFull(inputs, interpretation);
+    if (mode === "pdf") return runFashionPdf(inputs, interpretation);
     if (mode === "form_hint") return runFashionFormHints();
   }
 
   if (domain === "home") {
-    if (mode === "preview") return runHomePreview(inputs);
-    if (mode === "paywall_summary") return runHomePaywall(inputs);
-    if (mode === "full_result") return runHomeFull(inputs);
-    if (mode === "pdf") return runHomePdf(inputs);
+    if (mode === "preview") return runHomePreview(inputs, interpretation);
+    if (mode === "paywall_summary") return runHomePaywall(inputs, interpretation);
+    if (mode === "full_result") return runHomeFull(inputs, interpretation);
+    if (mode === "pdf") return runHomePdf(inputs, interpretation);
     if (mode === "form_hint") return runHomeFormHints();
   }
 
   if (domain === "beauty") {
-    if (mode === "preview") return runBeautyPreview(inputs);
-    if (mode === "paywall_summary") return runBeautyPaywall(inputs);
-    if (mode === "full_result") return runBeautyFull(inputs);
-    if (mode === "pdf") return runBeautyPdf(inputs);
+    if (mode === "preview") return runBeautyPreview(inputs, interpretation);
+    if (mode === "paywall_summary") return runBeautyPaywall(inputs, interpretation);
+    if (mode === "full_result") return runBeautyFull(inputs, interpretation);
+    if (mode === "pdf") return runBeautyPdf(inputs, interpretation);
     if (mode === "form_hint") return runBeautyFormHints();
   }
 
@@ -136,14 +139,16 @@ export function resolveAiRoute(request: AiRouteRequest): AiResolvedRoute {
 export function runAiRoute(request: AiRouteRequest): AiRouteResult {
   const resolved = resolveAiRoute(request);
   const inputs = request.inputs ?? {};
+  const interpretation = interpretScenarioInputs(resolved.scenarioDomain, inputs);
   const prompt = materializePrompt(resolved.promptTemplate, {
     scenario: String(request.scenarioId),
     mode: request.mode,
     inputs: JSON.stringify(inputs),
+    interpretation: JSON.stringify(interpretation),
     ...stringifyContext(request.context)
   });
 
-  const output = runDomainEngine(resolved.scenarioDomain, resolved.mode, inputs);
+  const output = runDomainEngine(resolved.scenarioDomain, resolved.mode, inputs, interpretation);
 
   if (!validateAiOutput(resolved.scenarioDomain, resolved.mode, output)) {
     throw new Error(
@@ -154,6 +159,7 @@ export function runAiRoute(request: AiRouteRequest): AiRouteResult {
   return {
     ...resolved,
     prompt,
+    interpretation,
     output
   };
 }
@@ -176,4 +182,3 @@ export function getAiGuideOutput(): GuideOutput {
 
   return response.output as GuideOutput;
 }
-

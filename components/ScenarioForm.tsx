@@ -32,8 +32,8 @@ function FieldControl({ field }: { field: ScenarioField }) {
   if (field.type === "select") {
     return (
       <select name={field.name} required={field.required} defaultValue="" className={commonClass}>
-        <option value="" disabled>
-          Выберите вариант
+        <option value="" disabled={field.required}>
+          {field.required ? "Выберите вариант" : "Не выбрано"}
         </option>
         {field.options?.map((option) => (
           <option key={option.value} value={option.value}>
@@ -41,6 +41,31 @@ function FieldControl({ field }: { field: ScenarioField }) {
           </option>
         ))}
       </select>
+    );
+  }
+
+  if (field.type === "multiselect") {
+    return (
+      <div className="grid gap-2 rounded-xl border border-[#d8cab8] bg-white p-3">
+        {field.options?.map((option) => (
+          <label key={option.value} className="inline-flex items-center gap-2 text-sm text-[#46392c]">
+            <input type="checkbox" name={field.name} value={option.value} className="h-4 w-4 rounded border-[#c7b49a]" />
+            <span>{option.label}</span>
+          </label>
+        ))}
+      </div>
+    );
+  }
+
+  if (field.type === "file") {
+    return (
+      <input
+        type="file"
+        name={field.name}
+        accept={field.accept ?? "image/*"}
+        required={field.required}
+        className="block w-full rounded-xl border border-[#d8cab8] bg-white px-3 py-2.5 text-sm text-[#3f3427] file:mr-3 file:rounded-lg file:border-0 file:bg-[#f3e8db] file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-[#3c3024]"
+      />
     );
   }
 
@@ -115,7 +140,7 @@ export function ScenarioForm({ scenarioId }: Props) {
     setFormStartedTracked(true);
   };
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     markFormStarted();
 
@@ -125,10 +150,33 @@ export function ScenarioForm({ scenarioId }: Props) {
       return;
     }
 
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const inputs: Record<string, string> = {};
 
     for (const field of scenario.fields) {
+      if (field.type === "multiselect") {
+        const selected = form
+          .getAll(field.name)
+          .filter((value): value is string => typeof value === "string")
+          .map((value) => value.trim())
+          .filter(Boolean);
+        inputs[field.name] = selected.join(", ");
+        continue;
+      }
+
+      if (field.type === "file") {
+        const raw = form.get(field.name);
+        if (raw instanceof File && raw.size > 0) {
+          const cleanName = raw.name.replace(/\s+/g, "_");
+          const kb = Math.max(1, Math.round(raw.size / 1024));
+          inputs[field.name] = `upload:${cleanName}|${raw.type || "image/unknown"}|${kb}kb`;
+        } else {
+          inputs[field.name] = "";
+        }
+        continue;
+      }
+
       const raw = form.get(field.name);
       inputs[field.name] = typeof raw === "string" ? raw.trim() : "";
     }
@@ -200,7 +248,10 @@ export function ScenarioForm({ scenarioId }: Props) {
               const smartHint = getAiSmartFieldHint(scenario.id, field.name);
 
               return (
-                <label key={field.name} className={field.type === "textarea" ? "sm:col-span-2" : ""}>
+                <label
+                  key={field.name}
+                  className={field.type === "textarea" || field.type === "multiselect" || field.type === "file" ? "sm:col-span-2" : ""}
+                >
                   <span className="mb-1.5 block text-sm font-medium text-[#3e3326]">{field.label}</span>
                   <FieldControl field={field} />
                   {field.hint ? <span className="mt-1 block text-xs text-[#796c5c]">{field.hint}</span> : null}

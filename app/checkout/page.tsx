@@ -147,6 +147,7 @@ export default function CheckoutPage() {
         <article className="surface p-6 sm:p-8">
           <h2 className="text-lg font-semibold text-[#2e251b]">{aiPaywall.product_name}</h2>
           <p className="mt-3 text-sm text-[#5a4d3e]">{aiPaywall.short_summary}</p>
+          <p className="mt-2 text-sm text-[#6c5f50]">{aiPaywall.confidence_note}</p>
           <ul className="mt-4 space-y-2 text-sm text-[#5a4d3e]">
             {aiPaywall.value_bullets.map((point) => (
               <li key={point}>- {point}</li>

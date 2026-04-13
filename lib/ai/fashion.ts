@@ -1,3 +1,4 @@
+import type { FashionInterpretation } from "@/lib/ai/interpretation";
 import type {
   FashionFullResultOutput,
   FormHintsOutput,
@@ -10,129 +11,281 @@ type Inputs = Record<string, string>;
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
 
-function normalizeSize(value: string | undefined): string {
-  const raw = (value ?? "").trim().toUpperCase();
+function asFashionInterpretation(interpretation: unknown): FashionInterpretation {
+  return interpretation as FashionInterpretation;
+}
+
+function normalizeSize(value: string): string {
+  const raw = value.trim().toUpperCase();
   if (!raw) return "M";
   if (SIZE_ORDER.includes(raw)) return raw;
-  if (["44", "46", "48"].includes(raw)) return "M";
+  if (["42", "44"].includes(raw)) return "S";
+  if (["46", "48"].includes(raw)) return "M";
   if (["50", "52"].includes(raw)) return "L";
-  return raw;
+  if (["54", "56"].includes(raw)) return "XL";
+  if (["58", "60"].includes(raw)) return "XXL";
+  return "M";
 }
 
-function pickAltSize(main: string, fit: string): string {
-  const idx = SIZE_ORDER.indexOf(main);
-  if (idx === -1) return fit === "slim" ? `${main} (на размер больше)` : `${main} (на размер меньше)`;
-
-  if (fit === "slim") {
-    return SIZE_ORDER[Math.min(idx + 1, SIZE_ORDER.length - 1)];
-  }
-  if (fit === "relaxed") {
-    return SIZE_ORDER[Math.max(idx - 1, 0)];
-  }
-  return SIZE_ORDER[Math.min(idx + 1, SIZE_ORDER.length - 1)];
+function sizeFromBody(heightCm: number | null, weightKg: number | null): string {
+  if (!heightCm || !weightKg) return "M";
+  if (heightCm < 164 && weightKg < 56) return "S";
+  if (heightCm > 188 && weightKg > 92) return "XL";
+  if (weightKg > 84) return "L";
+  if (weightKg < 58) return "S";
+  return "M";
 }
 
-function riskLevel(fit: string, hasBrand: boolean): "low" | "medium" | "high" {
-  if (fit === "slim") return "high";
-  if (fit === "relaxed" && hasBrand) return "low";
-  return "medium";
+function shiftSize(base: string, steps: number): string {
+  const index = SIZE_ORDER.indexOf(base);
+  const safe = index === -1 ? 2 : index;
+  return SIZE_ORDER[Math.max(0, Math.min(SIZE_ORDER.length - 1, safe + steps))];
 }
 
-function buildFull(inputs: Inputs): FashionFullResultOutput {
-  const fit = inputs.fit_preference ?? "regular";
-  const main = normalizeSize(inputs.usual_size);
-  const alt = pickAltSize(main, fit);
-  const hasBrand = Boolean(inputs.trusted_brand?.trim());
-  const level = riskLevel(fit, hasBrand);
+function computeSizePair(fashion: FashionInterpretation): { main: string; alt: string } {
+  const base = fashion.normalized.usual_size
+    ? normalizeSize(fashion.normalized.usual_size)
+    : sizeFromBody(fashion.normalized.height_cm, fashion.normalized.weight_kg);
+
+  const fit = fashion.normalized.fit_intent;
+  if (fit === "oversize") return { main: shiftSize(base, 1), alt: base };
+  if (fit === "relaxed") return { main: base, alt: shiftSize(base, 1) };
+  if (fit === "figure") return { main: base, alt: shiftSize(base, -1) };
+  return { main: base, alt: shiftSize(base, 1) };
+}
+
+function categoryRiskZones(category: string, fitIntent: string, priorities: string[]): string[] {
+  const defaultMap: Record<string, string[]> = {
+    "футболка": ["грудь", "длина"],
+    "худи": ["плечи", "рукав", "длина"],
+    "свитшот": ["плечи", "рукав", "длина"],
+    "рубашка": ["плечи", "грудь", "рукав"],
+    "куртка": ["плечи", "грудь", "рукав", "длина"],
+    "жилет": ["грудь", "талия"],
+    "брюки": ["талия", "бедра", "длина"],
+    "джинсы": ["талия", "бедра", "длина"],
+    "шорты": ["талия", "бедра", "длина"],
+    "платье": ["грудь", "талия", "длина"],
+    "юбка": ["талия", "бедра", "длина"],
+    "обувь": ["длина", "полнота"]
+  };
+
+  const fitExtra =
+    fitIntent === "oversize"
+      ? ["длина", "рукав"]
+      : fitIntent === "figure"
+        ? ["грудь", "талия"]
+        : fitIntent === "relaxed"
+          ? ["плечи", "грудь"]
+          : [];
+
+  const base = defaultMap[category] ?? ["плечи", "грудь", "длина"];
+  return [...new Set([...priorities, ...fitExtra, ...base])];
+}
+
+function buildMaterialImpact(fashion: FashionInterpretation): string[] {
+  const densityMap: Record<string, string> = {
+    dense: "Плотный материал требует точнее попадать в плечи/корпус и хуже прощает ошибку размера.",
+    medium: "Средняя плотность дает более стабильную посадку в daily-сценарии.",
+    light: "Легкая ткань может вести себя по-разному в зависимости от кроя и подслоя."
+  };
+
+  return [
+    ...fashion.material_profile.notes,
+    `Состав: ${fashion.normalized.material_text}.`,
+    densityMap[fashion.material_profile.density],
+    fashion.material_profile.stretch === "high"
+      ? "Высокая эластичность допускает мягкий запас по одной зоне."
+      : "Низкая/умеренная эластичность требует точного совпадения в приоритетных зонах."
+  ];
+}
+
+function buildFull(inputs: Inputs, interpretation: unknown): FashionFullResultOutput {
+  const fashion = asFashionInterpretation(interpretation);
+  const { main, alt } = computeSizePair(fashion);
+  const category = fashion.normalized.recognized_category;
+  const riskZones = categoryRiskZones(category, fashion.normalized.fit_intent, fashion.normalized.fit_priority);
+  const materialImpact = buildMaterialImpact(fashion);
+
+  const confidenceExplain =
+    fashion.confidence_level === "high"
+      ? "Интерпретация уверенная: категория и ключевые параметры распознаны достаточно точно."
+      : fashion.confidence_level === "medium"
+        ? "Интерпретация рабочая: часть параметров распознана косвенно и требует проверки."
+        : "Интерпретация ограничена: используйте результат как вектор и обязательно сверяйте замеры.";
+
+  const summary = `Распознана категория "${category}" (${fashion.normalized.source_category}). Рекомендуемый размер: ${main}, альтернативный: ${alt}. ${confidenceExplain}`;
+
+  const verification = [
+    `Сверьте ${riskZones.slice(0, 3).join(", ")} с таблицей замеров товара.`,
+    "Проверьте отзывы с похожими параметрами роста/веса и fit intent.",
+    "Сравните посадку с вещью-референсом, которая уже сидит хорошо.",
+    inputs.product_url || inputs.product_title
+      ? "Убедитесь, что указаны реальные габариты модели, а не только label-size."
+      : "Добавьте ссылку/фото товара: это заметно повысит точность распознавания категории."
+  ];
+
+  const shiftFactors = [
+    "Новая партия модели с отличием фактических замеров.",
+    "Изменение подслоя (футболка/лонгслив/свитер) под верхний слой.",
+    fashion.material_profile.shrink_risk === "high"
+      ? "Возможная усадка после ухода для текущего состава."
+      : "Низкая/умеренная усадка, но всё равно стоит проверять условия ухода.",
+    fashion.normalized.known_brand
+      ? "Даже в известном бренде крой конкретной модели может отличаться."
+      : "Неизвестный бренд снижает надежность size-калибровки."
+  ];
+
+  const whatToAvoid = [
+    "Покупка по label-size без сверки реальных замеров.",
+    "Игнорирование состава ткани, плотности и эластичности.",
+    fashion.normalized.source_category === "fallback"
+      ? "Оплата без уточнения категории, если товар в ссылке описан слишком общо."
+      : "Решение только по фото модели без учета собственных параметров."
+  ];
+
+  const alternatives =
+    fashion.normalized.fit_intent === "oversize"
+      ? [
+          `Если нужен уверенный oversize — держите ${main}, но проверьте длину и рукав.`,
+          `Если хотите ближе к regular, fallback — ${alt}.`,
+          "Если модель заявлена как heavy/boxy, проверяйте плечи в первую очередь."
+        ]
+      : fashion.normalized.fit_intent === "figure"
+        ? [
+            `Основной вектор — ${main}. Если важна более плотная посадка, протестируйте ${alt}.`,
+            "При прилегающем силуэте критичны грудь/талия и эластичность состава.",
+            "Если сомневаетесь, выбирайте продавца с прозрачным возвратом."
+          ]
+        : [
+            `Основной вектор — ${main}; альтернативный — ${alt}.`,
+            "Если между размерами, ориентируйтесь на приоритетные зоны и состав.",
+            "Для unknown brand оставляйте запас на ручную проверку замеров."
+          ];
 
   return {
+    summary,
+    confidence_level: fashion.confidence_level,
+    confidence_score: fashion.confidence_score,
+    interpretation_notes: fashion.interpretation_notes,
+    interpretation_limitations: fashion.limitations,
+    primary_recommendation: `Ориентируйтесь на ${main} и подтверждайте выбор по зонам: ${riskZones.slice(0, 2).join(", ")}.`,
+    alternatives,
+    risks: [
+      `Ключевые рисковые зоны: ${riskZones.join(", ")}.`,
+      fashion.normalized.fit_intent === "oversize"
+        ? "Риск перепутать regular-модель с oversize ожиданием."
+        : "Риск промаха между regular/relaxed/figure-посадкой.",
+      "Сдвиг посадки из-за material/composition факторов (плотность, эластичность, усадка)."
+    ],
+    reasoning: [
+      `Категория: "${category}" (${fashion.normalized.source_category}), confidence=${fashion.confidence_level}.`,
+      `Fit intent: ${fashion.normalized.fit_intent}, телосложение: ${fashion.normalized.body_shape}, профиль: ${fashion.normalized.gender_profile}.`,
+      `Материал: density=${fashion.material_profile.density}, stretch=${fashion.material_profile.stretch}, structure=${fashion.material_profile.structure}, shrink=${fashion.material_profile.shrink_risk}.`
+    ],
+    action_steps: [
+      "Сверьте приоритетные замеры в карточке товара.",
+      "Сопоставьте эти зоны с вещью-референсом.",
+      "Зафиксируйте основной/альтернативный размер перед покупкой.",
+      "Проверьте факторы, которые могут сместить рекомендацию."
+    ],
+    what_to_verify: verification,
+    what_to_avoid: whatToAvoid,
+    simplified_variant: [
+      `Быстрый вариант: ${main}.`,
+      `Fallback: ${alt}.`,
+      `Минимальная проверка: ${riskZones.slice(0, 2).join(" + ")}.`
+    ],
+    pdf_blocks: [
+      { title: "Интерпретация входа", items: [summary, ...fashion.interpretation_notes] },
+      { title: "Размерное решение", items: [`Основной: ${main}`, `Альтернативный: ${alt}`] },
+      { title: "Material / Composition Layer", items: materialImpact },
+      { title: "Проверка перед покупкой", items: verification }
+    ],
+    recognized_category: category,
+    category_confidence: fashion.confidence_level,
     main_size: main,
     alt_size: alt,
-    fit_summary:
-      fit === "slim"
-        ? "Выбран более плотный fit, поэтому критичны замеры плеч и груди."
-        : fit === "relaxed"
-          ? "Выбран свободный fit, можно оставить запас по груди и длине."
-          : "Стандартный fit: оптимально сравнить базовые замеры с привычной вещью.",
-    risk_level: level,
-    risks: [
-      "Несовпадение по плечам и длине рукава.",
-      "Разброс фактических замеров у разных партий.",
-      "Ориентация только на label-size без таблицы."
-    ],
-    advice: [
-      "Сравните плечи, грудь и рукав с вашей вещью, которая сидит хорошо.",
-      "Проверьте 2-3 отзыва с похожими параметрами.",
-      "Если ключевого замера нет в карточке, отложите покупку.",
-      "При сомнениях выбирайте вариант с более удобным возвратом."
-    ],
-    short_conclusion: `Базовый выбор: ${main}. Запасной вариант: ${alt}.`,
-    logic_explanation:
-      "Логика строится от fit-предпочтения, привычного размера и рисков по ключевым замерам, а не от одного ярлыка.",
-    important_considerations: [
-      "Учитывайте слой одежды под вещью.",
-      "Перед оплатой проверьте условия возврата.",
-      "Не принимайте решение только по фото на модели."
-    ]
+    logic_of_choice:
+      "Размер формируется из базового body-профиля/обычного размера, корректируется fit intent и затем фильтруется через material/composition риски.",
+    key_risk_zones: riskZones,
+    material_impact: materialImpact,
+    pre_purchase_checks: verification,
+    recommendation_shift_factors: shiftFactors
   };
 }
 
-export function runFashionPreview(inputs: Inputs): PreviewModeOutput {
-  const full = buildFull(inputs);
+export function runFashionPreview(inputs: Inputs, interpretation: unknown): PreviewModeOutput {
+  const full = buildFull(inputs, interpretation);
   return {
-    key_insight: `Вероятный размер: ${full.main_size}.`,
+    key_insight: `Категория: ${full.recognized_category}. Базовый размер: ${full.main_size}.`,
     main_risk: full.risks[0],
-    next_step: "Проверьте плечи и длину рукава в таблице размеров.",
-    preview_summary: "Направление по размеру определено, но детали посадки скрыты до оплаты."
+    next_step: full.pre_purchase_checks[0],
+    preview_summary: "Показано около 20% ценности: ключевой вектор по размеру и один риск. Полная логика, альтернативы и проверки скрыты до оплаты.",
+    confidence: full.confidence_level,
+    interpretation_limitations: full.interpretation_limitations.slice(0, 2)
   };
 }
 
-export function runFashionPaywall(inputs: Inputs): PaywallSummaryOutput {
-  const full = buildFull(inputs);
+export function runFashionPaywall(inputs: Inputs, interpretation: unknown): PaywallSummaryOutput {
+  const full = buildFull(inputs, interpretation);
   return {
     product_name: "Полный разбор размера одежды",
-    short_summary: `Предварительно определен размер ${full.main_size}, но для безопасной покупки нужен полный разбор.`,
+    short_summary: `Определены категория "${full.recognized_category}" и размерный вектор ${full.main_size}/${full.alt_size}.`,
     value_bullets: [
-      "Основной и альтернативный размер",
-      "Разбор посадки под ваш fit",
-      "Список рисков и что проверить перед оплатой товара",
-      "Пошаговые рекомендации по выбору"
+      "Логика выбора размера с учетом fit intent и material/composition layer",
+      "Ключевые зоны риска по посадке и как их проверять",
+      "Факторы, которые могут сместить размерную рекомендацию",
+      "PDF-версия результата + код доступа"
     ],
-    unlock_outcome: "После оплаты вы получите полный разбор, PDF и код доступа."
+    unlock_outcome:
+      "После оплаты откроется полный структурированный разбор: reasoning, альтернативы, verify/avoid блоки и PDF-ready версия.",
+    confidence_note:
+      full.confidence_level === "high"
+        ? "Интерпретация уверенная: входные данные достаточны для персонализированного вектора."
+        : full.confidence_level === "medium"
+          ? "Интерпретация средняя: вектор рабочий, но часть факторов распознана косвенно."
+          : "Интерпретация ограничена: полный разбор покажет, какие пробелы сильнее всего влияют на точность."
   };
 }
 
-export function runFashionFull(inputs: Inputs): FashionFullResultOutput {
-  return buildFull(inputs);
+export function runFashionFull(inputs: Inputs, interpretation: unknown): FashionFullResultOutput {
+  return buildFull(inputs, interpretation);
 }
 
-export function runFashionPdf(inputs: Inputs): PdfModeOutput {
-  const full = buildFull(inputs);
+export function runFashionPdf(inputs: Inputs, interpretation: unknown): PdfModeOutput {
+  const full = buildFull(inputs, interpretation);
   return {
-    title: "Разбор размера одежды",
-    summary: full.logic_explanation,
+    title: "Fashion Size Report",
+    summary: full.summary,
     sections: [
-      { title: "Размер", items: [`Основной: ${full.main_size}`, `Альтернативный: ${full.alt_size}`] },
-      { title: "Посадка", items: [full.fit_summary] },
-      { title: "Риски", items: full.risks }
+      ...full.pdf_blocks,
+      { title: "Зоны риска", items: full.key_risk_zones },
+      { title: "Что может сместить рекомендацию", items: full.recommendation_shift_factors }
     ],
-    recommendations: full.advice,
-    notes: full.important_considerations,
-    disclaimer: "Разбор носит информационный характер и не гарантирует итоговую посадку."
+    recommendations: full.action_steps,
+    notes: [...full.what_to_verify, ...full.interpretation_limitations],
+    disclaimer:
+      "Результат носит аналитический характер. При неполных/неясных входных данных confidence снижается и требуется ручная проверка перед покупкой."
   };
 }
 
 export function runFashionFormHints(): FormHintsOutput {
   return {
     hints: {
-      product_url: "Ссылка помогает учесть таблицу размеров и тип кроя.",
-      item_type: "Категория влияет на риски по посадке.",
-      height_cm: "Рост нужен, чтобы точнее оценить длину рукава и изделия.",
-      weight_kg: "Вес помогает уточнить базовый размерный диапазон.",
-      fit_preference: "От fit зависит, нужен ли запас или более плотная посадка.",
-      usual_size: "Если не уверены, укажите размер вещи, которая сидит комфортно.",
-      trusted_brand: "Укажите бренд, который обычно сидит хорошо, для калибровки."
+      product_url: "Ссылка помогает распознать тип вещи и контекст бренда.",
+      product_title: "Если ссылка неинформативна, название улучшит распознавание категории.",
+      item_category: "Явная категория снижает риск ошибки между футболкой/худи/свитшотом.",
+      brand: "Если бренд неизвестен, confidence будет ниже — это нормально.",
+      gender_profile: "Профиль посадки (men/women/unisex) влияет на размерный вектор.",
+      body_shape: "Телосложение помогает точнее оценить риск-зоны.",
+      desired_fit: "Regular/relaxed/oversize/по фигуре напрямую меняет size-логику.",
+      material_composition: "Состав ткани влияет на плотность, эластичность, жесткость и риск усадки.",
+      fit_priority: "Выберите зоны, где важно попасть максимально точно.",
+      good_fit_item: "Опишите вещь-референс, которая сидит хорошо.",
+      fit_dislikes: "Что обычно не нравится в посадке — это снижает риск повторения ошибки.",
+      good_fit_photo: "Фото вещи-референса усиливает image-aware интерпретацию.",
+      item_photo: "Фото товара полезно, когда ссылка не дает явной категории."
     }
   };
 }
-

@@ -51,21 +51,26 @@ const CASES: FlowCase[] = [
     scenarioId: "fashion-size",
     inputs: {
       product_url: "https://example.com/fashion",
-      item_type: "hoodie",
+      product_title: "Heavy hoodie",
+      item_category: "худи",
       height_cm: "176",
       weight_kg: "70",
-      fit_preference: "regular",
+      desired_fit: "regular",
       usual_size: "M",
-      trusted_brand: "UnknownBrandX"
+      brand: "UnknownBrandX",
+      material_composition: "80% cotton, 20% polyester"
     }
   },
   {
     scenarioId: "home-room-set",
     inputs: {
       room_type: "bedroom",
-      style: "minimal",
+      style: "japandi",
       budget_rub: "140000",
       room_area: "16",
+      room_shape: "square",
+      ceiling_height: "standard",
+      main_goal: "storage",
       existing_items: "bed",
       reference_url: ""
     }
@@ -74,8 +79,11 @@ const CASES: FlowCase[] = [
     scenarioId: "beauty-routine",
     inputs: {
       skin_type: "combination",
-      main_goal: "hydration",
+      concerns: "dehydration",
       sensitivity_level: "medium",
+      experience_level: "basic",
+      desired_steps: "3-4",
+      routine_time: "both",
       budget_rub: "6000",
       current_routine: "cleanser + moisturizer"
     }

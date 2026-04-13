@@ -96,6 +96,12 @@ export default function PreviewPage() {
         <p className="pill inline-flex">Шаг 2/3 · предварительный вывод</p>
         <h1 className="display-title">Предварительный вывод готов</h1>
         <p className="max-w-3xl text-[#615444]">{aiPreview.preview_summary}</p>
+        <p className="text-sm text-[#6d6051]">
+          Confidence:{" "}
+          <span className="font-medium text-[#3c3125]">
+            {aiPreview.confidence === "high" ? "высокий" : aiPreview.confidence === "medium" ? "средний" : "ограниченный"}
+          </span>
+        </p>
       </header>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -150,6 +156,7 @@ export default function PreviewPage() {
           <div className="surface-muted p-6">
             <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Что откроется после оплаты</h2>
             <p className="mt-2 text-sm text-[#5d5040]">{aiPaywall.short_summary}</p>
+            <p className="mt-2 text-sm text-[#6c5f50]">{aiPaywall.confidence_note}</p>
             <ul className="mt-3 space-y-2 text-sm text-[#594c3d]">
               {aiPaywall.value_bullets.map((item) => (
                 <li key={item}>- {item}</li>
@@ -175,10 +182,19 @@ export default function PreviewPage() {
               <li>- Полный разбор сразу после оплаты</li>
               <li>- Повторный доступ по коду</li>
             </ul>
+            {aiPreview.interpretation_limitations.length ? (
+              <>
+                <p className="mt-3 font-medium text-[#3d3124]">Что ограничивает точность сейчас:</p>
+                <ul className="mt-1 space-y-1">
+                  {aiPreview.interpretation_limitations.map((line) => (
+                    <li key={line}>- {line}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
           </div>
         </aside>
       </div>
     </section>
   );
 }
-

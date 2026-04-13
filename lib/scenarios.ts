@@ -1,13 +1,14 @@
-﻿export type ScenarioId = "fashion-size" | "fashion-fit-check" | "home-room-set" | "beauty-routine";
+export type ScenarioId = "fashion-size" | "fashion-fit-check" | "home-room-set" | "beauty-routine";
 
 export type ScenarioField = {
   name: string;
   label: string;
   placeholder?: string;
   hint?: string;
-  type?: "text" | "url" | "textarea" | "number" | "select";
+  type?: "text" | "url" | "textarea" | "number" | "select" | "multiselect" | "file";
   required?: boolean;
   options?: Array<{ value: string; label: string }>;
+  accept?: string;
 };
 
 export type ScenarioDefinition = {
@@ -28,6 +29,14 @@ export type ScenarioDefinition = {
   fields: ScenarioField[];
 };
 
+const seasonOptions = [
+  { value: "spring", label: "Весна" },
+  { value: "summer", label: "Лето" },
+  { value: "autumn", label: "Осень" },
+  { value: "winter", label: "Зима" },
+  { value: "all-season", label: "Круглый год" }
+];
+
 const scenarioList: ScenarioDefinition[] = [
   {
     id: "fashion-size",
@@ -35,26 +44,26 @@ const scenarioList: ScenarioDefinition[] = [
     categoryRoute: "/fashion",
     title: "Разбор размера одежды",
     shortTitle: "Подбор размера одежды",
-    subtitle: "Снижаем риск промаха с размером до оформления заказа.",
-    tagline: "Подбор размера без регистрации",
+    subtitle: "AI интерпретирует вещь, посадку и материал, чтобы снизить риск промаха с размером.",
+    tagline: "Размерный разбор с учетом категории и ткани",
     priceRub: 349,
-    weakOutcome: "Предварительный вывод: вероятный размер и главный риск",
-    fullOutcome: "Полный разбор размера: альтернативы, посадка и PDF",
+    weakOutcome: "Предварительный вывод: категория, размерный вектор и главный риск",
+    fullOutcome: "Полный разбор: размер, материал, рисковые зоны, проверки и PDF",
     heroPoints: [
-      "Без email, без телефона, без кабинета",
-      "Фокус на аналитике решения, а не на витрине товаров",
-      "Результат открывается сразу после оплаты"
+      "Распознавание типа вещи из ссылки/контекста",
+      "Учет fit intent и материала",
+      "Понижение confidence при слабом входе"
     ],
     weakPreviewItems: [
-      "Вероятный размерный диапазон",
-      "Ключевой риск по посадке",
-      "Короткий следующий шаг перед покупкой"
+      "Распознанная категория товара",
+      "Главный размерный вектор",
+      "Один ключевой риск и следующий шаг"
     ],
     fullResultItems: [
-      "Рекомендуемый и альтернативный размер",
-      "Варианты посадки в зависимости от предпочтения",
-      "Риск маломерности/большемерности",
-      "PDF + код доступа"
+      "Главный и альтернативный размер",
+      "Логика выбора и confidence",
+      "Влияние материала и зоны риска",
+      "Что проверить до покупки и что может сместить рекомендацию"
     ],
     paywallTitle: "Полный разбор размера",
     fields: [
@@ -63,65 +72,159 @@ const scenarioList: ScenarioDefinition[] = [
         label: "Ссылка на товар",
         type: "url",
         placeholder: "https://...",
-        hint: "Добавьте карточку товара, чтобы учесть описание и таблицу размеров.",
-        required: true
+        hint: "По ссылке AI пытается распознать тип вещи и бренд.",
+        required: false
       },
       {
-        name: "item_type",
+        name: "product_title",
+        label: "Название товара (если ссылка слабая)",
+        type: "text",
+        placeholder: "Например: Hoodie relaxed fit",
+        hint: "Помогает отличить футболку, худи и свитшот.",
+        required: false
+      },
+      {
+        name: "item_category",
         label: "Категория",
         type: "select",
-        hint: "Категория влияет на логику посадки и размерные риски.",
         required: true,
         options: [
-          { value: "hoodie", label: "Худи / свитшот" },
-          { value: "tshirt", label: "Футболка / топ" },
-          { value: "pants", label: "Брюки / джинсы" },
-          { value: "dress", label: "Платье" },
-          { value: "outerwear", label: "Верхняя одежда" }
+          { value: "футболка", label: "Футболка" },
+          { value: "худи", label: "Худи" },
+          { value: "свитшот", label: "Свитшот" },
+          { value: "рубашка", label: "Рубашка" },
+          { value: "куртка", label: "Куртка" },
+          { value: "жилет", label: "Жилет" },
+          { value: "брюки", label: "Брюки" },
+          { value: "джинсы", label: "Джинсы" },
+          { value: "шорты", label: "Шорты" },
+          { value: "платье", label: "Платье" },
+          { value: "юбка", label: "Юбка" },
+          { value: "обувь", label: "Обувь" },
+          { value: "other", label: "Другое" }
+        ]
+      },
+      {
+        name: "brand",
+        label: "Бренд",
+        type: "text",
+        placeholder: "Например: Uniqlo",
+        hint: "Если бренд неизвестный, confidence будет ниже.",
+        required: false
+      },
+      {
+        name: "gender_profile",
+        label: "Пол / профиль",
+        type: "select",
+        required: true,
+        options: [
+          { value: "women", label: "Женский" },
+          { value: "men", label: "Мужской" },
+          { value: "unisex", label: "Unisex" }
         ]
       },
       {
         name: "height_cm",
-        label: "Рост",
+        label: "Рост (см)",
         type: "number",
         placeholder: "172",
-        hint: "Укажите в сантиметрах.",
         required: true
       },
       {
         name: "weight_kg",
-        label: "Вес",
+        label: "Вес (кг)",
         type: "number",
         placeholder: "64",
-        hint: "Укажите в килограммах.",
         required: true
       },
       {
-        name: "fit_preference",
-        label: "Желаемая посадка",
+        name: "body_shape",
+        label: "Телосложение",
         type: "select",
-        hint: "Выбор влияет на рекомендуемую размерную стратегию.",
         required: true,
         options: [
-          { value: "slim", label: "Ближе к телу" },
-          { value: "regular", label: "Стандартная" },
-          { value: "relaxed", label: "Свободная" }
+          { value: "slim", label: "Slim" },
+          { value: "regular", label: "Regular" },
+          { value: "athletic", label: "Athletic" },
+          { value: "curvy", label: "Curvy" },
+          { value: "plus-size", label: "Plus-size" }
         ]
       },
       {
         name: "usual_size",
-        label: "Обычный размер (optional)",
+        label: "Обычный размер",
         type: "text",
-        placeholder: "Например: M, 46, W30",
-        hint: "Необязательное поле для калибровки результата.",
+        placeholder: "Например: M / 46 / W30",
         required: false
       },
       {
-        name: "trusted_brand",
-        label: "Бренд, который обычно сидит хорошо (optional)",
+        name: "desired_fit",
+        label: "Желаемая посадка",
+        type: "select",
+        required: true,
+        options: [
+          { value: "figure", label: "По фигуре" },
+          { value: "regular", label: "Regular" },
+          { value: "relaxed", label: "Relaxed" },
+          { value: "oversize", label: "Oversize" }
+        ]
+      },
+      {
+        name: "season",
+        label: "Сезон",
+        type: "select",
+        required: true,
+        options: seasonOptions
+      },
+      {
+        name: "material_composition",
+        label: "Материал / состав",
         type: "text",
-        placeholder: "Например: Uniqlo / Zara / H&M",
-        hint: "Если есть, добавьте 1 бренд для дополнительного контекста.",
+        placeholder: "Например: 80% хлопок, 20% полиэстер",
+        hint: "Материал влияет на эластичность, жёсткость и риск усадки.",
+        required: false
+      },
+      {
+        name: "fit_priority",
+        label: "Что важнее в посадке",
+        type: "multiselect",
+        required: false,
+        options: [
+          { value: "плечи", label: "Плечи" },
+          { value: "грудь", label: "Грудь" },
+          { value: "талия", label: "Талия" },
+          { value: "бедра", label: "Бёдра" },
+          { value: "длина", label: "Длина" },
+          { value: "рукав", label: "Рукав" }
+        ]
+      },
+      {
+        name: "good_fit_item",
+        label: "Вещь, которая сидит хорошо (optional)",
+        type: "textarea",
+        placeholder: "Опишите коротко референсную вещь",
+        required: false
+      },
+      {
+        name: "fit_dislikes",
+        label: "Что обычно не нравится в посадке (optional)",
+        type: "textarea",
+        placeholder: "Например: давит в плечах, короткий рукав",
+        required: false
+      },
+      {
+        name: "good_fit_photo",
+        label: "Фото вещи, которая сидит хорошо (optional)",
+        type: "file",
+        accept: "image/*",
+        hint: "Image-aware слой: используется как дополнительный контекст.",
+        required: false
+      },
+      {
+        name: "item_photo",
+        label: "Фото товара / скрин (optional)",
+        type: "file",
+        accept: "image/*",
         required: false
       }
     ]
@@ -142,11 +245,7 @@ const scenarioList: ScenarioDefinition[] = [
       "Полная логика открывается после оплаты",
       "Без регистрационного барьера"
     ],
-    weakPreviewItems: [
-      "Базовый signal совместимости",
-      "Один основной риск",
-      "Короткий следующий шаг"
-    ],
+    weakPreviewItems: ["Базовый signal совместимости", "Один основной риск", "Короткий следующий шаг"],
     fullResultItems: [
       "Варианты сочетаний по ситуации",
       "Триггеры mismatch и do-not-buy сигналы",
@@ -192,12 +291,7 @@ const scenarioList: ScenarioDefinition[] = [
         label: "Сезон",
         type: "select",
         required: true,
-        options: [
-          { value: "spring", label: "Весна" },
-          { value: "summer", label: "Лето" },
-          { value: "autumn", label: "Осень" },
-          { value: "winter", label: "Зима" }
-        ]
+        options: seasonOptions
       },
       {
         name: "notes",
@@ -215,26 +309,22 @@ const scenarioList: ScenarioDefinition[] = [
     categoryRoute: "/home",
     title: "Разбор набора для дома",
     shortTitle: "Подбор для дома",
-    subtitle: "Собираем логичный набор под комнату, стиль и бюджет.",
-    tagline: "Комнатный сет без эффекта маркетплейса",
+    subtitle: "AI учитывает геометрию комнаты, стиль, бюджет, материалы и фото-контекст.",
+    tagline: "Глубокий room-set анализ без каталога",
     priceRub: 490,
-    weakOutcome: "Предварительный вывод: тип набора и бюджетный вектор",
-    fullOutcome: "Полный разбор набора: структура, бюджет, композиция, PDF",
+    weakOutcome: "Предварительный вывод: тип набора, вектор стиля и главный риск",
+    fullOutcome: "Полный разбор: must-have / optional / later-buy + композиция + PDF",
     heroPoints: [
-      "Аналитика по комнате, а не каталог товаров",
-      "Бюджет и композиция учитываются вместе",
-      "Результат сразу после оплаты"
+      "Учет формы, площади и высоты потолка",
+      "Image-aware контекст через фото комнаты и референсов",
+      "Материалы, цвет и бюджет в одном решении"
     ],
-    weakPreviewItems: [
-      "Предварительный тип сета",
-      "Оценка масштаба набора",
-      "Общий бюджетный вектор"
-    ],
+    weakPreviewItems: ["Тип набора", "Общий вектор композиции", "Главный риск бюджета/масштаба"],
     fullResultItems: [
-      "Базовые и дополнительные позиции",
-      "Логика распределения бюджета",
-      "Советы по композиции и что можно не покупать",
-      "PDF + код доступа"
+      "Визуальная стратегия и confidence",
+      "Must-have / optional / later-buy",
+      "Материалы, цвета, масштаб и ошибки",
+      "Что не покупать прямо сейчас"
     ],
     paywallTitle: "Полный разбор room set",
     fields: [
@@ -242,58 +332,200 @@ const scenarioList: ScenarioDefinition[] = [
         name: "room_type",
         label: "Тип комнаты",
         type: "select",
-        hint: "Влияет на структуру приоритетов в наборе.",
         required: true,
         options: [
           { value: "bedroom", label: "Спальня" },
           { value: "living", label: "Гостиная" },
+          { value: "workspace", label: "Кабинет" },
+          { value: "kids", label: "Детская" },
           { value: "kitchen", label: "Кухня" },
-          { value: "workspace", label: "Рабочая зона" }
+          { value: "hallway", label: "Прихожая" },
+          { value: "bathroom", label: "Ванная" },
+          { value: "balcony", label: "Балкон" },
+          { value: "studio", label: "Студия" }
+        ]
+      },
+      {
+        name: "room_area",
+        label: "Площадь комнаты (м²)",
+        type: "number",
+        placeholder: "18",
+        required: true
+      },
+      {
+        name: "room_shape",
+        label: "Форма комнаты",
+        type: "select",
+        required: true,
+        options: [
+          { value: "square", label: "Квадрат" },
+          { value: "elongated", label: "Вытянутая" },
+          { value: "narrow", label: "Узкая" },
+          { value: "open-space", label: "Open space" },
+          { value: "non-standard", label: "Нестандартная" }
+        ]
+      },
+      {
+        name: "ceiling_height",
+        label: "Высота потолков",
+        type: "select",
+        required: true,
+        options: [
+          { value: "low", label: "Низкие" },
+          { value: "standard", label: "Стандарт" },
+          { value: "high", label: "Высокие" }
+        ]
+      },
+      {
+        name: "main_goal",
+        label: "Главная цель",
+        type: "select",
+        required: true,
+        options: [
+          { value: "cozy", label: "Уют" },
+          { value: "storage", label: "Storage" },
+          { value: "workspace", label: "Workspace" },
+          { value: "calm", label: "Спокойный интерьер" },
+          { value: "premium-look", label: "Визуально дороже" },
+          { value: "minimalism", label: "Минимализм" },
+          { value: "family-practical", label: "Семейный practical" },
+          { value: "rental-friendly", label: "Rental-friendly" }
         ]
       },
       {
         name: "style",
         label: "Стиль",
         type: "select",
-        hint: "Нужен для композиционной согласованности набора.",
         required: true,
         options: [
-          { value: "minimal", label: "Минимализм" },
-          { value: "warm", label: "Теплый натуральный" },
-          { value: "modern", label: "Современный clean" },
-          { value: "scandi", label: "Сканди" }
+          { value: "minimalism", label: "Минимализм" },
+          { value: "warm-minimal", label: "Тёплый минимализм" },
+          { value: "scandi", label: "Сканди" },
+          { value: "japandi", label: "Japandi" },
+          { value: "modern-clean", label: "Современный clean" },
+          { value: "soft-loft", label: "Soft loft" },
+          { value: "modern-organic", label: "Modern organic" },
+          { value: "quiet-luxury-light", label: "Quiet luxury light" },
+          { value: "natural-neutral", label: "Natural neutral" },
+          { value: "cozy-basic", label: "Уютный базовый" },
+          { value: "storage-first", label: "Storage-first" },
+          { value: "compact-studio", label: "Compact studio" },
+          { value: "hotel-like-calm", label: "Hotel-like calm" },
+          { value: "soft-feminine", label: "Женственный soft" },
+          { value: "masculine-clean", label: "Masculine clean" },
+          { value: "family-practical", label: "Семейный practical" },
+          { value: "rental-light", label: "Аренда без перегруза" },
+          { value: "workspace-functional", label: "Workspace functional" },
+          { value: "dark-accent-modern", label: "Dark accent modern" },
+          { value: "light-premium-simple", label: "Light premium simple" }
         ]
       },
       {
         name: "budget_rub",
-        label: "Бюджет",
+        label: "Бюджет (RUB)",
         type: "number",
-        placeholder: "120000",
-        hint: "Укажите общий бюджет в рублях.",
-        required: true
-      },
-      {
-        name: "room_area",
-        label: "Площадь комнаты",
-        type: "number",
-        placeholder: "18",
-        hint: "Укажите в м2 для корректного масштаба набора.",
+        placeholder: "150000",
         required: true
       },
       {
         name: "existing_items",
-        label: "Что уже есть (optional)",
+        label: "Что уже есть",
         type: "textarea",
-        placeholder: "Кровать, тумба, торшер...",
-        hint: "Добавьте предметы, которые хотите оставить.",
+        placeholder: "Например: диван, стол, торшер",
         required: false
+      },
+      {
+        name: "must_keep",
+        label: "Что точно оставить",
+        type: "textarea",
+        placeholder: "Предметы, которые остаются обязательно",
+        required: false
+      },
+      {
+        name: "first_priority_buy",
+        label: "Что хочется купить в первую очередь",
+        type: "textarea",
+        placeholder: "Ключевые позиции первого этапа",
+        required: false
+      },
+      {
+        name: "liked_materials",
+        label: "Любимые материалы",
+        type: "multiselect",
+        required: false,
+        options: [
+          { value: "wood", label: "Дерево" },
+          { value: "metal", label: "Металл" },
+          { value: "glass", label: "Стекло" },
+          { value: "fabric", label: "Ткань" },
+          { value: "rattan", label: "Ротанг" },
+          { value: "stone", label: "Камень" },
+          { value: "matte", label: "Матовые поверхности" },
+          { value: "soft-textures", label: "Мягкие фактуры" }
+        ]
+      },
+      {
+        name: "liked_colors",
+        label: "Цвета, которые нравятся",
+        type: "text",
+        placeholder: "Например: теплый бежевый, оливковый",
+        required: false
+      },
+      {
+        name: "disliked_colors",
+        label: "Цвета, которые не нравятся",
+        type: "text",
+        placeholder: "Например: ярко-красный, холодный серый",
+        required: false
+      },
+      {
+        name: "kids_pets",
+        label: "Дети / животные",
+        type: "select",
+        required: true,
+        options: [
+          { value: "none", label: "Нет" },
+          { value: "kids", label: "Есть дети" },
+          { value: "pets", label: "Есть животные" },
+          { value: "both", label: "И дети, и животные" }
+        ]
+      },
+      {
+        name: "rental_constraints",
+        label: "Есть ограничения аренды?",
+        type: "select",
+        required: true,
+        options: [
+          { value: "yes", label: "Да" },
+          { value: "no", label: "Нет" }
+        ]
       },
       {
         name: "reference_url",
         label: "Ссылка на понравившийся товар (optional)",
         type: "url",
         placeholder: "https://...",
-        hint: "Можно добавить для ориентира по стилю.",
+        required: false
+      },
+      {
+        name: "room_photo",
+        label: "Фото комнаты (optional)",
+        type: "file",
+        accept: "image/*",
+        required: false
+      },
+      {
+        name: "reference_interior_photo",
+        label: "Фото понравившегося интерьера (optional)",
+        type: "file",
+        accept: "image/*",
+        required: false
+      },
+      {
+        name: "existing_furniture_photo",
+        label: "Фото уже имеющейся мебели (optional)",
+        type: "file",
+        accept: "image/*",
         required: false
       }
     ]
@@ -304,26 +536,22 @@ const scenarioList: ScenarioDefinition[] = [
     categoryRoute: "/beauty",
     title: "Разбор beauty routine",
     shortTitle: "Подбор ухода",
-    subtitle: "Собираем структуру ухода с учетом цели, чувствительности и бюджета.",
-    tagline: "Логика routine без лишнего шума",
+    subtitle: "AI анализирует чувствительность, concerns, роли шагов и риск перегруза рутины.",
+    tagline: "Структурный routine-анализ без перегруза",
     priceRub: 329,
-    weakOutcome: "Предварительный вывод: тип routine и общий фокус",
-    fullOutcome: "Полный разбор routine: шаги, ограничения, бюджет, PDF",
+    weakOutcome: "Предварительный вывод: тип routine, фокус и главный риск",
+    fullOutcome: "Полный разбор: AM/PM, что убрать, ввод шагов, warnings и PDF",
     heroPoints: [
-      "Не медицинский сервис, а информационный разбор",
-      "Без аккаунта и лишних шагов",
-      "Полный результат открывается сразу после оплаты"
+      "Распознавание ролей продуктов по ссылке/названию/контексту",
+      "Оценка перегруза или недосбора рутины",
+      "Консервативный режим при высокой чувствительности"
     ],
-    weakPreviewItems: [
-      "Черновой тип routine",
-      "Оценка количества шагов",
-      "Общий фокус ухода"
-    ],
+    weakPreviewItems: ["Тип routine", "Основной фокус", "Следующий безопасный шаг"],
     fullResultItems: [
-      "Шаги по порядку (AM/PM)",
-      "Что обязательно и что опционально",
-      "Что лучше избегать и почему",
-      "PDF + код доступа"
+      "AM и PM структура",
+      "Must-have / optional / remove",
+      "Что не сочетать и как вводить шаги",
+      "Упрощенный вариант и budget logic"
     ],
     paywallTitle: "Полный разбор beauty routine",
     fields: [
@@ -331,33 +559,36 @@ const scenarioList: ScenarioDefinition[] = [
         name: "skin_type",
         label: "Тип кожи",
         type: "select",
-        hint: "Базовый фактор для структуры routine.",
         required: true,
         options: [
           { value: "dry", label: "Сухая" },
+          { value: "normal", label: "Нормальная" },
           { value: "combination", label: "Комбинированная" },
           { value: "oily", label: "Жирная" },
           { value: "sensitive", label: "Чувствительная" }
         ]
       },
       {
-        name: "main_goal",
-        label: "Главная задача",
-        type: "select",
-        hint: "Определяет приоритетные блоки ухода.",
-        required: true,
+        name: "concerns",
+        label: "Главные состояния / concerns",
+        type: "multiselect",
+        required: false,
         options: [
-          { value: "acne", label: "Контроль высыпаний" },
-          { value: "texture", label: "Текстура и тон" },
-          { value: "hydration", label: "Увлажнение" },
-          { value: "antiage", label: "Первые anti-age задачи" }
+          { value: "dehydration", label: "Обезвоженность" },
+          { value: "redness", label: "Покраснение" },
+          { value: "acne", label: "Акне" },
+          { value: "post-acne", label: "Постакне" },
+          { value: "dullness", label: "Тусклость" },
+          { value: "uneven-tone", label: "Неровный тон" },
+          { value: "wrinkles", label: "Морщины" },
+          { value: "reactivity", label: "Реактивность" },
+          { value: "barrier", label: "Барьер нарушен" }
         ]
       },
       {
         name: "sensitivity_level",
         label: "Чувствительность",
         type: "select",
-        hint: "Влияет на скорость и интенсивность внедрения шагов.",
         required: true,
         options: [
           { value: "low", label: "Низкая" },
@@ -366,27 +597,101 @@ const scenarioList: ScenarioDefinition[] = [
         ]
       },
       {
+        name: "experience_level",
+        label: "Опыт в уходе",
+        type: "select",
+        required: true,
+        options: [
+          { value: "beginner", label: "Новичок" },
+          { value: "basic", label: "Базовый" },
+          { value: "advanced", label: "Продвинутый" }
+        ]
+      },
+      {
+        name: "desired_steps",
+        label: "Сколько шагов хочется",
+        type: "select",
+        required: true,
+        options: [
+          { value: "minimum", label: "Минимум" },
+          { value: "3-4", label: "3-4 шага" },
+          { value: "5+", label: "5+ шагов" }
+        ]
+      },
+      {
+        name: "routine_time",
+        label: "Когда нужен уход",
+        type: "select",
+        required: true,
+        options: [
+          { value: "am", label: "Только утро" },
+          { value: "pm", label: "Только вечер" },
+          { value: "both", label: "Утро + вечер" }
+        ]
+      },
+      {
+        name: "season",
+        label: "Сезон",
+        type: "select",
+        required: true,
+        options: seasonOptions
+      },
+      {
         name: "budget_rub",
-        label: "Бюджет",
+        label: "Бюджет (RUB)",
         type: "number",
         placeholder: "6000",
-        hint: "Ориентир на месяц, в рублях.",
         required: true
+      },
+      {
+        name: "current_routine",
+        label: "Текущий уход",
+        type: "textarea",
+        placeholder: "Опишите текущие шаги и продукты",
+        required: false
+      },
+      {
+        name: "not_suitable_products",
+        label: "Что уже не подошло",
+        type: "textarea",
+        placeholder: "Что вызывало раздражение/не понравилось",
+        required: false
+      },
+      {
+        name: "active_attitude",
+        label: "Отношение к активам",
+        type: "select",
+        required: true,
+        options: [
+          { value: "acids_ok", label: "Ок с кислотами" },
+          { value: "retinoids_ok", label: "Ок с ретиноидами" },
+          { value: "without_actives", label: "Лучше без активов" },
+          { value: "not_sure", label: "Не знаю" }
+        ]
+      },
+      {
+        name: "fragrance_free",
+        label: "Важен fragrance-free?",
+        type: "select",
+        required: true,
+        options: [
+          { value: "yes", label: "Да" },
+          { value: "no", label: "Нет" },
+          { value: "not_important", label: "Не важно" }
+        ]
       },
       {
         name: "reference_url",
         label: "Ссылка на продукт (optional)",
         type: "url",
         placeholder: "https://...",
-        hint: "Если есть конкретный продукт для проверки.",
         required: false
       },
       {
-        name: "current_routine",
-        label: "Текущий уход (optional)",
-        type: "textarea",
-        placeholder: "Кратко перечислите текущие шаги",
-        hint: "Необязательное поле для более точной адаптации.",
+        name: "current_products_photo",
+        label: "Фото текущих банок / набора (optional)",
+        type: "file",
+        accept: "image/*",
         required: false
       }
     ]

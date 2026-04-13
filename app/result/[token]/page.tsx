@@ -20,11 +20,17 @@ type FullOutput = FashionFullResultOutput | HomeFullResultOutput | BeautyFullRes
 type DisplayResult = {
   mainTitle: string;
   mainDecision: string;
+  confidenceLine: string;
   keyTakeaways: string[];
   actionableRecommendations: string[];
   sections: PdfSection[];
   notes: string[];
   important: string[];
+  alternatives: string[];
+  verifyList: string[];
+  avoidList: string[];
+  simplified: string[];
+  limitations: string[];
 };
 
 function formatDate(iso: string) {
@@ -39,51 +45,79 @@ function formatDate(iso: string) {
 }
 
 function buildDisplayResult(full: FullOutput): DisplayResult {
+  const confidenceLine = `Confidence: ${full.confidence_level.toUpperCase()} (${full.confidence_score}/100)`;
+
   if ("main_size" in full) {
     return {
-      mainTitle: `Размер: ${full.main_size}`,
-      mainDecision: full.fit_summary,
-      keyTakeaways: [full.short_conclusion, `Уровень риска: ${full.risk_level}`, full.logic_explanation],
-      actionableRecommendations: full.advice,
+      mainTitle: `${full.recognized_category}: ${full.main_size} (alt ${full.alt_size})`,
+      mainDecision: full.primary_recommendation,
+      confidenceLine,
+      keyTakeaways: [full.summary, full.logic_of_choice, ...full.reasoning],
+      actionableRecommendations: full.action_steps,
       sections: [
-        { title: "Размер", items: [`Основной: ${full.main_size}`, `Альтернативный: ${full.alt_size}`] },
-        { title: "Риски", items: full.risks },
-        { title: "Что важно учесть", items: full.important_considerations }
+        { title: "Категория и размер", items: [full.recognized_category, `Основной: ${full.main_size}`, `Альтернативный: ${full.alt_size}`] },
+        { title: "Материал", items: full.material_impact },
+        { title: "Зоны риска", items: full.key_risk_zones },
+        { title: "Что может сместить рекомендацию", items: full.recommendation_shift_factors }
       ],
-      notes: full.important_considerations,
-      important: full.risks
+      notes: full.interpretation_notes,
+      important: full.risks,
+      alternatives: full.alternatives,
+      verifyList: full.pre_purchase_checks,
+      avoidList: full.what_to_avoid,
+      simplified: full.simplified_variant,
+      limitations: full.interpretation_limitations
     };
   }
 
   if ("set_type" in full) {
     return {
-      mainTitle: full.set_type,
-      mainDecision: full.short_conclusion,
-      keyTakeaways: [full.budget_vector, full.logic_explanation],
-      actionableRecommendations: full.must_have,
+      mainTitle: `${full.set_type} — ${full.visual_strategy}`,
+      mainDecision: full.primary_recommendation,
+      confidenceLine,
+      keyTakeaways: [full.summary, ...full.reasoning],
+      actionableRecommendations: full.action_steps,
       sections: [
-        { title: "Обязательно", items: full.must_have },
-        { title: "Опционально", items: full.optional },
-        { title: "Композиция", items: full.composition_notes }
+        { title: "Must-have", items: full.must_have },
+        { title: "Optional", items: full.optional_positions },
+        { title: "Later-buy", items: full.later_buy },
+        { title: "Масштаб и композиция", items: [...full.scale_recommendations, ...full.composition_logic] },
+        { title: "Материалы и цвет", items: [...full.material_tips, ...full.color_tips] },
+        { title: "Что не покупать сейчас", items: full.skip_for_now }
       ],
-      notes: full.important_considerations,
-      important: full.avoid
+      notes: full.interpretation_notes,
+      important: full.risks,
+      alternatives: full.alternatives,
+      verifyList: full.what_to_verify,
+      avoidList: full.avoid_mistakes,
+      simplified: full.simplified_variant,
+      limitations: full.interpretation_limitations
     };
   }
 
   return {
-    mainTitle: full.routine_type,
-    mainDecision: full.short_conclusion,
-    keyTakeaways: [full.main_focus, full.logic_explanation],
-    actionableRecommendations: [...full.am_steps, ...full.pm_steps],
+    mainTitle: `${full.routine_type}: ${full.main_focus}`,
+    mainDecision: full.primary_recommendation,
+    confidenceLine,
+    keyTakeaways: [full.summary, ...full.reasoning],
+    actionableRecommendations: full.action_steps,
     sections: [
-      { title: "Утро (AM)", items: full.am_steps },
-      { title: "Вечер (PM)", items: full.pm_steps },
-      { title: "Опционально", items: full.optional_steps },
-      { title: "Бюджет", items: full.budget_notes }
+      { title: "AM", items: full.am_steps },
+      { title: "PM", items: full.pm_steps },
+      { title: "Must-have", items: full.must_have_steps },
+      { title: "Optional", items: full.optional_steps },
+      { title: "Что убрать", items: full.remove_steps },
+      { title: "Что не сочетать", items: full.avoid_combinations },
+      { title: "Ввод шагов", items: full.introduction_plan },
+      { title: "Бюджет", items: full.budget_structure }
     ],
-    notes: full.important_considerations,
-    important: full.warnings
+    notes: full.interpretation_notes,
+    important: [...full.risks, ...full.warnings],
+    alternatives: full.alternatives,
+    verifyList: full.what_to_verify,
+    avoidList: full.what_to_avoid,
+    simplified: full.simplified_variant,
+    limitations: full.interpretation_limitations
   };
 }
 
@@ -238,7 +272,7 @@ export default function ResultPage() {
         <p className="pill inline-flex">Полный разбор</p>
         <h1 className="display-title">{scenario?.title ?? "Результат"}</h1>
         <p className="max-w-3xl text-[#5f5242]">
-          Сформировано: {formatDate(result.createdAt)}. Confidence band: {result.confidenceBand}.
+          Сформировано: {formatDate(result.createdAt)}. {structured.confidenceLine}.
         </p>
       </header>
 
@@ -284,6 +318,21 @@ export default function ResultPage() {
               ))}
             </ul>
           </div>
+
+          <div className="surface p-6 sm:p-8">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6f6150]">Альтернативы и упрощенный вариант</h3>
+            <ul className="mt-3 space-y-2 text-sm text-[#584b3d]">
+              {structured.alternatives.map((line) => (
+                <li key={line}>- {line}</li>
+              ))}
+            </ul>
+            <p className="mt-4 text-xs uppercase tracking-[0.12em] text-[#7a6d5d]">Упрощенный вариант</p>
+            <ul className="mt-2 space-y-2 text-sm text-[#584b3d]">
+              {structured.simplified.map((line) => (
+                <li key={line}>- {line}</li>
+              ))}
+            </ul>
+          </div>
         </article>
 
         <aside className="space-y-4">
@@ -297,8 +346,35 @@ export default function ResultPage() {
           </div>
 
           <div className="surface-muted p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Что проверить</h2>
+            <ul className="mt-3 space-y-2 text-sm text-[#5a4d3f]">
+              {structured.verifyList.map((line) => (
+                <li key={line}>- {line}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="surface-muted p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Чего избегать</h2>
+            <ul className="mt-3 space-y-2 text-sm text-[#5a4d3f]">
+              {structured.avoidList.map((line) => (
+                <li key={line}>- {line}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="surface-muted p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Ограничения интерпретации</h2>
+            <ul className="mt-3 space-y-2 text-sm text-[#5a4d3f]">
+              {(structured.limitations.length ? structured.limitations : ["Ограничения не критичны по текущему вводу."]).map((line) => (
+                <li key={line}>- {line}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="surface-muted p-6">
             <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">PDF-отчет</h2>
-            <p className="mt-2 text-sm text-[#5c4f40]">Сформирован через AI pdf mode с фиксированной структурой разделов.</p>
+            <p className="mt-2 text-sm text-[#5c4f40]">Сформирован на основе структурированного full result и готов к сохранению/печати.</p>
             <button onClick={downloadPdf} className="button-primary mt-4 inline-flex w-full justify-center">
               Скачать PDF
             </button>
@@ -313,7 +389,11 @@ export default function ResultPage() {
               Скопировать код
             </button>
             <p className="mt-2 text-xs text-[#6f6252]">
-              {copyStatus === "copied" ? "Код скопирован" : copyStatus === "error" ? "Не удалось скопировать" : "Сохраните код для повторного доступа"}
+              {copyStatus === "copied"
+                ? "Код скопирован"
+                : copyStatus === "error"
+                  ? "Не удалось скопировать"
+                  : "Сохраните код для повторного доступа"}
             </p>
           </div>
 
@@ -333,4 +413,3 @@ export default function ResultPage() {
     </section>
   );
 }
-
