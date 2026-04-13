@@ -1,0 +1,30 @@
+{
+  "name": "ai-shopping-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "qa:smoke": "node ./scripts/qa-smoke.mjs",
+    "qa:ai": "node --experimental-strip-types --experimental-loader ./scripts/alias-loader.mjs ./scripts/qa-ai.ts",
+    "qa:flow": "node --experimental-strip-types --experimental-loader ./scripts/alias-loader.mjs ./scripts/qa-product-flow.ts"
+  },
+  "dependencies": {
+    "next": "15.2.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.8.2",
+    "@types/node": "22.13.10",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "tailwindcss": "3.4.17",
+    "postcss": "8.5.3",
+    "autoprefixer": "10.4.21",
+    "eslint": "9.22.0",
+    "eslint-config-next": "15.2.0"
+  }
+}
