@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { createPurchasedResult, getDraftById, scenarioInputSummary, type ScenarioDraft } from "@/lib/flow";
@@ -15,6 +16,195 @@ type QueryState = {
   scenarioId: string | null;
   draftId: string | null;
 };
+
+function FashionFullResultExample({ fitCheckMode }: { fitCheckMode: boolean }) {
+  return (
+    <section className="checkout-example-card">
+      <header className="checkout-example-head">
+        <p className="checkout-example-kicker">Пример полного разбора</p>
+        <h2 className="checkout-example-title">
+          {fitCheckMode ? "Пример полного разбора сочетания до покупки" : "Пример полного разбора по вещи"}
+        </h2>
+        <p className="checkout-example-subtitle">
+          Это демонстрационный образец структуры. После оплаты откроется персональная версия под ваши данные.
+        </p>
+      </header>
+
+      <div className="checkout-example-grid-4">
+        <article className="checkout-example-mini">
+          <p>Основной размер</p>
+          <strong>M</strong>
+        </article>
+        <article className="checkout-example-mini">
+          <p>Альтернативный размер</p>
+          <strong>L для более свободной посадки</strong>
+        </article>
+        <article className="checkout-example-mini">
+          <p>Посадка</p>
+          <strong>Ближе к телу в плечах, по корпусу комфортно</strong>
+        </article>
+        <article className="checkout-example-mini">
+          <p>Главный риск</p>
+          <strong>Плечи и длина рукава</strong>
+        </article>
+      </div>
+
+      <div className="checkout-example-grid-3">
+        <article className="checkout-example-detail">
+          <h3>Что проверить перед заказом</h3>
+          <p>Мерки изделия и отзывы покупателей с похожими параметрами роста и комплекции.</p>
+        </article>
+        <article className="checkout-example-detail">
+          <h3>Как поведёт себя материал</h3>
+          <p>Малорастяжимая ткань: лучше учитывать запас по свободе и не опираться только на буквенный размер.</p>
+        </article>
+        <article className="checkout-example-detail">
+          <h3>Когда лучше взять альтернативу</h3>
+          <p>Если планируете слой под вещь или предпочитаете более relaxed-fit в плечевой зоне.</p>
+        </article>
+      </div>
+
+      <div className="checkout-example-next-step">
+        <p className="checkout-example-next-label">Следующий шаг перед покупкой</p>
+        <p className="checkout-example-next-text">
+          Сверьте ключевые мерки (плечи, рукав, длина) и примите решение по размеру до оплаты заказа.
+        </p>
+        <p className="checkout-example-next-foot">
+          После оплаты откроются полный сценарий посадки, рисковые зоны, логика по материалу, персональные рекомендации и PDF.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function HomeFullResultExample() {
+  return (
+    <section className="checkout-example-card checkout-example-home">
+      <header className="checkout-example-head">
+        <p className="checkout-example-kicker">Пример полного разбора</p>
+        <h2 className="checkout-example-title">Пример полного разбора комнаты</h2>
+        <p className="checkout-example-subtitle">В этом направлении вы получаете самый визуальный и структурный результат.</p>
+      </header>
+
+      <div className="checkout-home-preview-layout">
+        <div className="checkout-home-preview-visual">
+          <Image
+            src="/style-references/home/quiet-luxury-light.svg"
+            alt="Пример интерьерного визуального направления"
+            width={1280}
+            height={860}
+            className="checkout-home-preview-image"
+          />
+          <p className="checkout-home-preview-caption">Визуальный ориентир: спокойная светлая база с акцентом на практичность и воздух</p>
+        </div>
+
+        <div className="checkout-home-preview-side">
+          <article className="checkout-example-detail">
+            <h3>Базовый вектор</h3>
+            <p>Светлая спокойная база с акцентом на хранение и аккуратную композицию.</p>
+          </article>
+          <article className="checkout-example-detail">
+            <h3>Что купить сначала</h3>
+            <p>Крупные базовые предметы, световые сценарии и текстильную основу комнаты.</p>
+          </article>
+          <article className="checkout-example-detail">
+            <h3>Что можно отложить</h3>
+            <p>Мелкий декор, акцентные детали и вторичный свет до стабилизации базы.</p>
+          </article>
+          <article className="checkout-example-detail">
+            <h3>Что важно учесть</h3>
+            <p>Масштаб комнаты, проходы и сочетаемость материалов между ключевыми зонами.</p>
+          </article>
+        </div>
+      </div>
+
+      <div className="checkout-example-grid-3">
+        <article className="checkout-example-detail">
+          <h3>Приоритеты покупок</h3>
+          <p>Сначала база, затем комфорт и только после этого акцентные детали.</p>
+        </article>
+        <article className="checkout-example-detail">
+          <h3>Логика бюджета</h3>
+          <p>Основной бюджет на крупные предметы и свет, декор переносится на второй этап.</p>
+        </article>
+        <article className="checkout-example-detail">
+          <h3>Композиция</h3>
+          <p>Сохраняйте проходы, визуальный центр и спокойную нагрузку по объёму.</p>
+        </article>
+      </div>
+
+      <div className="checkout-example-next-step">
+        <p className="checkout-example-next-label">Чего избегать</p>
+        <p className="checkout-example-next-text">Лишнего мелкого декора, конфликтов материалов и перегруза акцентами.</p>
+        <p className="checkout-example-next-foot">
+          После оплаты откроются структура набора, приоритеты покупок, бюджетная логика, композиция и персональный визуальный вариант.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function BeautyFullResultExample() {
+  return (
+    <section className="checkout-example-card">
+      <header className="checkout-example-head">
+        <p className="checkout-example-kicker">Пример полного разбора</p>
+        <h2 className="checkout-example-title">Пример полного разбора ухода</h2>
+        <p className="checkout-example-subtitle">Полный результат показывает спокойную и понятную схему без лишней нагрузки на кожу.</p>
+      </header>
+
+      <div className="checkout-example-grid-3">
+        <article className="checkout-example-detail">
+          <h3>Базовый формат ухода</h3>
+          <p>Спокойная восстанавливающая схема с минимальным числом конфликтов по активам.</p>
+        </article>
+        <article className="checkout-example-detail">
+          <h3>Главный фокус</h3>
+          <p>Защита барьера и снижение раздражения при сохранении рабочей эффективности ухода.</p>
+        </article>
+        <article className="checkout-example-detail">
+          <h3>Основной риск перегруза</h3>
+          <p>Одновременное введение нескольких активов без периода адаптации.</p>
+        </article>
+      </div>
+
+      <div className="checkout-example-grid-2">
+        <article className="checkout-example-detail">
+          <h3>Утро</h3>
+          <p>Мягкое очищение → базовое увлажнение → защита.</p>
+        </article>
+        <article className="checkout-example-detail">
+          <h3>Вечер</h3>
+          <p>Очищение → восстановление → спокойная поддержка.</p>
+        </article>
+      </div>
+
+      <div className="checkout-example-grid-3">
+        <article className="checkout-example-detail">
+          <h3>Что убрать</h3>
+          <p>Агрессивные сочетания и лишние активные шаги в одном периоде.</p>
+        </article>
+        <article className="checkout-example-detail">
+          <h3>Что вводить аккуратно</h3>
+          <p>Новые шаги постепенно, без одновременной нагрузки и с отслеживанием реакции.</p>
+        </article>
+        <article className="checkout-example-detail">
+          <h3>Что важно учитывать</h3>
+          <p>Текущую чувствительность кожи и фактическую переносимость действующих средств.</p>
+        </article>
+      </div>
+
+      <p className="checkout-beauty-disclaimer">Информационный разбор ухода, не медицинское назначение.</p>
+    </section>
+  );
+}
+
+function FullResultExampleByScenario({ scenarioId }: { scenarioId: string }) {
+  if (scenarioId === "home-room-set") return <HomeFullResultExample />;
+  if (scenarioId === "beauty-routine") return <BeautyFullResultExample />;
+  if (scenarioId === "fashion-fit-check") return <FashionFullResultExample fitCheckMode />;
+  return <FashionFullResultExample fitCheckMode={false} />;
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -135,6 +325,15 @@ export default function CheckoutPage() {
     setShowPaymentStep(true);
   };
 
+  const scrollToFullExample = () => {
+    const target = document.getElementById("full-result-example");
+    if (!target) return;
+
+    const headerOffset = 96;
+    const top = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
   const processPayment = async () => {
     if (isPaying) return;
 
@@ -182,28 +381,35 @@ export default function CheckoutPage() {
   };
 
   return (
-    <section className="premium-page space-y-7">
+    <section className="premium-page space-y-8">
       <header className="premium-page-header">
         <p className="premium-kicker">Шаг 3/3 · оплата</p>
         <h1 className="display-title">{scenario.paywallTitle}</h1>
         <p className="premium-subtitle">
-          Разовая покупка цифрового разбора. Без подписки, без регистрации, без номера телефона.
+          Перед оплатой вы можете посмотреть структуру полного разбора и понять, что именно откроется в вашем результате.
         </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+      <div className="checkout-prepay-layout">
         <article className="surface p-6 sm:p-8">
-          <h2 className="text-lg font-semibold text-[#253142]">{aiPaywall.product_name}</h2>
-          <p className="mt-3 text-sm text-[#5b687d]">{aiPaywall.short_summary}</p>
-          <p className="mt-2 text-sm text-[#66758b]">{aiPaywall.confidence_note}</p>
-          <ul className="mt-4 space-y-2 text-sm text-[#5b687d]">
-            {aiPaywall.value_bullets.map((point) => (
-              <li key={point}>- {point}</li>
-            ))}
-          </ul>
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-[0.15em] text-[#6a7689]">Что входит в полный разбор</p>
+            <h2 className="text-2xl font-semibold text-[#1f2b39]">{aiPaywall.product_name}</h2>
+            <p className="text-sm text-[#5e6b7f]">{aiPaywall.short_summary}</p>
+            <p className="text-sm text-[#657389]">{aiPaywall.confidence_note}</p>
+          </div>
 
-          <div className="premium-note mt-5 p-4">
-            <p className="text-sm font-medium text-[#2d394a]">Ваши данные</p>
+          <div className="checkout-value-grid mt-5">
+            {aiPaywall.value_bullets.slice(0, 4).map((point) => (
+              <article key={point} className="checkout-value-card">
+                <p className="checkout-value-label">В полном разборе</p>
+                <p className="checkout-value-text">{point}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="checkout-inputs-card mt-5">
+            <p className="text-sm font-medium text-[#2d394a]">Что учтено в вашем запросе</p>
             <ul className="mt-3 space-y-2 text-sm text-[#5b687d]">
               {inputSummary.map((entry) => (
                 <li key={entry.label} className="flex items-start justify-between gap-3">
@@ -214,26 +420,20 @@ export default function CheckoutPage() {
             </ul>
           </div>
 
-          <div className="premium-note mt-5 p-4">
-            <p className="text-sm font-medium text-[#2d394a]">Что откроется после оплаты</p>
-            <ul className="mt-3 space-y-2 text-sm text-[#5b687d]">
-              {aiPaywall.value_bullets.map((item) => (
-                <li key={item}>- {item}</li>
-              ))}
-            </ul>
-            <p className="mt-3 text-sm text-[#5b687d]">{aiPaywall.unlock_outcome}</p>
+          <div className="checkout-unlock-note mt-5">
+            <p>{aiPaywall.unlock_outcome}</p>
           </div>
         </article>
 
-        <aside className="space-y-4">
+        <aside className="checkout-pay-sticky">
           <div className="hero-card p-6">
             <p className="text-xs uppercase tracking-[0.16em] text-[#6f7e93]">Стоимость</p>
             <p className="mt-2 text-4xl font-semibold leading-none text-[#1d2735]">{scenario.priceRub} RUB</p>
-            <p className="mt-2 text-sm text-[#6f7e93]">Разовый платеж</p>
+            <p className="mt-2 text-sm text-[#6f7e93]">Разовый доступ, без подписки</p>
 
             {!showPaymentStep ? (
               <button onClick={proceedToPayment} className="button-primary mt-5 inline-flex w-full justify-center text-base">
-                Перейти к оплате
+                Открыть полный разбор
               </button>
             ) : (
               <button
@@ -241,23 +441,38 @@ export default function CheckoutPage() {
                 disabled={isPaying}
                 className="button-primary mt-5 inline-flex w-full justify-center text-base disabled:cursor-wait disabled:opacity-70"
               >
-                {isPaying ? "Обрабатываем оплату..." : "Оплатить и открыть полный разбор"}
+                {isPaying ? "Обрабатываем оплату..." : "Подтвердить и открыть полный разбор"}
               </button>
             )}
 
-            {paymentError ? <p className="mt-3 text-sm text-[#a0381e]">{paymentError}</p> : null}
-            <p className="mt-3 text-xs text-[#6b778b]">Сейчас используется fake payment provider с готовой архитектурой для замены на реальный.</p>
-          </div>
+            <button onClick={scrollToFullExample} className="button-secondary mt-3 inline-flex w-full justify-center">
+              Посмотреть пример полного разбора
+            </button>
 
-          <div className="premium-note p-4 text-sm">
-            <p className="font-medium text-[#2d394a]">Гарантия UX:</p>
-            <ul className="mt-2 space-y-1">
-              <li>- Без регистрации</li>
-              <li>- Без email и телефона</li>
-              <li>- Полный результат откроется сразу</li>
-            </ul>
+            <p className="checkout-pay-caption mt-3">PDF и код доступа входят в результат</p>
+            {paymentError ? <p className="mt-3 text-sm text-[#a0381e]">{paymentError}</p> : null}
+            <p className="mt-3 text-xs text-[#6b778b]">Архитектура оплаты уже подготовлена для замены fake provider на реальный.</p>
           </div>
         </aside>
+      </div>
+
+      <section id="full-result-example" className="scroll-mt-28 space-y-4">
+        <header className="premium-page-header">
+          <p className="premium-kicker">Демонстрация</p>
+          <h2 className="section-title">Пример полного разбора</h2>
+          <p className="premium-subtitle">Ниже показан развернутый формат результата, который открывается после оплаты.</p>
+        </header>
+
+        <FullResultExampleByScenario scenarioId={scenario.id} />
+      </section>
+
+      <div className="premium-note p-4 text-sm">
+        <p className="font-medium text-[#2d394a]">Важно:</p>
+        <ul className="mt-2 space-y-1">
+          <li>- Предварительный вывод остаётся коротким ориентиром</li>
+          <li>- Полный разбор открывает всю структуру решения</li>
+          <li>- Результат доступен сразу после оплаты</li>
+        </ul>
       </div>
     </section>
   );
