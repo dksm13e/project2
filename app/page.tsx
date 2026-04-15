@@ -5,38 +5,29 @@ import { TrackedLink } from "@/components/TrackedLink";
 import { ANALYTICS_EVENT_NAMES } from "@/lib/analytics";
 import { HomeOnboardingGuide } from "@/components/HomeOnboardingGuide";
 import { AiFeatureImage } from "@/components/AiFeatureImage";
+import { HomeStyleGallery } from "@/components/HomeStyleGallery";
 
 const heroCtas = [
-  { label: "Начать с одежды", href: "/fashion/size", module: "fashion" },
-  { label: "Начать с дома", href: "/home/room-set", module: "home" },
-  { label: "Начать с ухода", href: "/beauty/routine", module: "beauty" }
+  { label: "Начать с одежды", href: "#section-clothing", module: "fashion" },
+  { label: "Начать с дома", href: "#section-home", module: "home" },
+  { label: "Начать с ухода", href: "#section-beauty", module: "beauty" }
 ];
 
-const directions = [
+const directionAnchors = [
   {
+    id: "section-clothing",
     title: "Подбор размера одежды",
-    benefit: "Поймёте, какой размер брать перед заказом.",
-    instant: "Сразу увидите вероятный размер и главный риск посадки.",
-    cta: "Попробовать одежду",
-    href: SCENARIOS["fashion-size"].route,
-    highlight: "Одежда"
+    lead: "Чтобы не ошибиться с размером и посадкой."
   },
   {
+    id: "section-home",
     title: "Подбор для дома",
-    benefit: "Соберёте комнату без лишних покупок и перегруза.",
-    instant: "Сразу увидите стартовый набор, стиль и бюджетный вектор.",
-    cta: "Попробовать дом",
-    href: SCENARIOS["home-room-set"].route,
-    highlight: "Дом",
-    photoFocus: "Загрузите фото комнаты, референса и текущей мебели: так подбор для дома точнее."
+    lead: "Чтобы собрать интерьер спокойно и без хаоса."
   },
   {
+    id: "section-beauty",
     title: "Подбор ухода",
-    benefit: "Соберёте понятный уход без лишних банок.",
-    instant: "Сразу увидите фокус ухода и безопасный следующий шаг.",
-    cta: "Попробовать уход",
-    href: SCENARIOS["beauty-routine"].route,
-    highlight: "Уход"
+    lead: "Чтобы получить рабочую схему без перегруза."
   }
 ];
 
@@ -94,19 +85,19 @@ const howItWorksSteps = [
 ];
 
 const fullReviewIncludes = [
-  "Разбор вашей ситуации, а не общий шаблон",
-  "Подробные рекомендации с альтернативами",
-  "Риски, которые важно проверить до оплаты товара",
-  "Пошаговый план действий перед покупкой",
-  "PDF, который можно сохранить и пересмотреть",
-  "Код доступа для повторного открытия результата"
+  "Главная рекомендация с объяснением логики выбора",
+  "Альтернативы под ваш бюджет и приоритеты",
+  "Риски и точки проверки до покупки",
+  "Чёткий план действий в несколько шагов",
+  "PDF-версия результата для сохранения",
+  "Код доступа для повторного открытия"
 ];
 
 const usefulCases = [
-  "Сомневаетесь, какой размер брать онлайн и не хотите возврат.",
-  "Планируете обновить комнату и хотите уложиться в бюджет.",
-  "Уход перегружен, а хочется спокойной и рабочей схемы.",
-  "Нужно быстро принять решение перед покупкой, без долгого сравнения."
+  "Покупаете вещь онлайн и не хотите ошибиться с посадкой.",
+  "Планируете обновить комнату и не выйти за рамки бюджета.",
+  "Хотите упростить уход и убрать лишние шаги.",
+  "Нужно быстро принять решение, но без покупки вслепую."
 ];
 
 const faqPreview = [
@@ -129,18 +120,17 @@ export default function HomePage() {
     <>
       <HomeOnboardingGuide />
 
-      <div className="space-y-10 sm:space-y-14">
-        <section className="hero-shell relative overflow-hidden rounded-[2.2rem] px-6 py-12 sm:px-10 sm:py-14">
-          <div className="absolute -left-24 -top-20 h-52 w-52 rounded-full bg-[#e9ddd0]/80 blur-3xl" aria-hidden="true" />
-          <div className="absolute -bottom-24 right-0 h-56 w-56 rounded-full bg-[#ece0d2]/70 blur-3xl" aria-hidden="true" />
+      <div className="space-y-14 sm:space-y-16">
+        <section className="hero-shell relative overflow-hidden rounded-[2.4rem] px-6 py-12 sm:px-10 sm:py-16">
+          <div className="absolute -left-16 -top-20 h-52 w-52 rounded-full bg-[#e7d8ca]/75 blur-3xl" aria-hidden="true" />
+          <div className="absolute -bottom-20 right-0 h-56 w-56 rounded-full bg-[#ece1d3]/70 blur-3xl" aria-hidden="true" />
 
-          <div className="relative grid gap-8 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
-            <div className="space-y-6">
+          <div className="relative grid gap-9 lg:grid-cols-[1.06fr_0.94fr] lg:items-center">
+            <div className="space-y-7">
               <p className="pill inline-flex">Личный цифровой советник по покупкам</p>
-              <p className="text-xs uppercase tracking-[0.22em] text-[#7d6f60]">Выбирайте уверенно. Покупайте без ошибок.</p>
-              <h1 className="display-title max-w-4xl text-balance">Поймите, что покупать именно вам, ещё до оплаты товара</h1>
-              <p className="max-w-3xl text-base text-[#5d5247] sm:text-lg">
-                Ответьте на несколько вопросов и получите первый вывод меньше чем за минуту. Если нужен более глубокий разбор, откройте его позже.
+              <h1 className="display-title max-w-4xl text-balance">Выбирайте уверенно. Покупайте без ошибок.</h1>
+              <p className="max-w-3xl text-lg text-[#5d5247]">
+                Помогаем принять решение до покупки: одежда, дом и уход. Первый вывод вы получите сразу, полный разбор откроете только при необходимости.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -158,74 +148,151 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <p className="text-sm text-[#66594d]">
-                Без регистрации • Без номера телефона • Код доступа после оплаты
-              </p>
+              <p className="text-sm text-[#685c4f]">Без регистрации • Без номера телефона • Код доступа после оплаты</p>
             </div>
 
-            <aside id="onb-quick-info" className="hero-snapshot p-4 sm:p-5">
+            <aside id="onb-quick-info" className="hero-stage p-4 sm:p-5">
               <AiFeatureImage
                 featureKind="home-preview"
-                alt="Снимок результата сервиса"
-                className="h-44 w-full rounded-2xl border border-[#d7ccbf] object-cover sm:h-52"
+                alt="Визуальный срез результата"
+                className="h-52 w-full rounded-2xl object-cover sm:h-60"
               />
-
-              <div className="mt-4 rounded-2xl border border-[#d8ccbe] bg-white/95 p-4 shadow-[0_6px_18px_rgba(30,22,15,0.08)]">
-                <p className="text-xs uppercase tracking-[0.16em] text-[#7b6b5a]">Снимок результата</p>
-                <div className="mt-3 grid gap-2 text-sm text-[#4b4035]">
-                  <p className="rounded-lg bg-[#f8f2ea] px-3 py-2">Ключевая рекомендация по вашей задаче</p>
-                  <p className="rounded-lg bg-[#f8f2ea] px-3 py-2">Один риск, который важно проверить</p>
-                  <p className="rounded-lg bg-[#f8f2ea] px-3 py-2">Следующий шаг перед покупкой</p>
+              <div className="hero-stage-overlay">
+                <p className="text-xs uppercase tracking-[0.16em] text-[#7f6f5e]">Срез результата</p>
+                <p className="mt-2 text-base font-medium text-[#2f241b]">Рекомендация + риск + следующий шаг</p>
+                <p className="mt-2 text-sm text-[#5c4f40]">Данные собраны в удобный формат для решения перед покупкой.</p>
+                <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-[#5f5345]">
+                  <span className="hero-metric">~ 1 минута</span>
+                  <span className="hero-metric">3 направления</span>
+                  <span className="hero-metric">PDF + код</span>
                 </div>
               </div>
-
-              <p className="mt-4 rounded-xl border border-[#d9cdbf] bg-[#f5ede3] px-3 py-2 text-sm text-[#4f4337]">
-                Для подбора для дома можно добавить фото комнаты, референса и мебели. Это заметно повышает точность.
-              </p>
             </aside>
+          </div>
+        </section>
+
+        <section id="onb-directions" className="surface p-6 sm:p-8">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="pill inline-flex">Направления</p>
+              <h2 className="section-title mt-3">С чего начать</h2>
+            </div>
+            <p className="max-w-xl text-sm text-[#675a4d]">Выберите нужное направление и прокрутите к нему — на главной уже есть краткий ориентир по каждому пути.</p>
+          </div>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            {directionAnchors.map((item) => (
+              <a key={item.id} href={`#${item.id}`} className="direction-tile p-5">
+                <p className="text-lg font-semibold text-[#2d231a]">{item.title}</p>
+                <p className="mt-2 text-sm text-[#625648]">{item.lead}</p>
+                <span className="mt-4 inline-flex text-sm font-medium text-[#46372a]">Открыть блок ↓</span>
+              </a>
+            ))}
           </div>
         </section>
 
         <section className="how-flow-shell p-6 sm:p-8">
           <h2 className="section-title">Как это работает</h2>
           <div className="relative mt-6">
-            <div className="pointer-events-none absolute left-[10%] right-[10%] top-10 hidden h-px bg-[#d4c7b7] md:block" aria-hidden="true" />
+            <div className="pointer-events-none absolute left-[10%] right-[10%] top-10 hidden h-px bg-[#d5c8b8] md:block" aria-hidden="true" />
             <ol className="grid gap-3 md:grid-cols-4">
               {howItWorksSteps.map((step, index) => (
                 <li key={step.title} className={`how-flow-step p-4 text-sm ${index === 2 ? "how-flow-step-active" : ""}`}>
-                  <p className="text-xs uppercase tracking-[0.16em] text-[#7a6a58]">Шаг {index + 1}</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-[#7c6b59]">Шаг {index + 1}</p>
                   <span className="flow-icon mt-2">{step.icon}</span>
-                  <p className="mt-2 font-medium text-[#2b2118]">{step.title}</p>
+                  <p className="mt-2 font-medium text-[#2e241b]">{step.title}</p>
                   <p className="mt-1.5 text-[#605347]">{step.text}</p>
                 </li>
               ))}
             </ol>
           </div>
           <p className="mt-5 rounded-xl bg-white px-4 py-3 text-sm text-[#5f5245]">
-            Без регистрации • Бесплатный предварительный вывод • Полный разбор по желанию
+            Без регистрации • Бесплатный предварительный вывод • Полный разбор только по желанию
           </p>
         </section>
 
-        <section id="onb-directions" className="space-y-5">
-          <h2 className="section-title">Выберите направление</h2>
-          <div className="grid gap-4 md:grid-cols-3">
-            {directions.map((card) => (
-              <article
-                key={card.title}
-                className={`direction-tile p-6 ${card.highlight === "Дом" ? "direction-tile-home" : ""}`}
-              >
-                <p className="text-xs uppercase tracking-[0.18em] text-[#7b6c5d]">{card.highlight}</p>
-                <h3 className="mt-2 text-lg font-semibold text-[#2f241b]">{card.title}</h3>
-                <p className="mt-2 text-sm text-[#605346]">{card.benefit}</p>
-                <p className="mt-4 rounded-xl bg-[#f8f2e9] px-3 py-2 text-sm text-[#4f4337]">{card.instant}</p>
-                {card.photoFocus ? (
-                  <p className="mt-3 rounded-xl border border-[#d7c9b8] bg-white px-3 py-2 text-sm text-[#4f4337]">{card.photoFocus}</p>
-                ) : null}
-                <Link href={card.href} className="button-secondary mt-5 inline-flex">
-                  {card.cta}
+        <section id="section-clothing" className="module-spotlight module-spotlight-fashion">
+          <div className="module-spotlight-grid">
+            <div>
+              <p className="pill inline-flex">Одежда</p>
+              <h2 className="section-title mt-3">Подбор размера одежды</h2>
+              <p className="mt-3 text-sm text-[#605447]">
+                Получите понятный вывод по размеру и посадке перед заказом, чтобы снизить риск возврата.
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-[#534638]">
+                <li>- Сразу: вероятный размер и ключевой риск</li>
+                <li>- После оплаты: полный разбор по зонам посадки и материалу</li>
+              </ul>
+              <Link href={SCENARIOS["fashion-size"].route} className="button-primary mt-6 inline-flex">
+                Открыть форму одежды
+              </Link>
+            </div>
+            <div className="module-visual-card">
+              <AiFeatureImage
+                featureKind="fashion-preview"
+                alt="Подбор размера одежды"
+                className="h-56 w-full rounded-2xl object-cover"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section id="section-home" className="module-spotlight module-spotlight-home">
+          <div className="module-spotlight-grid">
+            <div>
+              <p className="pill inline-flex">Дом</p>
+              <h2 className="section-title mt-3">Подбор для дома</h2>
+              <p className="mt-3 text-sm text-[#605447]">
+                Самый визуальный путь: добавьте фото комнаты, референса и мебели, чтобы получить более точный план покупок.
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-[#534638]">
+                <li>- Сразу: стартовый набор и стильный вектор</li>
+                <li>- После оплаты: must-have / optional / later-buy с бюджетной логикой</li>
+                <li>- Фото-контекст учитывается в интерпретации</li>
+              </ul>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href={SCENARIOS["home-room-set"].route} className="button-primary">
+                  Открыть форму для дома
                 </Link>
-              </article>
-            ))}
+                <span className="module-note">Фото повышают точность разбора</span>
+              </div>
+            </div>
+            <div className="module-visual-card">
+              <AiFeatureImage
+                featureKind="home-preview"
+                alt="Подбор для дома"
+                className="h-56 w-full rounded-2xl object-cover"
+              />
+            </div>
+          </div>
+          <div className="mt-7">
+            <HomeStyleGallery />
+          </div>
+        </section>
+
+        <section id="section-beauty" className="module-spotlight module-spotlight-beauty">
+          <div className="module-spotlight-grid">
+            <div>
+              <p className="pill inline-flex">Уход</p>
+              <h2 className="section-title mt-3">Подбор ухода</h2>
+              <p className="mt-3 text-sm text-[#605447]">
+                Поможем собрать спокойную и понятную схему ухода под чувствительность, задачи и бюджет.
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-[#534638]">
+                <li>- Сразу: фокус и безопасный следующий шаг</li>
+                <li>- После оплаты: структура AM/PM, конфликтующие сочетания и план ввода</li>
+              </ul>
+              <Link href={SCENARIOS["beauty-routine"].route} className="button-primary mt-6 inline-flex">
+                Открыть форму ухода
+              </Link>
+            </div>
+            <div className="module-visual-card">
+              <AiFeatureImage
+                featureKind="beauty-preview"
+                alt="Подбор ухода"
+                className="h-56 w-full rounded-2xl object-cover"
+              />
+            </div>
           </div>
         </section>
 
@@ -233,7 +300,7 @@ export default function HomePage() {
           <h2 className="section-title">Когда это полезно</h2>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {usefulCases.map((item) => (
-              <article key={item} className="rounded-2xl bg-white px-4 py-4 text-sm text-[#4f4337] shadow-[0_1px_1px_rgba(27,20,12,0.04)]">
+              <article key={item} className="rounded-2xl bg-white px-4 py-4 text-sm text-[#4f4337] shadow-[0_1px_1px_rgba(27,20,12,0.05)]">
                 {item}
               </article>
             ))}
@@ -268,7 +335,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-[#d9cfc3] bg-[#f9f4ee] p-6 text-sm text-[#605447]">
+        <section className="rounded-2xl border border-[#d9cfc3] bg-[#faf5ee] p-6 text-sm text-[#605447]">
           <p>{legalDisclaimer}</p>
           <p className="mt-2">{beautyDisclaimer}</p>
         </section>

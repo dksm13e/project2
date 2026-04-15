@@ -79,7 +79,7 @@ const scenarioList: ScenarioDefinition[] = [
         name: "product_title",
         label: "Название товара (если ссылка слабая)",
         type: "text",
-        placeholder: "Например: Hoodie relaxed fit",
+        placeholder: "Например: Худи свободной посадки",
         hint: "Помогает отличить футболку, худи и свитшот.",
         required: false
       },
@@ -120,7 +120,7 @@ const scenarioList: ScenarioDefinition[] = [
         options: [
           { value: "women", label: "Женский" },
           { value: "men", label: "Мужской" },
-          { value: "unisex", label: "Unisex" }
+          { value: "unisex", label: "Унисекс" }
         ]
       },
       {
@@ -143,11 +143,11 @@ const scenarioList: ScenarioDefinition[] = [
         type: "select",
         required: true,
         options: [
-          { value: "slim", label: "Slim" },
-          { value: "regular", label: "Regular" },
-          { value: "athletic", label: "Athletic" },
-          { value: "curvy", label: "Curvy" },
-          { value: "plus-size", label: "Plus-size" }
+          { value: "slim", label: "Стройное" },
+          { value: "regular", label: "Стандартное" },
+          { value: "athletic", label: "Атлетичное" },
+          { value: "curvy", label: "С выраженными формами" },
+          { value: "plus-size", label: "Плюс-сайз" }
         ]
       },
       {
@@ -164,9 +164,9 @@ const scenarioList: ScenarioDefinition[] = [
         required: true,
         options: [
           { value: "figure", label: "По фигуре" },
-          { value: "regular", label: "Regular" },
-          { value: "relaxed", label: "Relaxed" },
-          { value: "oversize", label: "Oversize" }
+          { value: "regular", label: "Стандартная" },
+          { value: "relaxed", label: "Свободная" },
+          { value: "oversize", label: "Оверсайз" }
         ]
       },
       {
@@ -200,29 +200,29 @@ const scenarioList: ScenarioDefinition[] = [
       },
       {
         name: "good_fit_item",
-        label: "Вещь, которая сидит хорошо (optional)",
+        label: "Вещь, которая сидит хорошо (необязательно)",
         type: "textarea",
         placeholder: "Опишите коротко референсную вещь",
         required: false
       },
       {
         name: "fit_dislikes",
-        label: "Что обычно не нравится в посадке (optional)",
+        label: "Что обычно не нравится в посадке (необязательно)",
         type: "textarea",
         placeholder: "Например: давит в плечах, короткий рукав",
         required: false
       },
       {
         name: "good_fit_photo",
-        label: "Фото вещи, которая сидит хорошо (optional)",
+        label: "Фото вещи, которая сидит хорошо (необязательно)",
         type: "file",
         accept: "image/*",
-        hint: "Image-aware слой: используется как дополнительный контекст.",
+        hint: "Слой анализа фото: используется как дополнительный контекст.",
         required: false
       },
       {
         name: "item_photo",
-        label: "Фото товара / скрин (optional)",
+        label: "Фото товара / скрин (необязательно)",
         type: "file",
         accept: "image/*",
         required: false
@@ -271,7 +271,7 @@ const scenarioList: ScenarioDefinition[] = [
           { value: "straight", label: "Прямой" },
           { value: "curvy", label: "Выраженные формы" },
           { value: "athletic", label: "Атлетичный" },
-          { value: "petite", label: "Petite" }
+          { value: "petite", label: "Миниатюрный" }
         ]
       },
       {
@@ -280,10 +280,10 @@ const scenarioList: ScenarioDefinition[] = [
         type: "select",
         required: true,
         options: [
-          { value: "clean", label: "Clean minimal" },
-          { value: "smart", label: "Smart casual" },
-          { value: "street", label: "Street" },
-          { value: "capsule", label: "Capsule wardrobe" }
+          { value: "clean", label: "Чистый минимализм" },
+          { value: "smart", label: "Сдержанный повседневный" },
+          { value: "street", label: "Уличный стиль" },
+          { value: "capsule", label: "Капсульный гардероб" }
         ]
       },
       {
@@ -295,7 +295,7 @@ const scenarioList: ScenarioDefinition[] = [
       },
       {
         name: "notes",
-        label: "Комментарий (optional)",
+        label: "Комментарий (необязательно)",
         type: "textarea",
         placeholder: "Например: под что планируете носить",
         hint: "Необязательно, но делает результат точнее.",

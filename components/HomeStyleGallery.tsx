@@ -54,10 +54,15 @@ export function HomeStyleGallery() {
   }, [roomSize, styleOptions]);
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="section-title">Визуальные стили для дома</h2>
-        <div className="inline-flex rounded-xl border border-[#dbcdbb] bg-white p-1">
+        <div>
+          <h2 className="section-title">Визуальные стили для дома</h2>
+          <p className="mt-2 text-sm text-[#645748]">
+            У каждого стиля свой отдельный визуальный пример. Переключите размер комнаты, чтобы увидеть другую композицию.
+          </p>
+        </div>
+        <div className="inline-flex rounded-xl border border-[#d7c9b8] bg-white p-1 shadow-[0_6px_14px_rgba(28,20,12,0.08)]">
           {ROOM_SIZE_OPTIONS.map((option) => (
             <button
               key={option.value}
@@ -65,7 +70,7 @@ export function HomeStyleGallery() {
               onClick={() => setRoomSize(option.value)}
               className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm ${
                 roomSize === option.value
-                  ? "bg-[#2f2418] text-white"
+                  ? "bg-[#2f2418] text-white shadow-[0_4px_10px_rgba(23,17,12,0.35)]"
                   : "text-[#5f5242] hover:bg-[#f6efe4]"
               }`}
             >
@@ -75,30 +80,28 @@ export function HomeStyleGallery() {
         </div>
       </div>
 
-      <p className="text-sm text-[#615445]">
-        Для каждого стиля подгружается отдельный визуальный пример с учетом масштаба комнаты.
-      </p>
-
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {styleOptions.map((option) => {
           const imageKey = toImageMapKey(option.value, roomSize);
           const src = imageUrls[imageKey];
 
           return (
-            <article key={option.value} className="product-card overflow-hidden p-0">
+            <article key={option.value} className="group overflow-hidden rounded-2xl border border-[#d6cabc] bg-white shadow-[0_10px_26px_rgba(28,21,12,0.1)]">
               {src ? (
                 <img
                   src={src}
                   alt={`Стиль ${option.label}`}
-                  className="h-36 w-full border-b border-[#ddd0c0] object-cover"
+                  className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                   loading="lazy"
                 />
               ) : (
-                <div className="h-36 w-full animate-pulse border-b border-[#ddd0c0] bg-[#f5efe6]" />
+                <div className="h-44 w-full animate-pulse bg-[linear-gradient(120deg,#f3eadf_0%,#f9f4ec_50%,#f1e6d7_100%)]" />
               )}
-              <div className="p-4">
-                <h3 className="text-sm font-semibold text-[#2d241a]">{option.label}</h3>
-                <p className="mt-1 text-xs text-[#6f6252]">Размер комнаты: {ROOM_SIZE_OPTIONS.find((item) => item.value === roomSize)?.label}</p>
+              <div className="border-t border-[#ddd1c3] bg-[linear-gradient(180deg,#fff_0%,#f9f3ea_100%)] p-4">
+                <h3 className="text-sm font-semibold tracking-[0.01em] text-[#2d241a]">{option.label}</h3>
+                <p className="mt-1 text-xs text-[#6f6252]">
+                  Формат: {ROOM_SIZE_OPTIONS.find((item) => item.value === roomSize)?.label} комната
+                </p>
               </div>
             </article>
           );
