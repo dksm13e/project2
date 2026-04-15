@@ -89,9 +89,9 @@ export default function CheckoutPage() {
 
   if (!scenario || !draft || draft.scenarioId !== scenario.id) {
     return (
-      <section className="surface p-8">
+      <section className="premium-page premium-section p-8">
         <h1 className="text-2xl font-semibold">Контекст оплаты не найден</h1>
-        <p className="mt-3 text-sm text-[#695c4c]">Не удалось найти данные из предварительного вывода.</p>
+        <p className="mt-3 text-sm text-[#5f6b7d]">Не удалось найти данные из предварительного вывода.</p>
         <Link href="/" className="button-primary mt-5 inline-flex">
           На главную
         </Link>
@@ -101,19 +101,19 @@ export default function CheckoutPage() {
 
   if (isAiLoading) {
     return (
-      <section className="surface p-8">
-        <p className="pill inline-flex">Шаг 3/3 · оплата</p>
+      <section className="premium-page premium-section p-8">
+        <p className="premium-kicker">Шаг 3/3 · оплата</p>
         <h1 className="mt-3 text-2xl font-semibold">Готовим экран оплаты...</h1>
-        <div className="mt-6 h-44 animate-pulse rounded-2xl bg-[#f2eadf]" />
+        <div className="mt-6 h-44 animate-pulse rounded-2xl bg-[#e9eff8]" />
       </section>
     );
   }
 
   if (!aiPaywall || aiError) {
     return (
-      <section className="surface p-8">
+      <section className="premium-page premium-section p-8">
         <h1 className="text-2xl font-semibold">Экран оплаты временно недоступен</h1>
-        <p className="mt-3 text-sm text-[#695c4c]">{aiError || "Не удалось подготовить краткий вывод перед оплатой."}</p>
+        <p className="mt-3 text-sm text-[#5f6b7d]">{aiError || "Не удалось подготовить краткий вывод перед оплатой."}</p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href={`/preview/${scenario.id}?draft=${draft.id}`} className="button-primary">
             Вернуться к предварительному выводу
@@ -182,54 +182,54 @@ export default function CheckoutPage() {
   };
 
   return (
-    <section className="space-y-7">
-      <header className="space-y-3">
-        <p className="pill inline-flex">Шаг 3/3 · оплата</p>
+    <section className="premium-page space-y-7">
+      <header className="premium-page-header">
+        <p className="premium-kicker">Шаг 3/3 · оплата</p>
         <h1 className="display-title">{scenario.paywallTitle}</h1>
-        <p className="max-w-3xl text-[#615444]">
+        <p className="premium-subtitle">
           Разовая покупка цифрового разбора. Без подписки, без регистрации, без номера телефона.
         </p>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <article className="surface p-6 sm:p-8">
-          <h2 className="text-lg font-semibold text-[#2e251b]">{aiPaywall.product_name}</h2>
-          <p className="mt-3 text-sm text-[#5a4d3e]">{aiPaywall.short_summary}</p>
-          <p className="mt-2 text-sm text-[#6c5f50]">{aiPaywall.confidence_note}</p>
-          <ul className="mt-4 space-y-2 text-sm text-[#5a4d3e]">
+          <h2 className="text-lg font-semibold text-[#253142]">{aiPaywall.product_name}</h2>
+          <p className="mt-3 text-sm text-[#5b687d]">{aiPaywall.short_summary}</p>
+          <p className="mt-2 text-sm text-[#66758b]">{aiPaywall.confidence_note}</p>
+          <ul className="mt-4 space-y-2 text-sm text-[#5b687d]">
             {aiPaywall.value_bullets.map((point) => (
               <li key={point}>- {point}</li>
             ))}
           </ul>
 
-          <div className="mt-5 rounded-2xl border border-[#d8cab7] bg-[#fbf6ee] p-4">
-            <p className="text-sm font-medium text-[#3b3125]">Ваши данные</p>
-            <ul className="mt-3 space-y-2 text-sm text-[#5a4e40]">
+          <div className="premium-note mt-5 p-4">
+            <p className="text-sm font-medium text-[#2d394a]">Ваши данные</p>
+            <ul className="mt-3 space-y-2 text-sm text-[#5b687d]">
               {inputSummary.map((entry) => (
                 <li key={entry.label} className="flex items-start justify-between gap-3">
-                  <span className="text-[#796c5c]">{entry.label}</span>
-                  <span className="max-w-[58%] text-right text-[#32271b]">{entry.value}</span>
+                  <span className="text-[#728097]">{entry.label}</span>
+                  <span className="max-w-[58%] text-right text-[#2c3748]">{entry.value}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="mt-5 rounded-2xl border border-[#d8cab7] bg-white p-4">
-            <p className="text-sm font-medium text-[#3d3226]">Что откроется после оплаты</p>
-            <ul className="mt-3 space-y-2 text-sm text-[#584b3d]">
+          <div className="premium-note mt-5 p-4">
+            <p className="text-sm font-medium text-[#2d394a]">Что откроется после оплаты</p>
+            <ul className="mt-3 space-y-2 text-sm text-[#5b687d]">
               {aiPaywall.value_bullets.map((item) => (
                 <li key={item}>- {item}</li>
               ))}
             </ul>
-            <p className="mt-3 text-sm text-[#5f5242]">{aiPaywall.unlock_outcome}</p>
+            <p className="mt-3 text-sm text-[#5b687d]">{aiPaywall.unlock_outcome}</p>
           </div>
         </article>
 
         <aside className="space-y-4">
           <div className="hero-card p-6">
-            <p className="text-xs uppercase tracking-[0.16em] text-[#6f6252]">Стоимость</p>
-            <p className="mt-2 text-4xl font-semibold leading-none text-[#261c12]">{scenario.priceRub} RUB</p>
-            <p className="mt-2 text-sm text-[#6f6252]">Разовый платеж</p>
+            <p className="text-xs uppercase tracking-[0.16em] text-[#6f7e93]">Стоимость</p>
+            <p className="mt-2 text-4xl font-semibold leading-none text-[#1d2735]">{scenario.priceRub} RUB</p>
+            <p className="mt-2 text-sm text-[#6f7e93]">Разовый платеж</p>
 
             {!showPaymentStep ? (
               <button onClick={proceedToPayment} className="button-primary mt-5 inline-flex w-full justify-center text-base">
@@ -246,11 +246,11 @@ export default function CheckoutPage() {
             )}
 
             {paymentError ? <p className="mt-3 text-sm text-[#a0381e]">{paymentError}</p> : null}
-            <p className="mt-3 text-xs text-[#756858]">Сейчас используется fake payment provider с готовой архитектурой для замены на реальный.</p>
+            <p className="mt-3 text-xs text-[#6b778b]">Сейчас используется fake payment provider с готовой архитектурой для замены на реальный.</p>
           </div>
 
-          <div className="rounded-2xl border border-[#dccfbe] bg-white p-4 text-sm text-[#594c3d]">
-            <p className="font-medium text-[#3e3225]">Гарантия UX:</p>
+          <div className="premium-note p-4 text-sm">
+            <p className="font-medium text-[#2d394a]">Гарантия UX:</p>
             <ul className="mt-2 space-y-1">
               <li>- Без регистрации</li>
               <li>- Без email и телефона</li>

@@ -129,7 +129,7 @@ export default function PreviewPage() {
 
   if (!scenario) {
     return (
-      <section className="surface p-8">
+      <section className="premium-page premium-section p-8">
         <h1 className="text-2xl font-semibold">Раздел не найден</h1>
         <Link href="/" className="button-secondary mt-5 inline-flex">
           На главную
@@ -140,7 +140,7 @@ export default function PreviewPage() {
 
   if (!previewState || previewState.draft.scenarioId !== scenario.id) {
     return (
-      <section className="surface p-8">
+      <section className="premium-page premium-section p-8">
         <h1 className="text-2xl font-semibold">Предварительный результат недоступен</h1>
         <p className="mt-3 text-sm text-[#6e6150]">Не удалось загрузить данные формы. Попробуйте отправить форму еще раз.</p>
         <Link href={scenario.route} className="button-primary mt-5 inline-flex">
@@ -152,8 +152,8 @@ export default function PreviewPage() {
 
   if (isAiLoading) {
     return (
-      <section className="surface p-8">
-        <p className="pill inline-flex">Шаг 2/3</p>
+      <section className="premium-page premium-section p-8">
+        <p className="premium-kicker">Шаг 2/3</p>
         <h1 className="mt-3 text-2xl font-semibold">Готовим предварительный вывод...</h1>
         <div className="mt-6 h-44 animate-pulse rounded-2xl bg-[#f2eadf]" />
       </section>
@@ -162,7 +162,7 @@ export default function PreviewPage() {
 
   if (!aiPreview || !aiPaywall || aiError) {
     return (
-      <section className="surface p-8">
+      <section className="premium-page premium-section p-8">
         <h1 className="text-2xl font-semibold">AI-слой временно недоступен</h1>
         <p className="mt-3 text-sm text-[#6e6150]">{aiError || "Не удалось построить предварительный вывод для этого черновика."}</p>
         <div className="mt-5 flex flex-wrap gap-3">
@@ -178,11 +178,11 @@ export default function PreviewPage() {
   }
 
   return (
-    <section className="space-y-7">
+    <section className="premium-page space-y-7">
       <header className="space-y-3">
-        <p className="pill inline-flex">Шаг 2/3 · предварительный вывод</p>
+        <p className="premium-kicker">Шаг 2/3 · предварительный вывод</p>
         <h1 className="display-title">Предварительный вывод готов</h1>
-        <p className="max-w-3xl text-[#615444]">{aiPreview.preview_summary}</p>
+        <p className="premium-subtitle">{aiPreview.preview_summary}</p>
         <p className="text-sm text-[#6d6051]">
           Точность оценки: <span className="font-medium text-[#3c3125]">{confidenceLabel}</span>
         </p>
@@ -265,7 +265,7 @@ export default function PreviewPage() {
             </TrackedLink>
           </div>
 
-          <div className="rounded-2xl border border-[#dccfbe] bg-white p-4 text-sm text-[#5d5141]">
+          <div className="premium-note p-4 text-sm">
             <p className="font-medium text-[#3d3124]">Почему это удобно:</p>
             <ul className="mt-2 space-y-1">
               <li>- Без регистрации</li>

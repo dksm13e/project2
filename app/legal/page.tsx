@@ -25,18 +25,18 @@ const entries = [
 
 export default function LegalIndexPage() {
   return (
-    <section className="space-y-6">
-      <header className="space-y-3">
-        <p className="pill inline-flex">Документы</p>
-        <h1 className="display-title">Юридическая информация</h1>
-        <p className="max-w-3xl text-[#615445]">Короткие и понятные страницы по условиям использования сервиса.</p>
+    <section className="premium-page space-y-6">
+      <header className="premium-page-header">
+        <p className="premium-kicker">Документы</p>
+        <h1 className="premium-title">Юридическая информация</h1>
+        <p className="premium-subtitle">Короткие и понятные страницы по условиям использования сервиса.</p>
       </header>
 
       <div className="grid gap-4 md:grid-cols-2">
         {entries.map((entry) => (
-          <article key={entry.href} className="surface p-6">
-            <h2 className="text-lg font-semibold text-[#2f251b]">{entry.title}</h2>
-            <p className="mt-2 text-sm text-[#5d5042]">{entry.description}</p>
+          <article key={entry.href} className="premium-section p-6">
+            <h2 className="text-lg font-semibold text-[#243041]">{entry.title}</h2>
+            <p className="mt-2 text-sm text-[#5f6b7d]">{entry.description}</p>
             <Link href={entry.href} className="button-secondary mt-4 inline-flex">
               Открыть
             </Link>

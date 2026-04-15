@@ -171,11 +171,11 @@ export function HomeOnboardingGuide() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-[#1f160f]/30 backdrop-blur-[1px]" />
+      <div className="absolute inset-0 bg-[#1c2431]/28 backdrop-blur-[1px]" />
 
       {targetRect ? (
         <div
-          className="absolute rounded-2xl border-2 border-[#f6d9bb] shadow-[0_0_0_9999px_rgba(31,22,15,0.32)]"
+          className="absolute rounded-2xl border-2 border-[#d4e0f2] shadow-[0_0_0_9999px_rgba(28,36,49,0.32)]"
           style={{
             top: targetRect.top - 8,
             left: targetRect.left - 8,
@@ -192,13 +192,13 @@ export function HomeOnboardingGuide() {
               <img
                 src={currentImage}
                 alt="Виртуальный помощник"
-                className="h-28 w-28 rounded-2xl border border-[#ddcfbe] bg-[#f9f4ea] object-cover p-1"
+                className="h-28 w-28 rounded-2xl border border-[#d4deec] bg-[#f6f9ff] object-cover p-1"
                 loading="lazy"
               />
               <div>
                 <p className="pill inline-flex">Добро пожаловать</p>
-                <h2 className="mt-3 text-2xl font-semibold text-[#2e2419]">{guide.welcome_title}</h2>
-                <p className="mt-2 text-sm text-[#615444]">{guide.welcome_text}</p>
+                <h2 className="mt-3 text-2xl font-semibold text-[#1f2a3a]">{guide.welcome_title}</h2>
+                <p className="mt-2 text-sm text-[#5a677b]">{guide.welcome_text}</p>
               </div>
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -218,12 +218,12 @@ export function HomeOnboardingGuide() {
               <img
                 src={currentImage}
                 alt="Подсказка помощника"
-                className="h-16 w-16 rounded-xl border border-[#ddcfbe] bg-[#f9f4ea] object-cover p-1"
+                className="h-16 w-16 rounded-xl border border-[#d4deec] bg-[#f6f9ff] object-cover p-1"
                 loading="lazy"
               />
               <div>
-                <p className="text-xs uppercase tracking-[0.16em] text-[#7a6c5b]">{steps[activeStep as StepId].title}</p>
-                <p className="mt-2 text-sm text-[#5d5041]">{steps[activeStep as StepId].text}</p>
+                <p className="text-xs uppercase tracking-[0.16em] text-[#6c7890]">{steps[activeStep as StepId].title}</p>
+                <p className="mt-2 text-sm text-[#5a677b]">{steps[activeStep as StepId].text}</p>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">

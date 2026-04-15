@@ -35,7 +35,24 @@ const usefulCases = [
   "Когда хочется упростить уход и убрать лишнее."
 ];
 
-const trustItems = ["Без регистрации", "Без телефона", "Первый вывод быстро", "Полный разбор по желанию"];
+const valueItems = [
+  {
+    title: "Первый вывод до оплаты",
+    text: "Сразу видите базовую рекомендацию и понимаете, насколько подходящий вектор."
+  },
+  {
+    title: "Понятная рекомендация",
+    text: "Без перегруза: ключевой вывод, главный риск и конкретный ориентир перед покупкой."
+  },
+  {
+    title: "Следующий шаг перед покупкой",
+    text: "Получаете практичный чек-поинт, который снижает риск ошибки на следующем действии."
+  },
+  {
+    title: "Полный разбор при необходимости",
+    text: "Открываете подробный результат только если нужно больше глубины и деталей."
+  }
+];
 
 const faqPreview = [
   {
@@ -62,9 +79,12 @@ export default function HomePage() {
           <span className="home-shape-light home-shape-arch-right" />
           <span className="home-shape-light home-shape-arch-left" />
           <span className="home-shape-light home-shape-round-center" />
+          <span className="home-shape-light home-shape-depth-bottom" />
           <span className="home-fragment home-fragment-a" />
           <span className="home-fragment home-fragment-b" />
           <span className="home-fragment home-fragment-c" />
+          <span className="home-fragment home-fragment-d" />
+          <span className="home-fragment home-fragment-e" />
         </div>
 
         <div className="home-light-content space-y-12 sm:space-y-14">
@@ -111,14 +131,14 @@ export default function HomePage() {
 
                 <div id="onb-directions" className="home-direction-select">
                   <p className="text-xs uppercase tracking-[0.16em] text-[#6b7180]">Выберите направление</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="segment-group mt-2">
                     {directionLinks.map((item) => (
                       <TrackedLink
                         key={item.href}
                         href={item.href}
                         eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
                         eventPayload={{ module: item.module, cta_label: item.label }}
-                        className="home-direction-pill"
+                        className="segment-item"
                       >
                         {item.label}
                       </TrackedLink>
@@ -185,14 +205,16 @@ export default function HomePage() {
           </section>
 
           <section className="home-editorial-block p-6 sm:p-8">
-            <h2 className="home-section-heading">Почему это удобно</h2>
+            <h2 className="home-section-heading">Что вы получаете</h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {trustItems.map((item) => (
-                <article key={item} className="home-trust-item px-4 py-3">
-                  {item}
+              {valueItems.map((item) => (
+                <article key={item.title} className="home-trust-item px-4 py-3">
+                  <p className="text-sm font-semibold text-[#243042]">{item.title}</p>
+                  <p className="mt-1 text-sm text-[#626f81]">{item.text}</p>
                 </article>
               ))}
             </div>
+            <p className="mt-4 text-sm text-[#6b7482]">Без регистрации • Без номера телефона • Код доступа после оплаты</p>
           </section>
 
           <section className="home-editorial-block p-6 sm:p-8">

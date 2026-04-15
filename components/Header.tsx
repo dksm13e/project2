@@ -11,9 +11,9 @@ const links = [
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-30 border-b border-[#d9cec3] bg-[#f8f3ed]/88 backdrop-blur-lg">
-      <div className="container-shell flex flex-wrap items-center justify-between gap-3 py-3">
-        <Link href="/" className="text-sm font-semibold uppercase tracking-[0.08em] text-[#2f261c]">
+    <header className="sticky top-0 z-30 border-b border-[#d2dce9] bg-[rgba(246,250,255,0.86)] backdrop-blur-xl">
+      <div className="container-shell flex flex-wrap items-center justify-between gap-3 py-3.5">
+        <Link href="/" className="text-sm font-semibold uppercase tracking-[0.11em] text-[#243040]">
           AI Подбор покупок
         </Link>
 

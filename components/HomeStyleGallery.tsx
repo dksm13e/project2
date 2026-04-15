@@ -58,21 +58,18 @@ export function HomeStyleGallery() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="section-title">Визуальные стили для дома</h2>
-          <p className="mt-2 text-sm text-[#645748]">
-            У каждого стиля свой отдельный визуальный пример. Переключите размер комнаты, чтобы увидеть другую композицию.
+          <p className="mt-2 text-sm text-[#5e6a7c]">
+            У каждого стиля свой отдельный визуальный пример. Переключите размер комнаты, чтобы увидеть другую
+            композицию.
           </p>
         </div>
-        <div className="inline-flex rounded-xl border border-[#d7c9b8] bg-white p-1 shadow-[0_6px_14px_rgba(28,20,12,0.08)]">
+        <div className="segment-group">
           {ROOM_SIZE_OPTIONS.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => setRoomSize(option.value)}
-              className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm ${
-                roomSize === option.value
-                  ? "bg-[#2f2418] text-white shadow-[0_4px_10px_rgba(23,17,12,0.35)]"
-                  : "text-[#5f5242] hover:bg-[#f6efe4]"
-              }`}
+              className={`segment-item ${roomSize === option.value ? "segment-item-active" : ""}`}
             >
               {option.label}
             </button>
@@ -86,7 +83,7 @@ export function HomeStyleGallery() {
           const src = imageUrls[imageKey];
 
           return (
-            <article key={option.value} className="group overflow-hidden rounded-2xl border border-[#d6cabc] bg-white shadow-[0_10px_26px_rgba(28,21,12,0.1)]">
+            <article key={option.value} className="premium-card group overflow-hidden">
               {src ? (
                 <img
                   src={src}
@@ -95,11 +92,11 @@ export function HomeStyleGallery() {
                   loading="lazy"
                 />
               ) : (
-                <div className="h-44 w-full animate-pulse bg-[linear-gradient(120deg,#f3eadf_0%,#f9f4ec_50%,#f1e6d7_100%)]" />
+                <div className="h-44 w-full animate-pulse bg-[linear-gradient(120deg,#eef3fb_0%,#f5f9ff_50%,#e8eff8_100%)]" />
               )}
-              <div className="border-t border-[#ddd1c3] bg-[linear-gradient(180deg,#fff_0%,#f9f3ea_100%)] p-4">
-                <h3 className="text-sm font-semibold tracking-[0.01em] text-[#2d241a]">{option.label}</h3>
-                <p className="mt-1 text-xs text-[#6f6252]">
+              <div className="border-t border-[#d7e0ed] bg-[linear-gradient(180deg,rgba(255,255,255,0.95)_0%,rgba(247,251,255,0.9)_100%)] p-4">
+                <h3 className="text-sm font-semibold tracking-[0.01em] text-[#243041]">{option.label}</h3>
+                <p className="mt-1 text-xs text-[#657283]">
                   Формат: {ROOM_SIZE_OPTIONS.find((item) => item.value === roomSize)?.label} комната
                 </p>
               </div>

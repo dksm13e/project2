@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Manrope, Prata } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 const manrope = Manrope({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   variable: "--font-body",
   display: "swap"
 });
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
+const prata = Prata({
+  subsets: ["latin", "cyrillic"],
   variable: "--font-display",
-  weight: ["500", "600", "700"],
+  weight: ["400"],
   display: "swap"
 });
 
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru" className={`${manrope.variable} ${fraunces.variable}`}>
+    <html lang="ru" className={`${manrope.variable} ${prata.variable}`}>
       <body>
         <Header />
         <main className="container-shell py-8 sm:py-10">{children}</main>

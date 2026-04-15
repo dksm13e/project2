@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { SCENARIOS } from "@/lib/scenarios";
 import { ModulePageTracker } from "@/components/ModulePageTracker";
 
@@ -6,25 +6,29 @@ const option = SCENARIOS["beauty-routine"];
 
 export default function BeautyPage() {
   return (
-    <section className="space-y-6">
+    <section className="premium-page space-y-6">
       <ModulePageTracker module="beauty" page="module" />
-      <header className="space-y-3">
-        <p className="pill inline-flex">Уход</p>
-        <h1 className="display-title">Подбор ухода</h1>
-        <p className="max-w-3xl text-[#5f5243]">Поможем сделать уход понятным и спокойным под ваш тип кожи.</p>
+
+      <header className="premium-page-header">
+        <p className="premium-kicker">Уход</p>
+        <h1 className="premium-title">Подбор ухода</h1>
+        <p className="premium-subtitle">
+          Помогаем сделать рутину понятной и спокойной: сначала короткий предварительный вывод, затем полный разбор при
+          необходимости.
+        </p>
       </header>
 
-      <article className="product-card p-6 sm:p-8">
-        <h2 className="text-xl font-semibold text-[#2f251b]">{option.shortTitle}</h2>
-        <p className="mt-2 text-sm text-[#5d5041]">{option.subtitle}</p>
+      <article className="premium-section p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold text-[#1f2937]">{option.shortTitle}</h2>
+        <p className="mt-2 text-sm text-[#5e6a7d]">{option.subtitle}</p>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-[#d8cab8] bg-white p-4 text-sm text-[#574a3b]">
-            <p className="text-xs uppercase tracking-[0.14em] text-[#776958]">Предварительный вывод</p>
+        <div className="premium-grid-cards premium-grid-cards-2 mt-5">
+          <div className="premium-note p-4 text-sm">
+            <p className="font-medium text-[#2b3748]">Предварительный вывод</p>
             <p className="mt-2">{option.weakOutcome}</p>
           </div>
-          <div className="rounded-xl border border-[#d8cab8] bg-white p-4 text-sm text-[#574a3b]">
-            <p className="text-xs uppercase tracking-[0.14em] text-[#776958]">Полный разбор</p>
+          <div className="premium-note p-4 text-sm">
+            <p className="font-medium text-[#2b3748]">Полный разбор</p>
             <p className="mt-2">{option.fullOutcome}</p>
           </div>
         </div>
@@ -33,7 +37,7 @@ export default function BeautyPage() {
           <Link className="button-primary" href={option.route}>
             Начать
           </Link>
-          <span className="text-sm text-[#665949]">Разовый доступ от {option.priceRub} RUB</span>
+          <span className="premium-fineprint">Разовый доступ от {option.priceRub} RUB</span>
         </div>
       </article>
     </section>

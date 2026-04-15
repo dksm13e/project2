@@ -17,20 +17,20 @@ const productLinks = [
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-[#d8ccbc] bg-[#f9f4ec]">
+    <footer className="mt-16 border-t border-[#d2dce9] bg-[rgba(245,249,255,0.86)]">
       <div className="container-shell grid gap-8 py-10 md:grid-cols-[1.4fr_1fr_1fr]">
-        <div className="space-y-3 text-sm text-[#5f5447]">
-          <p className="font-medium text-[#342a1f]">AI Подбор покупок</p>
+        <div className="space-y-3 text-sm text-[#637084]">
+          <p className="font-medium text-[#243040]">AI Подбор покупок</p>
           <p>{legalDisclaimer}</p>
           <p>{beautyDisclaimer}</p>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#736656]">Разделы</p>
-          <ul className="mt-3 space-y-2 text-sm text-[#5f5345]">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#768295]">Разделы</p>
+          <ul className="mt-3 space-y-2 text-sm text-[#637084]">
             {productLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="hover:text-[#2f251b]">
+                <Link href={link.href} className="hover:text-[#273241]">
                   {link.label}
                 </Link>
               </li>
@@ -39,11 +39,11 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#736656]">Документы</p>
-          <ul className="mt-3 space-y-2 text-sm text-[#5f5345]">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#768295]">Документы</p>
+          <ul className="mt-3 space-y-2 text-sm text-[#637084]">
             {legalLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="hover:text-[#2f251b]">
+                <Link href={link.href} className="hover:text-[#273241]">
                   {link.label}
                 </Link>
               </li>

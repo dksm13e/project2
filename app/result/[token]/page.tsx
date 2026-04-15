@@ -287,15 +287,15 @@ export default function ResultPage() {
 
   if (!result) {
     return (
-      <section className="surface p-8">
+      <section className="premium-page premium-section p-8">
         <h1 className="text-2xl font-semibold">Результат не найден</h1>
-        <p className="mt-3 text-sm text-[#645747]">
+        <p className="mt-3 text-sm text-[#5f6b7d]">
           Этот токен не найден в локальном хранилище. Откройте результат по коду доступа или сформируйте новый.
         </p>
         <AiFeatureImage
           featureKind="result-empty"
           alt="Пустое состояние результата"
-          className="mt-5 h-44 w-full rounded-2xl border border-[#ddcfbe] object-cover"
+          className="mt-5 h-44 w-full rounded-2xl border border-[#d3ddea] object-cover"
         />
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/open-by-code" className="button-primary">
@@ -311,19 +311,19 @@ export default function ResultPage() {
 
   if (isAiLoading) {
     return (
-      <section className="surface p-8">
-        <p className="pill inline-flex">Полный разбор</p>
+      <section className="premium-page premium-section p-8">
+        <p className="premium-kicker">Полный разбор</p>
         <h1 className="mt-3 text-2xl font-semibold">Готовим полный результат...</h1>
-        <div className="mt-6 h-44 animate-pulse rounded-2xl bg-[#f2eadf]" />
+        <div className="mt-6 h-44 animate-pulse rounded-2xl bg-[#e9eff8]" />
       </section>
     );
   }
 
   if (!structured || !aiPdf || aiError) {
     return (
-      <section className="surface p-8">
+      <section className="premium-page premium-section p-8">
         <h1 className="text-2xl font-semibold">Полный результат временно недоступен</h1>
-        <p className="mt-3 text-sm text-[#645747]">{aiError || "Не удалось сформировать AI-результат для этого токена."}</p>
+        <p className="mt-3 text-sm text-[#5f6b7d]">{aiError || "Не удалось сформировать AI-результат для этого токена."}</p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/open-by-code" className="button-primary">
             Открыть другой результат
@@ -337,11 +337,11 @@ export default function ResultPage() {
   }
 
   return (
-    <section className="space-y-7">
-      <header className="space-y-3">
-        <p className="pill inline-flex">Полный разбор</p>
+    <section className="premium-page space-y-7">
+      <header className="premium-page-header">
+        <p className="premium-kicker">Полный разбор</p>
         <h1 className="display-title">{scenario?.title ?? "Результат"}</h1>
-        <p className="max-w-3xl text-[#5f5242]">
+        <p className="premium-subtitle">
           Сформировано: {formatDate(result.createdAt)}. {structured.confidenceLine}.
         </p>
       </header>
@@ -349,16 +349,16 @@ export default function ResultPage() {
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <article className="space-y-4">
           <div className="surface p-6 sm:p-8">
-            <p className="text-xs uppercase tracking-[0.14em] text-[#726455]">Основной вывод</p>
-            <div className="mt-3 rounded-xl border border-[#d8cab8] bg-[#fbf6ef] p-4">
-              <h2 className="text-lg font-semibold text-[#2f251b]">{structured.mainTitle}</h2>
-              <p className="mt-2 text-sm text-[#534636]">{structured.mainDecision}</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-[#6e7c92]">Основной вывод</p>
+            <div className="premium-note mt-3 p-4">
+              <h2 className="text-lg font-semibold text-[#2a3547]">{structured.mainTitle}</h2>
+              <p className="mt-2 text-sm text-[#586579]">{structured.mainDecision}</p>
             </div>
           </div>
 
           <div className="surface p-6 sm:p-8">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6f6150]">Рекомендации к действию</h3>
-            <ol className="mt-3 space-y-2 text-sm text-[#594c3d]">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6e7c92]">Рекомендации к действию</h3>
+            <ol className="mt-3 space-y-2 text-sm text-[#586579]">
               {structured.actionableRecommendations.map((item, index) => (
                 <li key={item}>
                   {index + 1}. {item}
@@ -370,8 +370,8 @@ export default function ResultPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             {structured.sections.map((section) => (
               <div key={section.title} className="surface p-5">
-                <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6f6150]">{section.title}</h3>
-                <ul className="mt-3 space-y-2 text-sm text-[#574a3b]">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6e7c92]">{section.title}</h3>
+                <ul className="mt-3 space-y-2 text-sm text-[#586579]">
                   {section.items.map((item) => (
                     <li key={item}>- {item}</li>
                   ))}
@@ -381,8 +381,8 @@ export default function ResultPage() {
           </div>
 
           <div className="surface p-6 sm:p-8">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6f6150]">Логика выбора</h3>
-            <ul className="mt-3 space-y-2 text-sm text-[#584b3d]">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6e7c92]">Логика выбора</h3>
+            <ul className="mt-3 space-y-2 text-sm text-[#586579]">
               {structured.keyTakeaways.map((line) => (
                 <li key={line}>- {line}</li>
               ))}
@@ -390,14 +390,14 @@ export default function ResultPage() {
           </div>
 
           <div className="surface p-6 sm:p-8">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6f6150]">Альтернативы и упрощенный вариант</h3>
-            <ul className="mt-3 space-y-2 text-sm text-[#584b3d]">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6e7c92]">Альтернативы и упрощенный вариант</h3>
+            <ul className="mt-3 space-y-2 text-sm text-[#586579]">
               {structured.alternatives.map((line) => (
                 <li key={line}>- {line}</li>
               ))}
             </ul>
-            <p className="mt-4 text-xs uppercase tracking-[0.12em] text-[#7a6d5d]">Упрощенный вариант</p>
-            <ul className="mt-2 space-y-2 text-sm text-[#584b3d]">
+            <p className="mt-4 text-xs uppercase tracking-[0.12em] text-[#738198]">Упрощенный вариант</p>
+            <ul className="mt-2 space-y-2 text-sm text-[#586579]">
               {structured.simplified.map((line) => (
                 <li key={line}>- {line}</li>
               ))}
@@ -407,8 +407,8 @@ export default function ResultPage() {
 
         <aside className="space-y-4">
           <div className="surface-muted p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Что важно учесть</h2>
-            <ul className="mt-3 space-y-2 text-sm text-[#5a4d3f]">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6e7c92]">Что важно учесть</h2>
+            <ul className="mt-3 space-y-2 text-sm text-[#59667a]">
               {structured.important.map((line) => (
                 <li key={line}>- {line}</li>
               ))}
@@ -416,8 +416,8 @@ export default function ResultPage() {
           </div>
 
           <div className="surface-muted p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Что проверить</h2>
-            <ul className="mt-3 space-y-2 text-sm text-[#5a4d3f]">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6e7c92]">Что проверить</h2>
+            <ul className="mt-3 space-y-2 text-sm text-[#59667a]">
               {structured.verifyList.map((line) => (
                 <li key={line}>- {line}</li>
               ))}
@@ -425,8 +425,8 @@ export default function ResultPage() {
           </div>
 
           <div className="surface-muted p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Чего избегать</h2>
-            <ul className="mt-3 space-y-2 text-sm text-[#5a4d3f]">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6e7c92]">Чего избегать</h2>
+            <ul className="mt-3 space-y-2 text-sm text-[#59667a]">
               {structured.avoidList.map((line) => (
                 <li key={line}>- {line}</li>
               ))}
@@ -434,8 +434,8 @@ export default function ResultPage() {
           </div>
 
           <div className="surface-muted p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Ограничения интерпретации</h2>
-            <ul className="mt-3 space-y-2 text-sm text-[#5a4d3f]">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6e7c92]">Ограничения интерпретации</h2>
+            <ul className="mt-3 space-y-2 text-sm text-[#59667a]">
               {(structured.limitations.length ? structured.limitations : ["Ограничения не критичны по текущему вводу."]).map((line) => (
                 <li key={line}>- {line}</li>
               ))}
@@ -443,22 +443,22 @@ export default function ResultPage() {
           </div>
 
           <div className="surface-muted p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">PDF-отчет</h2>
-            <p className="mt-2 text-sm text-[#5c4f40]">Сформирован на основе структурированного результата и готов к сохранению/печати.</p>
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6e7c92]">PDF-отчет</h2>
+            <p className="mt-2 text-sm text-[#59667a]">Сформирован на основе структурированного результата и готов к сохранению/печати.</p>
             <button onClick={downloadPdf} className="button-primary mt-4 inline-flex w-full justify-center">
               Скачать PDF
             </button>
           </div>
 
           <div className="surface-muted p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Код доступа</h2>
-            <p className="mt-2 rounded-xl border border-[#d7c8b5] bg-white px-3 py-2 font-mono text-sm tracking-wider text-[#34291d]">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6e7c92]">Код доступа</h2>
+            <p className="mt-2 rounded-xl border border-[#ced8e7] bg-white px-3 py-2 font-mono text-sm tracking-wider text-[#2c3849]">
               {result.accessCode}
             </p>
             <button onClick={copyCode} className="button-secondary mt-3 inline-flex w-full justify-center">
               Скопировать код
             </button>
-            <p className="mt-2 text-xs text-[#6f6252]">
+            <p className="mt-2 text-xs text-[#6c7a90]">
               {copyStatus === "copied"
                 ? "Код скопирован"
                 : copyStatus === "error"
@@ -467,7 +467,7 @@ export default function ResultPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-[#dccfbe] bg-white p-4 text-sm text-[#5c4f40]">
+          <div className="premium-note p-4 text-sm">
             {structured.notes.map((line) => (
               <p key={line} className="mt-1 first:mt-0">
                 - {line}

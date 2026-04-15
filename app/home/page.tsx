@@ -7,24 +7,29 @@ const option = SCENARIOS["home-room-set"];
 
 export default function HomeCategoryPage() {
   return (
-    <section className="space-y-6">
+    <section className="premium-page space-y-6">
       <ModulePageTracker module="home" page="module" />
-      <header className="space-y-3">
-        <p className="pill inline-flex">Дом</p>
-        <h1 className="display-title">Подбор для дома</h1>
-        <p className="max-w-3xl text-[#5f5243]">Поможем собрать набор для комнаты под ваш стиль и бюджет.</p>
+
+      <header className="premium-page-header">
+        <p className="premium-kicker">Дом</p>
+        <h1 className="premium-title">Подбор для дома</h1>
+        <p className="premium-subtitle">
+          Помогаем собрать комнату под ваш стиль, пространство и бюджет. В этом направлении можно добавить фото
+          комнаты, референса и существующей мебели для более точного вывода.
+        </p>
       </header>
 
-      <article className="product-card p-6 sm:p-8">
-        <h2 className="text-xl font-semibold text-[#2f251b]">{option.shortTitle}</h2>
-        <p className="mt-2 text-sm text-[#5d5041]">{option.subtitle}</p>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-[#d8cab8] bg-white p-4 text-sm text-[#574a3b]">
-            <p className="text-xs uppercase tracking-[0.14em] text-[#776958]">Предварительный вывод</p>
+      <article className="premium-section p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold text-[#1f2937]">{option.shortTitle}</h2>
+        <p className="mt-2 text-sm text-[#5e6a7d]">{option.subtitle}</p>
+
+        <div className="premium-grid-cards premium-grid-cards-2 mt-5">
+          <div className="premium-note p-4 text-sm">
+            <p className="font-medium text-[#2b3748]">Предварительный вывод</p>
             <p className="mt-2">{option.weakOutcome}</p>
           </div>
-          <div className="rounded-xl border border-[#d8cab8] bg-white p-4 text-sm text-[#574a3b]">
-            <p className="text-xs uppercase tracking-[0.14em] text-[#776958]">Полный разбор</p>
+          <div className="premium-note p-4 text-sm">
+            <p className="font-medium text-[#2b3748]">Полный разбор</p>
             <p className="mt-2">{option.fullOutcome}</p>
           </div>
         </div>
@@ -33,11 +38,13 @@ export default function HomeCategoryPage() {
           <Link className="button-primary" href={option.route}>
             Начать
           </Link>
-          <span className="text-sm text-[#665949]">Разовый доступ от {option.priceRub} RUB</span>
+          <span className="premium-fineprint">Разовый доступ от {option.priceRub} RUB</span>
         </div>
       </article>
 
-      <HomeStyleGallery />
+      <div className="premium-section p-6 sm:p-8">
+        <HomeStyleGallery />
+      </div>
     </section>
   );
 }
