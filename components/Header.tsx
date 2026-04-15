@@ -11,7 +11,7 @@ const links = [
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-30 border-b border-[#d8ccbc] bg-[#fbf7f1]/90 backdrop-blur-lg">
+    <header className="sticky top-0 z-30 border-b border-[#d7cfc7] bg-[#f6f2ee]/90 backdrop-blur-lg">
       <div className="container-shell flex flex-wrap items-center justify-between gap-3 py-3">
         <Link href="/" className="text-sm font-semibold uppercase tracking-[0.08em] text-[#2f261c]">
           AI Shopping
@@ -25,7 +25,7 @@ export function Header() {
           ))}
         </nav>
 
-        <Link href="/open-by-code" className="button-secondary order-2 text-xs sm:order-3 sm:text-sm">
+        <Link href="/open-by-code" className="header-access-link order-2 sm:order-3">
           Код доступа
         </Link>
       </div>
