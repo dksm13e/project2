@@ -34,9 +34,9 @@ const usefulCases = [
 
 const microProofItems = [
   "Не ошибиться перед покупкой",
-  "Понять следующий шаг без перегруза",
-  "Снять лишние сомнения",
-  "Принять решение спокойнее и быстрее"
+  "Понять, что проверить до заказа",
+  "Спокойнее принять решение",
+  "Убрать лишние сомнения"
 ];
 
 const resultExamples = [
@@ -68,7 +68,7 @@ const resultExamples = [
       "Что проверить: масштаб и проходы"
     ],
     paid: [
-      "Must-have / optional",
+      "Обязательные и дополнительные позиции",
       "Бюджетная логика",
       "Композиция по комнате",
       "PDF + код доступа"
@@ -85,7 +85,7 @@ const resultExamples = [
       "Что сохранить: спокойную базу"
     ],
     paid: [
-      "AM / PM по шагам",
+      "Утро и вечер по шагам",
       "Что убрать",
       "Как вводить новое",
       "PDF + код доступа"
@@ -149,7 +149,7 @@ export default function HomePage() {
           <section className="home-editorial-hero relative overflow-hidden rounded-[2.4rem] px-6 py-12 sm:px-10 sm:py-16">
             <div className="relative grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
               <div className="space-y-6">
-                <p className="home-mini-label inline-flex">Private digital advisor</p>
+                <p className="home-mini-label inline-flex">Персональный помощник перед покупкой</p>
                 <p className="home-slogan">Выбирайте уверенно. Покупайте без ошибок.</p>
                 <h1 className="display-title max-w-4xl text-balance">Помогаем принять решение до покупки</h1>
                 <p className="max-w-2xl text-base text-[#59606d] sm:text-lg">
@@ -228,7 +228,7 @@ export default function HomePage() {
           <section className="home-editorial-block home-micro-proof p-6 sm:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="home-section-heading">Подходит, если вы хотите</h2>
-              <span className="pill">Коротко и по делу</span>
+              <span className="pill">Что вы увидите</span>
             </div>
             <div className="home-micro-proof-list mt-5">
               {microProofItems.map((item) => (

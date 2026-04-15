@@ -29,6 +29,201 @@ function getFeatureKind(scenarioId: string): string {
   return "beauty-preview";
 }
 
+function FashionSizeTeaser() {
+  return (
+    <div className="preview-teaser-inner preview-teaser-fashion">
+      <div className="preview-teaser-head">
+        <p className="preview-teaser-label">Как выглядит полный результат</p>
+        <h2 className="preview-teaser-title">Полный разбор по вещи</h2>
+      </div>
+
+      <div className="preview-teaser-top-grid">
+        <div className="preview-teaser-top-item">
+          <p>Основной размер</p>
+          <strong>M</strong>
+        </div>
+        <div className="preview-teaser-top-item">
+          <p>Альтернативный размер</p>
+          <strong>L для более свободной посадки</strong>
+        </div>
+        <div className="preview-teaser-top-item">
+          <p>Ключевой риск</p>
+          <strong>Плечи и длина рукава</strong>
+        </div>
+        <div className="preview-teaser-top-item">
+          <p>Следующий шаг</p>
+          <strong>Проверить мерки изделия перед заказом</strong>
+        </div>
+      </div>
+
+      <div className="preview-teaser-mini-grid">
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Размер</p>
+          <p className="preview-teaser-mini-text">
+            M. Альтернатива: L для более свободной посадки и лучшего запаса по верхней части.
+          </p>
+        </article>
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Посадка</p>
+          <p className="preview-teaser-mini-text">Сядет ближе к телу в плечах, по корпусу останется комфортной.</p>
+        </article>
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Что проверить</p>
+          <p className="preview-teaser-mini-text">Плечи, длину рукава и ключевые мерки изделия в карточке товара.</p>
+        </article>
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Материал и поведение ткани</p>
+          <p className="preview-teaser-mini-text">Малорастяжимая ткань: небольшой запас по свободе снижает риск промаха.</p>
+        </article>
+      </div>
+
+      <p className="preview-teaser-footnote">
+        После оплаты откроется полный сценарий посадки, риски по зонам, что проверить в карточке товара и PDF-версия результата.
+      </p>
+    </div>
+  );
+}
+
+function FashionFitCheckTeaser() {
+  return (
+    <div className="preview-teaser-inner preview-teaser-fashion">
+      <div className="preview-teaser-head">
+        <p className="preview-teaser-label">Как выглядит полный результат</p>
+        <h2 className="preview-teaser-title">Полный разбор сочетания до покупки</h2>
+      </div>
+
+      <div className="preview-teaser-top-grid">
+        <div className="preview-teaser-top-item">
+          <p>Сигнал совместимости</p>
+          <strong>Умеренно высокий</strong>
+        </div>
+        <div className="preview-teaser-top-item">
+          <p>Главный риск</p>
+          <strong>Перегруз верха в многослойном образе</strong>
+        </div>
+        <div className="preview-teaser-top-item">
+          <p>Что может выбиваться</p>
+          <strong>Контраст объёмов верха и низа</strong>
+        </div>
+        <div className="preview-teaser-top-item">
+          <p>Следующий шаг</p>
+          <strong>Проверить 2-3 сочетания до оплаты заказа</strong>
+        </div>
+      </div>
+
+      <div className="preview-teaser-mini-grid">
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">С чем работает лучше</p>
+          <p className="preview-teaser-mini-text">Базовый низ, чистые линии и спокойная обувь.</p>
+        </article>
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">С чем может спорить</p>
+          <p className="preview-teaser-mini-text">Слишком активные фактуры и конкурирующие акценты верха.</p>
+        </article>
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Как смягчить mismatch</p>
+          <p className="preview-teaser-mini-text">Снизить контраст объёмов и добавить нейтральный промежуточный слой.</p>
+        </article>
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Решение перед покупкой</p>
+          <p className="preview-teaser-mini-text">Оценить, насколько вещь работает в ваших реальных сочетаниях, а не отдельно.</p>
+        </article>
+      </div>
+
+      <p className="preview-teaser-footnote">
+        После оплаты откроется подробный decision-map: сильные и слабые сочетания, триггеры несовпадения и итог по покупке.
+      </p>
+    </div>
+  );
+}
+
+function HomeTeaser() {
+  return (
+    <div className="preview-teaser-inner preview-teaser-home">
+      <div className="preview-teaser-head">
+        <p className="preview-teaser-label">Как выглядит полный результат</p>
+        <h2 className="preview-teaser-title">Полный разбор комнаты</h2>
+      </div>
+
+      <div className="preview-teaser-home-layout">
+        <div className="preview-teaser-home-visual">
+          <AiFeatureImage
+            featureKind="home-preview"
+            alt="Визуальный пример полного разбора комнаты"
+            className="preview-teaser-home-image"
+          />
+          <p className="preview-teaser-home-caption">Пример визуального направления в полном результате</p>
+        </div>
+
+        <div className="preview-teaser-home-points">
+          <article className="preview-teaser-mini-card">
+            <p className="preview-teaser-mini-label">Базовый вектор</p>
+            <p className="preview-teaser-mini-text">Светлая спокойная база с акцентом на хранение и визуальный порядок.</p>
+          </article>
+          <article className="preview-teaser-mini-card">
+            <p className="preview-teaser-mini-label">Что купить сначала</p>
+            <p className="preview-teaser-mini-text">Крупные базовые предметы, световые сценарии и текстильную основу.</p>
+          </article>
+          <article className="preview-teaser-mini-card">
+            <p className="preview-teaser-mini-label">Что можно отложить</p>
+            <p className="preview-teaser-mini-text">Мелкий декор, акцентные детали и вторичный свет.</p>
+          </article>
+          <article className="preview-teaser-mini-card">
+            <p className="preview-teaser-mini-label">Что важно учесть</p>
+            <p className="preview-teaser-mini-text">Масштаб комнаты, проходы и сочетаемость материалов между зонами.</p>
+          </article>
+        </div>
+      </div>
+
+      <p className="preview-teaser-footnote">
+        В полном разборе вы увидите структуру набора, приоритеты покупок, бюджетную логику, композицию и персональный визуальный вариант.
+      </p>
+    </div>
+  );
+}
+
+function BeautyTeaser() {
+  return (
+    <div className="preview-teaser-inner preview-teaser-beauty">
+      <div className="preview-teaser-head">
+        <p className="preview-teaser-label">Как выглядит полный результат</p>
+        <h2 className="preview-teaser-title">Полный разбор ухода</h2>
+      </div>
+
+      <div className="preview-teaser-mini-grid">
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Утро</p>
+          <p className="preview-teaser-mini-text">Очищение → базовое увлажнение → защита.</p>
+        </article>
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Вечер</p>
+          <p className="preview-teaser-mini-text">Очищение → восстановление → спокойная поддержка барьера.</p>
+        </article>
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Что убрать</p>
+          <p className="preview-teaser-mini-text">Перегружающие сочетания и лишние активные шаги в один период.</p>
+        </article>
+        <article className="preview-teaser-mini-card">
+          <p className="preview-teaser-mini-label">Что вводить аккуратно</p>
+          <p className="preview-teaser-mini-text">Новые шаги постепенно, без одновременной нагрузки на кожу.</p>
+        </article>
+      </div>
+
+      <p className="preview-teaser-footnote">
+        В полном результате откроется понятная схема «утро / вечер», что оставить, что убрать, что не смешивать и как вводить новые шаги спокойно.
+      </p>
+      <p className="preview-teaser-disclaimer">Информационный разбор ухода, не медицинское назначение.</p>
+    </div>
+  );
+}
+
+function FullResultTeaser({ scenarioId }: { scenarioId: string }) {
+  if (scenarioId === "home-room-set") return <HomeTeaser />;
+  if (scenarioId === "beauty-routine") return <BeautyTeaser />;
+  if (scenarioId === "fashion-fit-check") return <FashionFitCheckTeaser />;
+  return <FashionSizeTeaser />;
+}
+
 export default function PreviewPage() {
   const params = useParams<{ scenario: string }>();
 
@@ -252,17 +447,6 @@ export default function PreviewPage() {
                 <li key={item}>- {item}</li>
               ))}
             </ul>
-            <p className="mt-4 text-sm text-[#564838]">
-              Цена: <span className="text-xl font-semibold text-[#2b2117]">{scenario.priceRub} RUB</span>
-            </p>
-            <TrackedLink
-              href={`/checkout?scenario=${scenario.id}&draft=${previewState.draft.id}`}
-              eventName={ANALYTICS_EVENT_NAMES.clickUnlockFullResult}
-              eventPayload={{ scenario_id: scenario.id, draft_id: previewState.draft.id }}
-              className="button-primary mt-5 inline-flex w-full justify-center"
-            >
-              Открыть полный разбор
-            </TrackedLink>
           </div>
 
           <div className="premium-note p-4 text-sm">
@@ -285,6 +469,33 @@ export default function PreviewPage() {
           </div>
         </aside>
       </div>
+
+      <section className="preview-teaser-shell">
+        <FullResultTeaser scenarioId={scenario.id} />
+      </section>
+
+      <section className="surface p-6 sm:p-7">
+        <div className="preview-cta-wrap">
+          <div>
+            <p className="preview-cta-kicker">Следующий шаг</p>
+            <h2 className="preview-cta-title">Откройте полный разбор, если хотите больше деталей перед покупкой</h2>
+            <p className="preview-cta-text">{aiPaywall.unlock_outcome}</p>
+          </div>
+          <div className="preview-cta-price">
+            <p className="preview-cta-price-label">Цена полного разбора</p>
+            <p className="preview-cta-price-value">{scenario.priceRub} RUB</p>
+          </div>
+        </div>
+
+        <TrackedLink
+          href={`/checkout?scenario=${scenario.id}&draft=${previewState.draft.id}`}
+          eventName={ANALYTICS_EVENT_NAMES.clickUnlockFullResult}
+          eventPayload={{ scenario_id: scenario.id, draft_id: previewState.draft.id }}
+          className="button-primary mt-5 inline-flex w-full justify-center sm:w-auto"
+        >
+          Открыть полный разбор
+        </TrackedLink>
+      </section>
     </section>
   );
 }

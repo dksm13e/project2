@@ -51,8 +51,8 @@ const scenarioList: ScenarioDefinition[] = [
     fullOutcome: "Полный разбор: размер, материал, рисковые зоны, проверки и PDF",
     heroPoints: [
       "Распознавание типа вещи из ссылки/контекста",
-      "Учет fit intent и материала",
-      "Понижение confidence при слабом входе"
+      "Учет желаемой посадки и материала",
+      "Понижение уровня уверенности при слабом входе"
     ],
     weakPreviewItems: [
       "Распознанная категория товара",
@@ -61,7 +61,7 @@ const scenarioList: ScenarioDefinition[] = [
     ],
     fullResultItems: [
       "Главный и альтернативный размер",
-      "Логика выбора и confidence",
+      "Логика выбора и уровень уверенности",
       "Влияние материала и зоны риска",
       "Что проверить до покупки и что может сместить рекомендацию"
     ],
@@ -109,7 +109,7 @@ const scenarioList: ScenarioDefinition[] = [
         label: "Бренд",
         type: "text",
         placeholder: "Например: Uniqlo",
-        hint: "Если бренд неизвестный, confidence будет ниже.",
+        hint: "Если бренд неизвестный, уровень уверенности будет ниже.",
         required: false
       },
       {
@@ -233,33 +233,38 @@ const scenarioList: ScenarioDefinition[] = [
     id: "fashion-fit-check",
     route: "/fashion/fit-check",
     categoryRoute: "/fashion",
-    title: "Fit-разбор образа",
-    shortTitle: "Проверка сочетания в образе",
-    subtitle: "Проверка стилистической совместимости вещи под вашу цель.",
-    tagline: "Быстрый fit-анализ до покупки",
+    title: "Разбор сочетания до покупки",
+    shortTitle: "Проверка, впишется ли вещь в образ",
+    subtitle: "Помогаем заранее понять, будет ли вещь работать в вашем гардеробе и под вашу цель.",
+    tagline: "Понятный разбор сочетания до покупки",
     priceRub: 299,
-    weakOutcome: "Предварительный вывод: fit-сигнал и ключевой риск",
-    fullOutcome: "Полный fit-разбор: сочетания, триггеры mismatch и decision-map",
+    weakOutcome: "Предварительный вывод: сигнал совместимости, главный риск и что может выбиваться по стилю",
+    fullOutcome: "Полный разбор: с чем вещь работает лучше, с чем спорит и стоит ли брать её под ваш сценарий",
     heroPoints: [
-      "Предварительный вывод для быстрой валидации",
-      "Полная логика открывается после оплаты",
-      "Без регистрационного барьера"
+      "Сначала видите основной сигнал совместимости",
+      "Понимаете главный риск до оплаты",
+      "Открываете детали только когда нужны"
     ],
-    weakPreviewItems: ["Базовый signal совместимости", "Один основной риск", "Короткий следующий шаг"],
+    weakPreviewItems: [
+      "Поймёте, впишется ли вещь в ваш образ",
+      "Увидите один главный риск",
+      "Поймёте, что может выбиваться по стилю"
+    ],
     fullResultItems: [
-      "Варианты сочетаний по ситуации",
-      "Триггеры mismatch и do-not-buy сигналы",
-      "Альтернативные пути",
+      "С чем вещь работает лучше",
+      "С чем она может спорить",
+      "Что смягчит несовпадение",
+      "Стоит ли брать вещь под ваш сценарий",
       "PDF + код доступа"
     ],
-    paywallTitle: "Полный fit-разбор",
+    paywallTitle: "Полный разбор сочетания",
     fields: [
       {
         name: "product_url",
         label: "Ссылка на товар",
         type: "url",
         placeholder: "https://...",
-        hint: "Нужна для первичного fit-анализа.",
+        hint: "Нужна для первичной оценки, как вещь впишется в ваш образ.",
         required: true
       },
       {
@@ -309,24 +314,24 @@ const scenarioList: ScenarioDefinition[] = [
     categoryRoute: "/home",
     title: "Разбор набора для дома",
     shortTitle: "Подбор для дома",
-    subtitle: "AI учитывает геометрию комнаты, стиль, бюджет, материалы и фото-контекст.",
-    tagline: "Глубокий room-set анализ без каталога",
+    subtitle: "AI учитывает геометрию комнаты, стиль, бюджет, материалы и фото, чтобы дать практичный вектор.",
+    tagline: "Глубокий разбор комнаты без каталога",
     priceRub: 490,
     weakOutcome: "Предварительный вывод: тип набора, вектор стиля и главный риск",
-    fullOutcome: "Полный разбор: must-have / optional / later-buy + композиция + PDF",
+    fullOutcome: "Полный разбор: обязательные, дополнительные и отложенные покупки + композиция + PDF",
     heroPoints: [
       "Учет формы, площади и высоты потолка",
-      "Image-aware контекст через фото комнаты и референсов",
+      "Учет фото комнаты, референсов и вашей мебели",
       "Материалы, цвет и бюджет в одном решении"
     ],
     weakPreviewItems: ["Тип набора", "Общий вектор композиции", "Главный риск бюджета/масштаба"],
     fullResultItems: [
-      "Визуальная стратегия и confidence",
-      "Must-have / optional / later-buy",
-      "Материалы, цвета, масштаб и ошибки",
+      "Визуальная стратегия и уровень уверенности",
+      "Обязательные / дополнительные / позже",
+      "Материалы, цвета, масштаб и частые ошибки",
       "Что не покупать прямо сейчас"
     ],
-    paywallTitle: "Полный разбор room set",
+    paywallTitle: "Полный разбор комнаты",
     fields: [
       {
         name: "room_type",
@@ -361,7 +366,7 @@ const scenarioList: ScenarioDefinition[] = [
           { value: "square", label: "Квадрат" },
           { value: "elongated", label: "Вытянутая" },
           { value: "narrow", label: "Узкая" },
-          { value: "open-space", label: "Open space" },
+          { value: "open-space", label: "Открытая планировка" },
           { value: "non-standard", label: "Нестандартная" }
         ]
       },
@@ -383,13 +388,13 @@ const scenarioList: ScenarioDefinition[] = [
         required: true,
         options: [
           { value: "cozy", label: "Уют" },
-          { value: "storage", label: "Storage" },
-          { value: "workspace", label: "Workspace" },
+          { value: "storage", label: "Хранение" },
+          { value: "workspace", label: "Рабочая зона" },
           { value: "calm", label: "Спокойный интерьер" },
           { value: "premium-look", label: "Визуально дороже" },
           { value: "minimalism", label: "Минимализм" },
-          { value: "family-practical", label: "Семейный practical" },
-          { value: "rental-friendly", label: "Rental-friendly" }
+          { value: "family-practical", label: "Семейный и практичный" },
+          { value: "rental-friendly", label: "Под аренду" }
         ]
       },
       {
@@ -401,23 +406,23 @@ const scenarioList: ScenarioDefinition[] = [
           { value: "minimalism", label: "Минимализм" },
           { value: "warm-minimal", label: "Тёплый минимализм" },
           { value: "scandi", label: "Сканди" },
-          { value: "japandi", label: "Japandi" },
-          { value: "modern-clean", label: "Современный clean" },
-          { value: "soft-loft", label: "Soft loft" },
-          { value: "modern-organic", label: "Modern organic" },
-          { value: "quiet-luxury-light", label: "Quiet luxury light" },
-          { value: "natural-neutral", label: "Natural neutral" },
+          { value: "japandi", label: "Джапанди" },
+          { value: "modern-clean", label: "Современный чистый" },
+          { value: "soft-loft", label: "Мягкий лофт" },
+          { value: "modern-organic", label: "Современный органичный" },
+          { value: "quiet-luxury-light", label: "Светлый спокойный премиум" },
+          { value: "natural-neutral", label: "Природный нейтральный" },
           { value: "cozy-basic", label: "Уютный базовый" },
-          { value: "storage-first", label: "Storage-first" },
-          { value: "compact-studio", label: "Compact studio" },
-          { value: "hotel-like-calm", label: "Hotel-like calm" },
-          { value: "soft-feminine", label: "Женственный soft" },
-          { value: "masculine-clean", label: "Masculine clean" },
-          { value: "family-practical", label: "Семейный practical" },
+          { value: "storage-first", label: "Хранение в приоритете" },
+          { value: "compact-studio", label: "Компактная студия" },
+          { value: "hotel-like-calm", label: "Спокойный как отель" },
+          { value: "soft-feminine", label: "Мягкий женственный" },
+          { value: "masculine-clean", label: "Сдержанный графичный" },
+          { value: "family-practical", label: "Семейный и практичный" },
           { value: "rental-light", label: "Аренда без перегруза" },
-          { value: "workspace-functional", label: "Workspace functional" },
-          { value: "dark-accent-modern", label: "Dark accent modern" },
-          { value: "light-premium-simple", label: "Light premium simple" }
+          { value: "workspace-functional", label: "Функциональная рабочая зона" },
+          { value: "dark-accent-modern", label: "Современный с тёмными акцентами" },
+          { value: "light-premium-simple", label: "Светлый премиум минимал" }
         ]
       },
       {
@@ -502,28 +507,28 @@ const scenarioList: ScenarioDefinition[] = [
       },
       {
         name: "reference_url",
-        label: "Ссылка на понравившийся товар (optional)",
+        label: "Ссылка на понравившийся товар (необязательно)",
         type: "url",
         placeholder: "https://...",
         required: false
       },
       {
         name: "room_photo",
-        label: "Фото комнаты (optional)",
+        label: "Фото комнаты (необязательно)",
         type: "file",
         accept: "image/*",
         required: false
       },
       {
         name: "reference_interior_photo",
-        label: "Фото понравившегося интерьера (optional)",
+        label: "Фото понравившегося интерьера (необязательно)",
         type: "file",
         accept: "image/*",
         required: false
       },
       {
         name: "existing_furniture_photo",
-        label: "Фото уже имеющейся мебели (optional)",
+        label: "Фото уже имеющейся мебели (необязательно)",
         type: "file",
         accept: "image/*",
         required: false
@@ -534,26 +539,26 @@ const scenarioList: ScenarioDefinition[] = [
     id: "beauty-routine",
     route: "/beauty/routine",
     categoryRoute: "/beauty",
-    title: "Разбор beauty routine",
-    shortTitle: "Подбор ухода",
-    subtitle: "AI анализирует чувствительность, concerns, роли шагов и риск перегруза рутины.",
-    tagline: "Структурный routine-анализ без перегруза",
+    title: "Разбор схемы ухода",
+    shortTitle: "Понятный уход без перегруза",
+    subtitle: "AI помогает собрать спокойную схему ухода: что оставить, что убрать и как аккуратно добавлять новое.",
+    tagline: "Понятный разбор ухода без лишних шагов",
     priceRub: 329,
-    weakOutcome: "Предварительный вывод: тип routine, фокус и главный риск",
-    fullOutcome: "Полный разбор: AM/PM, что убрать, ввод шагов, warnings и PDF",
+    weakOutcome: "Предварительный вывод: базовый формат ухода, главный фокус и один риск перегруза",
+    fullOutcome: "Полный разбор: схема на утро и вечер, что оставить, что убрать, что не смешивать и PDF",
     heroPoints: [
       "Распознавание ролей продуктов по ссылке/названию/контексту",
-      "Оценка перегруза или недосбора рутины",
+      "Оценка перегруза или недосбора схемы",
       "Консервативный режим при высокой чувствительности"
     ],
-    weakPreviewItems: ["Тип routine", "Основной фокус", "Следующий безопасный шаг"],
+    weakPreviewItems: ["Базовый формат ухода", "Основной фокус", "Один безопасный следующий шаг"],
     fullResultItems: [
-      "AM и PM структура",
-      "Must-have / optional / remove",
+      "Схема на утро и вечер",
+      "Что оставить и что убрать",
       "Что не сочетать и как вводить шаги",
-      "Упрощенный вариант и budget logic"
+      "Упрощённый вариант и бюджетная логика"
     ],
-    paywallTitle: "Полный разбор beauty routine",
+    paywallTitle: "Полный разбор ухода",
     fields: [
       {
         name: "skin_type",
@@ -570,7 +575,7 @@ const scenarioList: ScenarioDefinition[] = [
       },
       {
         name: "concerns",
-        label: "Главные состояния / concerns",
+        label: "Что вас сейчас беспокоит",
         type: "multiselect",
         required: false,
         options: [
@@ -638,14 +643,14 @@ const scenarioList: ScenarioDefinition[] = [
       },
       {
         name: "budget_rub",
-        label: "Бюджет (RUB)",
+        label: "Бюджет",
         type: "number",
         placeholder: "6000",
         required: true
       },
       {
         name: "current_routine",
-        label: "Текущий уход",
+        label: "Что используете сейчас",
         type: "textarea",
         placeholder: "Опишите текущие шаги и продукты",
         required: false
@@ -671,7 +676,7 @@ const scenarioList: ScenarioDefinition[] = [
       },
       {
         name: "fragrance_free",
-        label: "Важен fragrance-free?",
+        label: "Важно, чтобы было без отдушек?",
         type: "select",
         required: true,
         options: [
@@ -682,14 +687,14 @@ const scenarioList: ScenarioDefinition[] = [
       },
       {
         name: "reference_url",
-        label: "Ссылка на продукт (optional)",
+        label: "Ссылка на продукт (необязательно)",
         type: "url",
         placeholder: "https://...",
         required: false
       },
       {
         name: "current_products_photo",
-        label: "Фото текущих банок / набора (optional)",
+        label: "Фото текущих средств / набора (необязательно)",
         type: "file",
         accept: "image/*",
         required: false

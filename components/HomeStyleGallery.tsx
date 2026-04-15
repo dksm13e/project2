@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getScenario } from "@/lib/scenarios";
+import { fetchHomeStyleImage } from "@/lib/ai/http";
 
 const STYLE_REFERENCE_IMAGES: Record<string, { src: string; note: string }> = {
   minimalism: {
@@ -124,6 +125,8 @@ type FilterId = (typeof STYLE_FILTERS)[number]["id"];
 
 export function HomeStyleGallery() {
   const [activeFilter, setActiveFilter] = useState<FilterId>("all");
+  const [imageMap, setImageMap] = useState<Record<string, string>>({});
+  const requestedStylesRef = useRef<Set<string>>(new Set());
 
   const styleOptions = useMemo(() => {
     const scenario = getScenario("home-room-set");
@@ -136,13 +139,41 @@ export function HomeStyleGallery() {
     return styleOptions.filter((option) => (STYLE_TAGS[option.value] ?? []).includes(activeFilter));
   }, [styleOptions, activeFilter]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    styleOptions.forEach((option) => {
+      if (requestedStylesRef.current.has(option.value)) return;
+      requestedStylesRef.current.add(option.value);
+
+      fetchHomeStyleImage(option.value, "medium")
+        .then((url) => {
+          if (!isMounted) return;
+          setImageMap((current) => {
+            if (current[option.value] === url) return current;
+            return {
+              ...current,
+              [option.value]: url
+            };
+          });
+        })
+        .catch(() => {
+          // Keep fallback static reference.
+        });
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [styleOptions]);
+
   return (
     <section className="space-y-5">
       <div>
         <h2 className="section-title">Визуальные стили для дома</h2>
         <p className="mt-2 text-sm text-[#5e6a7c]">
-          Здесь используются фиксированные style-reference изображения для выбора направления. Персонализированный
-          визуал формируется отдельно в полном результате.
+          Для каждого стиля подгружается отдельный фото-референс. Эти карточки помогают быстро увидеть разницу между
+          направлениями до начала разбора.
         </p>
       </div>
 
@@ -164,19 +195,21 @@ export function HomeStyleGallery() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {filteredOptions.map((option) => {
-          const image = STYLE_REFERENCE_IMAGES[option.value];
+          const fallback = STYLE_REFERENCE_IMAGES[option.value];
+          const resolvedSrc = imageMap[option.value] ?? fallback?.src ?? "/style-references/home/minimalism.svg";
 
           return (
             <article key={option.value} className="premium-card group overflow-hidden">
               <img
-                src={image?.src ?? "/style-references/home/minimalism.svg"}
+                src={resolvedSrc}
                 alt={`Стиль ${option.label}`}
                 className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                 loading="lazy"
               />
               <div className="border-t border-[#d7e0ed] bg-[linear-gradient(180deg,rgba(255,255,255,0.95)_0%,rgba(247,251,255,0.9)_100%)] p-4">
-                <h3 className="text-sm font-semibold tracking-[0.01em] text-[#243041]">{option.label}</h3>
-                <p className="mt-1 text-xs text-[#657283]">{image?.note ?? "Фиксированный визуальный референс стиля."}</p>
+                <p className="text-[0.66rem] uppercase tracking-[0.14em] text-[#77859a]">Фото-референс</p>
+                <h3 className="mt-1 text-sm font-semibold tracking-[0.01em] text-[#243041]">{option.label}</h3>
+                <p className="mt-1 text-xs text-[#657283]">{fallback?.note ?? "Отдельный визуальный референс стиля."}</p>
               </div>
             </article>
           );

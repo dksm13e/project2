@@ -13,7 +13,11 @@ type RectState = {
   height: number;
 };
 
-const STORAGE_KEY = "home_onboarding_seen_v4";
+const STORAGE_KEY = "home_onboarding_seen_v5";
+const HEADER_OFFSET = 96;
+const SPOTLIGHT_PADDING = 8;
+const TOOLTIP_WIDTH = 360;
+const TOOLTIP_HEIGHT = 220;
 
 const FALLBACK_GUIDE: GuideOutput = {
   welcome_title: "Добро пожаловать",
@@ -65,6 +69,28 @@ function normalizeSteps(guide: GuideOutput): Record<StepId, GuideStepOutput> {
   };
 }
 
+function scrollToTarget(targetId: string, behavior: ScrollBehavior = "smooth") {
+  if (typeof window === "undefined") return;
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  const absoluteTop = rect.top + window.scrollY;
+  const destination = Math.max(0, absoluteTop - HEADER_OFFSET - 12);
+  window.scrollTo({ top: destination, behavior });
+}
+
+function readRect(targetId: string): RectState | null {
+  const target = document.getElementById(targetId);
+  if (!target) return null;
+  const rect = target.getBoundingClientRect();
+  return {
+    top: rect.top,
+    left: rect.left,
+    width: rect.width,
+    height: rect.height
+  };
+}
+
 export function HomeOnboardingGuide() {
   const [phase, setPhase] = useState<"welcome" | StepId | null>(null);
   const [targetRect, setTargetRect] = useState<RectState | null>(null);
@@ -73,6 +99,35 @@ export function HomeOnboardingGuide() {
 
   const activeStep = useMemo(() => (typeof phase === "number" ? phase : null), [phase]);
   const steps = useMemo(() => normalizeSteps(guide), [guide]);
+
+  const tooltipStyle = useMemo(() => {
+    if (typeof window === "undefined" || !targetRect) {
+      return {
+        top: 16,
+        left: 16,
+        width: Math.min(TOOLTIP_WIDTH, 360)
+      };
+    }
+
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    let top = targetRect.top + targetRect.height + 14;
+    if (top + TOOLTIP_HEIGHT > viewportHeight - 16) {
+      top = Math.max(16, targetRect.top - TOOLTIP_HEIGHT - 14);
+    }
+
+    let left = targetRect.left;
+    if (left + TOOLTIP_WIDTH > viewportWidth - 16) {
+      left = viewportWidth - TOOLTIP_WIDTH - 16;
+    }
+    left = Math.max(16, left);
+
+    return {
+      top,
+      left,
+      width: Math.min(TOOLTIP_WIDTH, viewportWidth - 32)
+    };
+  }, [targetRect]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -109,34 +164,70 @@ export function HomeOnboardingGuide() {
   }, []);
 
   useEffect(() => {
+    if (!phase || typeof window === "undefined") return;
+
+    const html = document.documentElement;
+    const body = document.body;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousBodyOverflow = body.style.overflow;
+    const previousBodyPaddingRight = body.style.paddingRight;
+    const scrollbarCompensation = window.innerWidth - document.documentElement.clientWidth;
+
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    if (scrollbarCompensation > 0) {
+      body.style.paddingRight = `${scrollbarCompensation}px`;
+    }
+
+    const preventWheel = (event: Event) => {
+      event.preventDefault();
+    };
+
+    const preventKeys = (event: KeyboardEvent) => {
+      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("wheel", preventWheel, { passive: false });
+    window.addEventListener("touchmove", preventWheel, { passive: false });
+    window.addEventListener("keydown", preventKeys);
+
+    return () => {
+      window.removeEventListener("wheel", preventWheel);
+      window.removeEventListener("touchmove", preventWheel);
+      window.removeEventListener("keydown", preventKeys);
+      html.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyOverflow;
+      body.style.paddingRight = previousBodyPaddingRight;
+    };
+  }, [phase]);
+
+  useEffect(() => {
     if (!activeStep) {
       setTargetRect(null);
       return;
     }
 
-    const updateRect = () => {
-      const target = document.getElementById(steps[activeStep].target_id);
-      if (!target) {
-        setTargetRect(null);
-        return;
-      }
+    const targetId = steps[activeStep].target_id;
+    scrollToTarget(targetId, "smooth");
 
-      const rect = target.getBoundingClientRect();
-      setTargetRect({
-        top: rect.top + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-        height: rect.height
-      });
+    const updateRect = () => {
+      setTargetRect(readRect(targetId));
     };
 
     updateRect();
+    const rafId = requestAnimationFrame(updateRect);
+    const t1 = window.setTimeout(updateRect, 180);
+    const t2 = window.setTimeout(updateRect, 380);
+
     window.addEventListener("resize", updateRect);
-    window.addEventListener("scroll", updateRect, { passive: true });
 
     return () => {
+      cancelAnimationFrame(rafId);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
       window.removeEventListener("resize", updateRect);
-      window.removeEventListener("scroll", updateRect);
     };
   }, [activeStep, steps]);
 
@@ -145,9 +236,12 @@ export function HomeOnboardingGuide() {
       localStorage.setItem(STORAGE_KEY, "1");
     }
     setPhase(null);
+    setTargetRect(null);
   };
 
-  const start = () => setPhase(1);
+  const start = () => {
+    setPhase(1);
+  };
 
   const nextStep = () => {
     if (!activeStep) return;
@@ -155,7 +249,8 @@ export function HomeOnboardingGuide() {
       finish();
       return;
     }
-    setPhase((activeStep + 1) as StepId);
+    const upcoming = (activeStep + 1) as StepId;
+    setPhase(upcoming);
   };
 
   const currentImage =
@@ -171,16 +266,16 @@ export function HomeOnboardingGuide() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-[#1c2431]/28 backdrop-blur-[1px]" />
+      <div className="absolute inset-0 bg-[#141c28]/34" />
 
-      {targetRect ? (
+      {targetRect && activeStep ? (
         <div
-          className="absolute rounded-2xl border-2 border-[#d4e0f2] shadow-[0_0_0_9999px_rgba(28,36,49,0.32)]"
+          className="absolute rounded-2xl border-2 border-[#d5e2f6] shadow-[0_0_0_9999px_rgba(20,28,40,0.34)] transition-all duration-200"
           style={{
-            top: targetRect.top - 8,
-            left: targetRect.left - 8,
-            width: targetRect.width + 16,
-            height: targetRect.height + 16
+            top: Math.max(8, targetRect.top - SPOTLIGHT_PADDING),
+            left: Math.max(8, targetRect.left - SPOTLIGHT_PADDING),
+            width: Math.max(24, targetRect.width + SPOTLIGHT_PADDING * 2),
+            height: Math.max(24, targetRect.height + SPOTLIGHT_PADDING * 2)
           }}
         />
       ) : null}
@@ -212,7 +307,14 @@ export function HomeOnboardingGuide() {
           </div>
         </div>
       ) : (
-        <div className="pointer-events-auto absolute left-1/2 top-6 w-[92%] max-w-md -translate-x-1/2 sm:top-8">
+        <div
+          className="pointer-events-auto absolute"
+          style={{
+            top: tooltipStyle.top,
+            left: tooltipStyle.left,
+            width: tooltipStyle.width
+          }}
+        >
           <div className="surface p-5">
             <div className="flex items-start gap-3">
               <img

@@ -123,7 +123,7 @@ const beautyEntryHints = {
   },
   "base-scheme": {
     title: "Сценарий: базовая схема",
-    text: "Укажите тип кожи и чувствительность — этого достаточно, чтобы собрать спокойный каркас AM/PM."
+    text: "Укажите тип кожи и чувствительность — этого достаточно, чтобы собрать спокойный каркас на утро и вечер."
   },
   "reduce-reaction": {
     title: "Сценарий: снизить риск реакции",
@@ -381,13 +381,16 @@ export function ScenarioForm({ scenarioId }: Props) {
               <li>- Без email и телефона</li>
               <li>- Доступ к результату по коду</li>
             </ul>
+            {scenario.id === "beauty-routine" ? (
+              <p className="mt-3 text-xs text-[#6d7a8f]">Это информационный разбор ухода, а не медицинское назначение.</p>
+            ) : null}
           </div>
         </form>
 
         <aside className={`space-y-4 ${tourStep === 1 ? "ring-2 ring-[#90a9ca] ring-offset-2 ring-offset-[#f4efe7] rounded-3xl" : ""}`}>
           <div className="surface-muted p-6">
             <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#738298]">
-              Что получите сразу
+              Сначала вы увидите
             </h3>
             <ul className="mt-3 space-y-2 text-sm text-[#556274]">
               {scenario.weakPreviewItems.map((item) => (
@@ -398,7 +401,7 @@ export function ScenarioForm({ scenarioId }: Props) {
 
           <div className="surface-muted p-6">
             <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#738298]">
-              Что входит в полный разбор
+              Что откроется в полном результате
             </h3>
             <ul className="mt-3 space-y-2 text-sm text-[#556274]">
               {scenario.fullResultItems.map((item) => (

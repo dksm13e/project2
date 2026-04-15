@@ -46,27 +46,27 @@ const demoResult: PurchasedResult = {
   createdAt: new Date("2026-04-01T10:00:00.000Z").toISOString(),
   confidenceBand: "74/100",
   executiveSummary:
-    "The fit direction is mostly positive, but shoulder tolerance looks tight in one size option.",
-  coreDecision: "Buy only if shoulder and sleeve measurements match your baseline by <=2 cm.",
+    "Направление по посадке в целом позитивное, но по плечам и рукаву есть узкая зона допуска в одном из размеров.",
+  coreDecision: "Покупайте только если мерки плеч и рукава совпадают с вашей базой с отклонением не более 2 см.",
   whyThis: [
-    "Body data and cut profile indicate upper-body sensitivity.",
-    "The model shape in photos suggests a narrower shoulder geometry.",
-    "Review trends for this item type show frequent exchange around sleeve length."
+    "Параметры тела и крой показывают чувствительность в верхней части.",
+    "По фото видно более узкую геометрию плеч у изделия.",
+    "По отзывам для этого типа вещей часто встречается обмен из-за длины рукава."
   ],
   alternatives: [
-    "Try one adjacent size with a regular fit profile.",
-    "Choose a similar item with a relaxed shoulder pattern.",
-    "If unsure, prioritize a return-friendly seller with same-day pickup."
+    "Попробуйте соседний размер со стандартной посадкой.",
+    "Выберите похожую вещь с более свободной линией плеч.",
+    "Если сомневаетесь, выбирайте продавца с удобным возвратом."
   ],
   cautionFlags: [
-    "Ignore generic size label without garment measurements.",
-    "Do not rely on photos only when seam placement matters.",
-    "Avoid buying if your planned layering changes the shoulder load."
+    "Не опирайтесь только на буквенный размер без мерок изделия.",
+    "Не принимайте решение по фото, если важна посадка по швам.",
+    "Не покупайте сразу, если планируете многослойность и она меняет посадку в плечах."
   ],
   actionPlan: [
-    "Open product chart and compare shoulder, chest, and sleeve lines.",
-    "Check two recent reviews with body stats close to yours.",
-    "Lock final size only after verifying all three dimensions."
+    "Откройте таблицу товара и сравните плечи, грудь и рукав.",
+    "Проверьте 2 недавних отзыва с похожими параметрами тела.",
+    "Фиксируйте размер только после проверки всех трёх мерок."
   ]
 };
 
@@ -114,34 +114,34 @@ function buildWeakPreview(draft: ScenarioDraft): WeakPreview {
   const { scenarioId, inputs } = draft;
 
   if (scenarioId === "fashion-size") {
-    const itemType = pick(inputs, ["item_type"], "selected item");
-    const fit = pick(inputs, ["fit_preference"], "regular fit");
+    const itemType = pick(inputs, ["item_category", "item_type"], "выбранная вещь");
+    const fit = pick(inputs, ["desired_fit", "fit_preference"], "стандартная посадка");
 
     return {
-      signal: `The ${itemType} likely requires a size decision close to ${fit}.`,
-      risk: "Upper-body tolerance appears narrow, so one wrong size can lead to return.",
-      nextStep: "Verify shoulder and sleeve dimensions before payment.",
+      signal: `Для категории «${itemType}» наиболее вероятна посадка, близкая к формату «${fit}».`,
+      risk: "Есть риск ошибки по плечам и рукаву, поэтому один шаг в размере может быть критичным.",
+      nextStep: "Сверьте мерки плеч и рукава до оплаты.",
       lockedModules: [
-        "Exact sizing branch map",
-        "Alternative fit pathways",
-        "Return-risk probability by condition",
-        "Structured PDF export"
+        "Точная карта выбора размера",
+        "Альтернативные сценарии посадки",
+        "Оценка риска возврата по условиям",
+        "PDF-версия результата"
       ]
     };
   }
 
   if (scenarioId === "fashion-fit-check") {
-    const styleGoal = pick(inputs, ["style_goal"], "your style goal");
+    const styleGoal = pick(inputs, ["style_goal"], "ваш стиль");
 
     return {
-      signal: `Base compatibility with ${styleGoal} is moderate, not cleanly high.`,
-      risk: "The item silhouette can conflict with your intended visual balance.",
-      nextStep: "Check shape contrast between item cut and your top/bottom ratio.",
+      signal: `Совместимость с целью «${styleGoal}» средняя: вещь может вписаться, но не автоматически.`,
+      risk: "Силуэт вещи может спорить с вашим привычным балансом образа.",
+      nextStep: "Проверьте, как крой вещи сочетается с вашими базовыми комбинациями.",
       lockedModules: [
-        "Styling alternatives by situation",
-        "Mismatch triggers with confidence scores",
-        "Keep-or-drop decision tree",
-        "Structured PDF export"
+        "Варианты сочетаний по ситуациям",
+        "Точки риска и что может выбиваться по стилю",
+        "Понятная схема «брать или не брать»",
+        "PDF-версия результата"
       ]
     };
   }
@@ -150,27 +150,27 @@ function buildWeakPreview(draft: ScenarioDraft): WeakPreview {
     const roomType = pick(inputs, ["room_type"], "room");
 
     return {
-      signal: `Your ${roomType} direction is coherent but budget tension is visible.`,
-      risk: "The current spread can overweight one anchor item and break set balance.",
-      nextStep: "Lock one anchor and re-balance secondary categories first.",
+      signal: `По комнате «${roomType}» базовый вектор выглядит цельным, но по бюджету есть напряжение.`,
+      risk: "Есть риск перегруза одной ключевой покупкой и потери баланса набора.",
+      nextStep: "Сначала зафиксируйте один базовый элемент и перераспределите второстепенные покупки.",
       lockedModules: [
-        "Full room composition map",
-        "Budget distribution across categories",
-        "Fallback alternatives by priority",
-        "Structured PDF export"
+        "Полная карта композиции комнаты",
+        "Распределение бюджета по категориям",
+        "Альтернативы по приоритетам",
+        "PDF-версия результата"
       ]
     };
   }
 
   return {
-    signal: "Routine direction is viable, but active-step sequencing is still uncertain.",
-    risk: "Sensitivity management may fail if product intensity order is wrong.",
-    nextStep: "Validate sequence and frequency before adding new actives.",
+    signal: "Базовая схема ухода возможна, но порядок и частота шагов пока требуют уточнения.",
+    risk: "Если перепутать порядок активных шагов, можно перегрузить кожу.",
+    nextStep: "Сначала зафиксируйте безопасную последовательность и только потом добавляйте новые средства.",
     lockedModules: [
-      "AM/PM routine architecture",
-      "Ingredient conflict matrix",
-      "Budget-priority replacement set",
-      "Structured PDF export"
+      "Подробная схема на утро и вечер",
+      "Матрица несовместимых сочетаний",
+      "Замены по приоритету и бюджету",
+      "PDF-версия результата"
     ]
   };
 }
@@ -188,28 +188,27 @@ function buildFullResult(draft: ScenarioDraft): ResultBlueprint {
     return {
       scenarioId,
       confidenceBand: "77/100",
-      executiveSummary:
-        "Fit quality is likely acceptable if you choose the branch that protects shoulder and sleeve tolerance.",
-      coreDecision: `Go with the ${fit} branch and verify measurements against your ${height}cm / ${weight}kg baseline.`,
+      executiveSummary: "Посадка будет комфортной, если выбрать ветку размера с запасом по плечам и рукаву.",
+      coreDecision: `Ориентируйтесь на посадку «${fit}» и сверяйте мерки с базой ${height} см / ${weight} кг.`,
       whyThis: [
-        "Input profile indicates moderate sizing sensitivity in upper body.",
-        "Item class and stated fit preference are directionally compatible.",
-        "Risk is concentrated in one dimension, so a narrow check unlocks confidence."
+        "Профиль ввода показывает среднюю чувствительность к посадке в верхней части.",
+        "Категория вещи и желаемая посадка в целом совместимы.",
+        "Риск сосредоточен в одной зоне, поэтому точечная проверка сильно повышает надёжность."
       ],
       alternatives: [
-        "Use the adjacent size with less aggressive taper.",
-        "Pick a variant with stretch allowance in key seams.",
-        "Delay purchase if seller chart misses shoulder or sleeve metrics."
+        "Возьмите соседний размер с более ровным силуэтом.",
+        "Выберите вариант с запасом эластичности в ключевых швах.",
+        "Отложите покупку, если в карточке нет мерок плеч или рукава."
       ],
       cautionFlags: [
-        "Do not trust label size alone without garment dimensions.",
-        "Avoid checkout if any key measurement is missing.",
-        "Account for layering thickness before final confirmation."
+        "Не опирайтесь только на буквенный размер без мерок изделия.",
+        "Не переходите к оплате, если не хватает хотя бы одной ключевой мерки.",
+        "Учитывайте слой одежды под низ, если планируете многослойность."
       ],
       actionPlan: [
-        "Compare three dimensions: shoulder, chest, sleeve.",
-        "Validate with two review samples close to your measurements.",
-        "Finalize purchase only when all dimensions stay in tolerance."
+        "Сверьте три зоны: плечи, грудь, рукав.",
+        "Проверьте два отзыва с параметрами, близкими к вашим.",
+        "Финализируйте покупку только когда все размеры в допустимом диапазоне."
       ]
     };
   }
@@ -220,28 +219,27 @@ function buildFullResult(draft: ScenarioDraft): ResultBlueprint {
     return {
       scenarioId,
       confidenceBand: "71/100",
-      executiveSummary:
-        "The item can work for your styling goal, but it needs a tighter pairing strategy to avoid visual mismatch.",
-      coreDecision: `Keep the item only if supporting pieces strengthen your ${goal} intent.`,
+      executiveSummary: "Вещь может вписаться в образ, но ей нужна более точная поддержка по сочетаниям.",
+      coreDecision: `Берите вещь только если текущие комбинации поддерживают цель «${goal}».`,
       whyThis: [
-        "Silhouette alignment is not fully automatic for your target look.",
-        "Contrast between item volume and body ratio creates conditional risk.",
-        "The styling outcome depends heavily on companion pieces."
+        "Силуэт не совпадает с целью автоматически и требует проверки в комплекте.",
+        "Контраст объёма вещи и ваших пропорций создаёт условный риск.",
+        "Итог сильно зависит от того, с чем вы её носите."
       ],
       alternatives: [
-        "Switch to a cleaner silhouette with fewer dependencies.",
-        "Use the same item with a different bottom proportion.",
-        "Replace with a lower-risk option for daily wear scenarios."
+        "Сместитесь к более чистому силуэту с меньшей зависимостью от сочетаний.",
+        "Оставьте вещь, но замените пропорцию низа.",
+        "Выберите более спокойный вариант для повседневного сценария."
       ],
       cautionFlags: [
-        "Do not evaluate fit from front-facing photo only.",
-        "Avoid combining with equally dominant statement pieces.",
-        "Skip if movement comfort is already borderline."
+        "Не оценивайте сочетание только по фото спереди.",
+        "Не комбинируйте сразу с такими же доминирующими акцентами.",
+        "Откажитесь от покупки, если комфорт уже на границе."
       ],
       actionPlan: [
-        "Validate proportion in mirror with intended footwear.",
-        "Check side profile before final decision.",
-        "Keep only if both comfort and visual intent are stable."
+        "Проверьте пропорции в зеркале с той обувью, с которой планируете носить.",
+        "Оцените образ в профиль перед финальным решением.",
+        "Берите только если и комфорт, и визуальная логика стабильны."
       ]
     };
   }
@@ -253,28 +251,27 @@ function buildFullResult(draft: ScenarioDraft): ResultBlueprint {
     return {
       scenarioId,
       confidenceBand: "79/100",
-      executiveSummary:
-        "Your room direction is strong when budget is redistributed toward foundational pieces first.",
-      coreDecision: `For the ${roomType}, keep total spend near ${budget} with a 45/35/20 category split.`,
+      executiveSummary: "Направление по комнате будет сильнее, если сначала вложиться в базовые элементы.",
+      coreDecision: `Для комнаты «${roomType}» держите общий бюджет около ${budget} и распределяйте покупки по этапам.`,
       whyThis: [
-        "Primary style signal is consistent across selected preferences.",
-        "Current setup risks over-investing in non-foundational items.",
-        "A staged purchase sequence improves visual and budget stability."
+        "Основной стиль читается стабильно по выбранным предпочтениям.",
+        "Текущий план рискует перегрузить второстепенные покупки.",
+        "Покупка по этапам делает интерьер и бюджет устойчивее."
       ],
       alternatives: [
-        "Use one premium anchor and two mid-tier support items.",
-        "Phase accessories into month two instead of week one.",
-        "Swap one statement piece for modular storage to preserve balance."
+        "Сделайте один ключевой акцент и 2 поддерживающие позиции среднего уровня.",
+        "Перенесите аксессуары на второй этап, а не в первую неделю.",
+        "Замените один акцентный предмет на модульное хранение для баланса."
       ],
       cautionFlags: [
-        "Do not lock decor before geometry-critical items.",
-        "Avoid mixing warm and cool undertones without a transition element.",
-        "Skip oversized anchors in narrow circulation spaces."
+        "Не фиксируйте декор до выбора геометрически важных предметов.",
+        "Не смешивайте тёплые и холодные подтоны без переходного элемента.",
+        "Избегайте слишком крупных акцентов в узких проходах."
       ],
       actionPlan: [
-        "Lock the anchor piece and measure circulation paths.",
-        "Allocate budget by category before choosing specific products.",
-        "Finalize decor only after core geometry is resolved."
+        "Выберите базовый якорный предмет и проверьте проходы.",
+        "Разложите бюджет по категориям до выбора конкретных позиций.",
+        "Финализируйте декор только после решения базовой геометрии."
       ]
     };
   }
@@ -286,27 +283,27 @@ function buildFullResult(draft: ScenarioDraft): ResultBlueprint {
     scenarioId,
     confidenceBand: "73/100",
     executiveSummary:
-      "A simplified routine structure can deliver steadier results if active intensity is sequenced carefully.",
-    coreDecision: `Build around ${goal} with a ${skinType}-safe frequency ramp.`,
+      "Упрощённая схема ухода даст более стабильный результат, если новые шаги вводить постепенно и в правильном порядке.",
+    coreDecision: `Стройте уход вокруг цели «${goal}» в режиме, безопасном для типа кожи «${skinType}».`,
     whyThis: [
-      "Current goals are realistic but conflict risk depends on sequence discipline.",
-      "Reducing simultaneous actives improves tolerance stability.",
-      "Budget can support a focused routine without unnecessary product noise."
+      "Цель достижима, но риск конфликта зависит от последовательности шагов.",
+      "Снижение количества активных шагов одновременно повышает переносимость.",
+      "Бюджета достаточно для спокойной и рабочей схемы без лишних средств."
     ],
     alternatives: [
-      "Use a two-step active cycle before expanding routine length.",
-      "Replace one active with barrier support during adaptation.",
-      "Run a low-intensity week whenever sensitivity spikes."
+      "Сначала используйте двухшаговый цикл и только потом расширяйте схему.",
+      "На этапе адаптации заменяйте один активный шаг на восстановление барьера.",
+      "При росте чувствительности переходите на неделю щадящего режима."
     ],
     cautionFlags: [
-      "Do not layer strong actives in the same introduction window.",
-      "Avoid increasing frequency before reaction baseline is stable.",
-      "Do not treat this plan as a medical recommendation."
+      "Не наслаивайте сильные активные шаги в одном периоде ввода.",
+      "Не увеличивайте частоту до стабильной реакции кожи.",
+      "Не воспринимайте этот разбор как медицинское назначение."
     ],
     actionPlan: [
-      "Establish AM/PM base for seven days.",
-      "Introduce one active and monitor tolerance markers.",
-      "Scale only after stable week-level response."
+      "Соберите базу на утро и вечер на 7 дней.",
+      "Добавьте один новый шаг и наблюдайте реакцию.",
+      "Расширяйте схему только после стабильной недели."
     ]
   };
 }
@@ -410,30 +407,30 @@ export function resultAsPdfText(result: PurchasedResult): string {
 
   return [
     "AI Shopping - Полный разбор",
-    `Scenario: ${title}`,
-    `Generated at: ${result.createdAt}`,
-    `Result token: ${result.token}`,
+    `Сценарий: ${title}`,
+    `Дата формирования: ${result.createdAt}`,
+    `Токен результата: ${result.token}`,
     `Код доступа: ${result.accessCode}`,
     "",
-    "Executive summary",
+    "Краткий итог",
     result.executiveSummary,
     "",
-    "Core decision",
+    "Основная рекомендация",
     result.coreDecision,
     "",
-    "Why this",
+    "Почему такой вывод",
     ...result.whyThis.map((line, index) => `${index + 1}. ${line}`),
     "",
-    "Alternatives",
+    "Альтернативы",
     ...result.alternatives.map((line, index) => `${index + 1}. ${line}`),
     "",
-    "Caution flags",
+    "Что важно учесть",
     ...result.cautionFlags.map((line, index) => `${index + 1}. ${line}`),
     "",
-    "Action plan",
+    "Следующие шаги",
     ...result.actionPlan.map((line, index) => `${index + 1}. ${line}`),
     "",
-    "Disclaimer",
-    "This output is informational and analytical, not a medical or legal recommendation."
+    "Ограничение",
+    "Этот разбор носит информационный характер и не является медицинским или юридическим назначением."
   ].join("\n");
 }
