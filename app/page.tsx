@@ -5,30 +5,11 @@ import { TrackedLink } from "@/components/TrackedLink";
 import { ANALYTICS_EVENT_NAMES } from "@/lib/analytics";
 import { HomeOnboardingGuide } from "@/components/HomeOnboardingGuide";
 import { AiFeatureImage } from "@/components/AiFeatureImage";
-import { HomeStyleGallery } from "@/components/HomeStyleGallery";
 
-const heroCtas = [
-  { label: "Начать с одежды", href: "#section-clothing", module: "fashion" },
-  { label: "Начать с дома", href: "#section-home", module: "home" },
-  { label: "Начать с ухода", href: "#section-beauty", module: "beauty" }
-];
-
-const directionAnchors = [
-  {
-    id: "section-clothing",
-    title: "Подбор размера одежды",
-    lead: "Чтобы не ошибиться с размером и посадкой."
-  },
-  {
-    id: "section-home",
-    title: "Подбор для дома",
-    lead: "Чтобы собрать интерьер спокойно и без хаоса."
-  },
-  {
-    id: "section-beauty",
-    title: "Подбор ухода",
-    lead: "Чтобы получить рабочую схему без перегруза."
-  }
+const directionLinks = [
+  { label: "Одежда", href: SCENARIOS["fashion-size"].route, module: "fashion" },
+  { label: "Дом", href: SCENARIOS["home-room-set"].route, module: "home" },
+  { label: "Уход", href: SCENARIOS["beauty-routine"].route, module: "beauty" }
 ];
 
 const howItWorksSteps = [
@@ -37,13 +18,13 @@ const howItWorksSteps = [
     text: "Одежда, дом или уход",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
-        <path d="M12 3v18M3 12h18" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
+        <path d="M4 12h16M12 4v16" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
       </svg>
     )
   },
   {
     title: "Ответьте на вопросы",
-    text: "Это займёт около минуты",
+    text: "Это займёт меньше минуты",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
         <path d="M5 6.5h14M5 12h14M5 17.5h9" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
@@ -68,7 +49,7 @@ const howItWorksSteps = [
   },
   {
     title: "Откройте полный разбор",
-    text: "Только если захотите больше деталей",
+    text: "Только если нужны детали и PDF",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
         <path
@@ -84,34 +65,43 @@ const howItWorksSteps = [
   }
 ];
 
-const fullReviewIncludes = [
-  "Главная рекомендация с объяснением логики выбора",
-  "Альтернативы под ваш бюджет и приоритеты",
-  "Риски и точки проверки до покупки",
-  "Чёткий план действий в несколько шагов",
-  "PDF-версия результата для сохранения",
-  "Код доступа для повторного открытия"
+const usefulCases = [
+  "Перед заказом одежды онлайн, когда не хочется ошибиться с размером.",
+  "Перед покупкой для дома, когда важно уложиться в бюджет и стиль.",
+  "Перед обновлением ухода, когда хочется убрать лишние шаги."
 ];
 
-const usefulCases = [
-  "Покупаете вещь онлайн и не хотите ошибиться с посадкой.",
-  "Планируете обновить комнату и не выйти за рамки бюджета.",
-  "Хотите упростить уход и убрать лишние шаги.",
-  "Нужно быстро принять решение, но без покупки вслепую."
+const trustItems = [
+  {
+    title: "Без регистрации",
+    text: "Начинаете сразу, без аккаунта и длинных форм."
+  },
+  {
+    title: "Без email и телефона",
+    text: "Контактные данные не нужны в основном пользовательском пути."
+  },
+  {
+    title: "Фото для дома",
+    text: "В подборе для дома можно добавить фото комнаты, референса и мебели для более точного вывода."
+  },
+  {
+    title: "Повторный доступ по коду",
+    text: "После оплаты результат можно открыть снова по коду доступа."
+  }
 ];
 
 const faqPreview = [
   {
     question: "Нужна ли регистрация?",
-    answer: "Нет. Можно начать сразу, без аккаунта."
+    answer: "Нет. Сервис работает без личного кабинета."
   },
   {
-    question: "Первый шаг правда бесплатный?",
-    answer: "Да. Сначала вы получаете бесплатный предварительный вывод."
+    question: "Сначала можно попробовать бесплатно?",
+    answer: "Да. Сначала вы получаете предварительный вывод."
   },
   {
-    question: "Чем отличается полный разбор?",
-    answer: "Он даёт детали, альтернативы, PDF и код доступа для повторного открытия."
+    question: "Что даёт полный разбор?",
+    answer: "Подробные рекомендации, риски, альтернативы, PDF и код доступа."
   }
 ];
 
@@ -120,85 +110,98 @@ export default function HomePage() {
     <>
       <HomeOnboardingGuide />
 
-      <div className="space-y-14 sm:space-y-16">
-        <section className="hero-shell relative overflow-hidden rounded-[2.4rem] px-6 py-12 sm:px-10 sm:py-16">
-          <div className="absolute -left-16 -top-20 h-52 w-52 rounded-full bg-[#e7d8ca]/75 blur-3xl" aria-hidden="true" />
-          <div className="absolute -bottom-20 right-0 h-56 w-56 rounded-full bg-[#ece1d3]/70 blur-3xl" aria-hidden="true" />
+      <div className="space-y-12 sm:space-y-14">
+        <section className="hero-shell relative overflow-hidden rounded-[2.5rem] px-6 py-12 sm:px-10 sm:py-16">
+          <div className="absolute -left-16 -top-20 h-52 w-52 rounded-full bg-[#e9dac9]/72 blur-3xl" aria-hidden="true" />
+          <div className="absolute -bottom-20 right-0 h-56 w-56 rounded-full bg-[#ede0d0]/68 blur-3xl" aria-hidden="true" />
 
-          <div className="relative grid gap-9 lg:grid-cols-[1.06fr_0.94fr] lg:items-center">
-            <div className="space-y-7">
-              <p className="pill inline-flex">Личный цифровой советник по покупкам</p>
-              <h1 className="display-title max-w-4xl text-balance">Выбирайте уверенно. Покупайте без ошибок.</h1>
-              <p className="max-w-3xl text-lg text-[#5d5247]">
-                Помогаем принять решение до покупки: одежда, дом и уход. Первый вывод вы получите сразу, полный разбор откроете только при необходимости.
+          <div className="relative grid gap-8 lg:grid-cols-[1.03fr_0.97fr] lg:items-center">
+            <div className="space-y-6">
+              <p className="pill inline-flex">Персональный цифровой советник</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-[#7a6b5b]">Выбирайте уверенно. Покупайте без ошибок.</p>
+              <h1 className="display-title max-w-4xl text-balance">Помогаем принять решение до покупки</h1>
+              <p className="max-w-2xl text-base text-[#5f5346] sm:text-lg">
+                Одежда, дом и уход в одном сервисе. Сначала вы видите короткий предварительный вывод и решаете, нужен ли полный разбор.
               </p>
 
               <div className="flex flex-wrap gap-3">
-                {heroCtas.map((cta, index) => (
-                  <TrackedLink
-                    key={cta.href}
-                    href={cta.href}
-                    eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
-                    eventPayload={{ module: cta.module, cta_label: cta.label }}
-                    id={index === 0 ? "onb-start-btn" : undefined}
-                    className={index === 0 ? "button-primary" : "button-secondary"}
-                  >
-                    {cta.label}
-                  </TrackedLink>
-                ))}
+                <TrackedLink
+                  id="onb-start-btn"
+                  href="#onb-directions"
+                  eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
+                  eventPayload={{ module: "start", cta_label: "Начать подбор" }}
+                  className="button-primary"
+                >
+                  Начать подбор
+                </TrackedLink>
+
+                <TrackedLink
+                  href="#how-it-works"
+                  eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
+                  eventPayload={{ module: "flow", cta_label: "Как это работает" }}
+                  className="button-secondary"
+                >
+                  Как это работает
+                </TrackedLink>
+
+                <TrackedLink
+                  href="/open-by-code"
+                  eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
+                  eventPayload={{ module: "access", cta_label: "Открыть по коду" }}
+                  className="button-secondary"
+                >
+                  Открыть по коду
+                </TrackedLink>
               </div>
 
-              <p className="text-sm text-[#685c4f]">Без регистрации • Без номера телефона • Код доступа после оплаты</p>
+              <div id="onb-directions" className="hero-direction-strip">
+                <p className="text-xs uppercase tracking-[0.16em] text-[#7c6d5d]">Выберите направление</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {directionLinks.map((item) => (
+                    <TrackedLink
+                      key={item.href}
+                      href={item.href}
+                      eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
+                      eventPayload={{ module: item.module, cta_label: item.label }}
+                      className="hero-direction-link"
+                    >
+                      {item.label}
+                    </TrackedLink>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-sm text-[#6a5d50]">Без регистрации • Без номера телефона • Код доступа после оплаты</p>
             </div>
 
-            <aside id="onb-quick-info" className="hero-stage p-4 sm:p-5">
+            <aside id="onb-quick-info" className="hero-visual-panel">
               <AiFeatureImage
                 featureKind="home-preview"
-                alt="Визуальный срез результата"
-                className="h-52 w-full rounded-2xl object-cover sm:h-60"
+                alt="Премиальный визуальный срез сервиса"
+                className="h-[21rem] w-full rounded-[1.2rem] object-cover sm:h-[23rem]"
               />
-              <div className="hero-stage-overlay">
-                <p className="text-xs uppercase tracking-[0.16em] text-[#7f6f5e]">Срез результата</p>
-                <p className="mt-2 text-base font-medium text-[#2f241b]">Рекомендация + риск + следующий шаг</p>
-                <p className="mt-2 text-sm text-[#5c4f40]">Данные собраны в удобный формат для решения перед покупкой.</p>
-                <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-[#5f5345]">
-                  <span className="hero-metric">~ 1 минута</span>
-                  <span className="hero-metric">3 направления</span>
-                  <span className="hero-metric">PDF + код</span>
-                </div>
+
+              <div className="hero-panel-chip hero-panel-chip-a">
+                <p className="text-xs uppercase tracking-[0.12em] text-[#7d6d5c]">Фокус</p>
+                <p className="mt-1 text-sm font-medium text-[#2f241a]">Рекомендация по вашей задаче</p>
+              </div>
+
+              <div className="hero-panel-chip hero-panel-chip-b">
+                <p className="text-xs uppercase tracking-[0.12em] text-[#7d6d5c]">Сигнал риска</p>
+                <p className="mt-1 text-sm font-medium text-[#2f241a]">Что проверить до покупки</p>
               </div>
             </aside>
           </div>
         </section>
 
-        <section id="onb-directions" className="surface p-6 sm:p-8">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="pill inline-flex">Направления</p>
-              <h2 className="section-title mt-3">С чего начать</h2>
-            </div>
-            <p className="max-w-xl text-sm text-[#675a4d]">Выберите нужное направление и прокрутите к нему — на главной уже есть краткий ориентир по каждому пути.</p>
-          </div>
-
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {directionAnchors.map((item) => (
-              <a key={item.id} href={`#${item.id}`} className="direction-tile p-5">
-                <p className="text-lg font-semibold text-[#2d231a]">{item.title}</p>
-                <p className="mt-2 text-sm text-[#625648]">{item.lead}</p>
-                <span className="mt-4 inline-flex text-sm font-medium text-[#46372a]">Открыть блок ↓</span>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        <section className="how-flow-shell p-6 sm:p-8">
+        <section id="how-it-works" className="how-flow-shell p-6 sm:p-8">
           <h2 className="section-title">Как это работает</h2>
           <div className="relative mt-6">
             <div className="pointer-events-none absolute left-[10%] right-[10%] top-10 hidden h-px bg-[#d5c8b8] md:block" aria-hidden="true" />
             <ol className="grid gap-3 md:grid-cols-4">
               {howItWorksSteps.map((step, index) => (
                 <li key={step.title} className={`how-flow-step p-4 text-sm ${index === 2 ? "how-flow-step-active" : ""}`}>
-                  <p className="text-xs uppercase tracking-[0.16em] text-[#7c6b59]">Шаг {index + 1}</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-[#7b6a58]">Шаг {index + 1}</p>
                   <span className="flow-icon mt-2">{step.icon}</span>
                   <p className="mt-2 font-medium text-[#2e241b]">{step.title}</p>
                   <p className="mt-1.5 text-[#605347]">{step.text}</p>
@@ -206,99 +209,11 @@ export default function HomePage() {
               ))}
             </ol>
           </div>
-          <p className="mt-5 rounded-xl bg-white px-4 py-3 text-sm text-[#5f5245]">
-            Без регистрации • Бесплатный предварительный вывод • Полный разбор только по желанию
-          </p>
-        </section>
-
-        <section id="section-clothing" className="module-spotlight module-spotlight-fashion">
-          <div className="module-spotlight-grid">
-            <div>
-              <p className="pill inline-flex">Одежда</p>
-              <h2 className="section-title mt-3">Подбор размера одежды</h2>
-              <p className="mt-3 text-sm text-[#605447]">
-                Получите понятный вывод по размеру и посадке перед заказом, чтобы снизить риск возврата.
-              </p>
-              <ul className="mt-4 space-y-2 text-sm text-[#534638]">
-                <li>- Сразу: вероятный размер и ключевой риск</li>
-                <li>- После оплаты: полный разбор по зонам посадки и материалу</li>
-              </ul>
-              <Link href={SCENARIOS["fashion-size"].route} className="button-primary mt-6 inline-flex">
-                Открыть форму одежды
-              </Link>
-            </div>
-            <div className="module-visual-card">
-              <AiFeatureImage
-                featureKind="fashion-preview"
-                alt="Подбор размера одежды"
-                className="h-56 w-full rounded-2xl object-cover"
-              />
-            </div>
-          </div>
-        </section>
-
-        <section id="section-home" className="module-spotlight module-spotlight-home">
-          <div className="module-spotlight-grid">
-            <div>
-              <p className="pill inline-flex">Дом</p>
-              <h2 className="section-title mt-3">Подбор для дома</h2>
-              <p className="mt-3 text-sm text-[#605447]">
-                Самый визуальный путь: добавьте фото комнаты, референса и мебели, чтобы получить более точный план покупок.
-              </p>
-              <ul className="mt-4 space-y-2 text-sm text-[#534638]">
-                <li>- Сразу: стартовый набор и стильный вектор</li>
-                <li>- После оплаты: must-have / optional / later-buy с бюджетной логикой</li>
-                <li>- Фото-контекст учитывается в интерпретации</li>
-              </ul>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link href={SCENARIOS["home-room-set"].route} className="button-primary">
-                  Открыть форму для дома
-                </Link>
-                <span className="module-note">Фото повышают точность разбора</span>
-              </div>
-            </div>
-            <div className="module-visual-card">
-              <AiFeatureImage
-                featureKind="home-preview"
-                alt="Подбор для дома"
-                className="h-56 w-full rounded-2xl object-cover"
-              />
-            </div>
-          </div>
-          <div className="mt-7">
-            <HomeStyleGallery />
-          </div>
-        </section>
-
-        <section id="section-beauty" className="module-spotlight module-spotlight-beauty">
-          <div className="module-spotlight-grid">
-            <div>
-              <p className="pill inline-flex">Уход</p>
-              <h2 className="section-title mt-3">Подбор ухода</h2>
-              <p className="mt-3 text-sm text-[#605447]">
-                Поможем собрать спокойную и понятную схему ухода под чувствительность, задачи и бюджет.
-              </p>
-              <ul className="mt-4 space-y-2 text-sm text-[#534638]">
-                <li>- Сразу: фокус и безопасный следующий шаг</li>
-                <li>- После оплаты: структура AM/PM, конфликтующие сочетания и план ввода</li>
-              </ul>
-              <Link href={SCENARIOS["beauty-routine"].route} className="button-primary mt-6 inline-flex">
-                Открыть форму ухода
-              </Link>
-            </div>
-            <div className="module-visual-card">
-              <AiFeatureImage
-                featureKind="beauty-preview"
-                alt="Подбор ухода"
-                className="h-56 w-full rounded-2xl object-cover"
-              />
-            </div>
-          </div>
         </section>
 
         <section className="surface-muted p-6 sm:p-8">
-          <h2 className="section-title">Когда это полезно</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
+          <h2 className="section-title">Для чего это полезно</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
             {usefulCases.map((item) => (
               <article key={item} className="rounded-2xl bg-white px-4 py-4 text-sm text-[#4f4337] shadow-[0_1px_1px_rgba(27,20,12,0.05)]">
                 {item}
@@ -308,14 +223,15 @@ export default function HomePage() {
         </section>
 
         <section className="surface p-6 sm:p-8">
-          <h2 className="section-title">Что даёт полный разбор</h2>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-            {fullReviewIncludes.map((item) => (
-              <li key={item} className="rounded-2xl border border-[#d9ccbe] bg-[#fffcf9] px-4 py-3 text-sm text-[#4f4336]">
-                {item}
-              </li>
+          <h2 className="section-title">Почему нам доверяют</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {trustItems.map((item) => (
+              <article key={item.title} className="rounded-2xl border border-[#d8cbbb] bg-[#fffdf9] px-4 py-4">
+                <p className="text-sm font-semibold text-[#2f241b]">{item.title}</p>
+                <p className="mt-2 text-sm text-[#5c4f40]">{item.text}</p>
+              </article>
             ))}
-          </ul>
+          </div>
         </section>
 
         <section className="surface p-6 sm:p-8">
