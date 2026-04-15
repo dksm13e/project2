@@ -33,12 +33,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-html:focus-within {
+html {
   scroll-behavior: smooth;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:focus-within {
+  html {
     scroll-behavior: auto;
   }
 }
@@ -1311,6 +1311,47 @@ html:focus-within {
   color: #243143;
 }
 
+.home-result-subtitle {
+  margin-top: 0.36rem;
+  font-size: 0.84rem;
+  color: #5f6d81;
+  line-height: 1.5;
+}
+
+.home-result-paid {
+  border-top: 1px solid #d7e1ee;
+  padding-top: 0.6rem;
+}
+
+.home-result-paid-label {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: #708096;
+}
+
+.home-use-cases-grid {
+  display: grid;
+  gap: 0.68rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-use-case {
+  border: 1px solid #d2dcea;
+  border-radius: 0.9rem;
+  padding: 0.78rem 0.86rem;
+  font-size: 0.93rem;
+  color: #334254;
+  background: rgba(255, 255, 255, 0.8);
+  line-height: 1.48;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.home-use-case:hover {
+  border-color: #bdd0e7;
+  transform: translateY(-1px);
+}
+
 .home-section-heading {
   font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.55rem, 3vw, 2.25rem);
@@ -1399,6 +1440,10 @@ html:focus-within {
 
   .home-micro-proof-list,
   .home-result-examples {
+    grid-template-columns: 1fr;
+  }
+
+  .home-use-cases-grid {
     grid-template-columns: 1fr;
   }
 

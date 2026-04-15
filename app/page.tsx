@@ -25,8 +25,11 @@ const howItWorksSteps = [
 
 const usefulCases = [
   "Когда важно не ошибиться с размером перед оплатой.",
-  "Когда нужно собрать комнату спокойно и без хаоса.",
-  "Когда хочется упростить уход и убрать лишнее."
+  "Когда вещь нравится, но есть сомнения по посадке.",
+  "Когда нужно спокойно собрать комнату без лишних покупок.",
+  "Когда хочется понять стиль до того, как тратить бюджет.",
+  "Когда уход стал слишком сложным и хочется убрать лишнее.",
+  "Когда не хочется перегружать кожу новыми шагами."
 ];
 
 const microProofItems = [
@@ -40,28 +43,52 @@ const resultExamples = [
   {
     direction: "Одежда",
     title: "Размер и посадка",
+    intro: "Сначала вы увидите ориентир по размеру и главный риск.",
     lines: [
       "Рекомендуемый размер: M",
       "Альтернатива: L для более свободной посадки",
-      "Что проверить: плечи и длину рукава"
+      "Главный риск: плечи и длина рукава",
+      "Что проверить перед покупкой: мерки изделия"
+    ],
+    paid: [
+      "Сценарий посадки",
+      "Что даст материал",
+      "Что проверить в карточке товара",
+      "PDF + код доступа"
     ]
   },
   {
     direction: "Дом",
     title: "Комната и стиль",
+    intro: "Сначала вы увидите стартовый вектор по комнате и бюджету.",
     lines: [
-      "Базовый вектор: спокойная светлая база",
+      "Базовый стиль: светлая спокойная база",
       "Приоритет: хранение и мягкий свет",
-      "Что не покупать сразу: лишний мелкий декор"
+      "Что не покупать сразу: лишний мелкий декор",
+      "Что проверить: масштаб и проходы"
+    ],
+    paid: [
+      "Must-have / optional",
+      "Бюджетная логика",
+      "Композиция по комнате",
+      "PDF + код доступа"
     ]
   },
   {
     direction: "Уход",
     title: "Спокойная схема ухода",
+    intro: "Сначала вы увидите базовый формат ухода и главный риск перегруза.",
     lines: [
-      "Утро: мягкое очищение и защита",
+      "Утро: мягкое очищение + защита",
       "Вечер: восстановление барьера",
-      "Что убрать: перегружающее сочетание активов"
+      "Что убрать: перегружающее сочетание активов",
+      "Что сохранить: спокойную базу"
+    ],
+    paid: [
+      "AM / PM по шагам",
+      "Что убрать",
+      "Как вводить новое",
+      "PDF + код доступа"
     ]
   }
 ];
@@ -69,19 +96,19 @@ const resultExamples = [
 const valueItems = [
   {
     title: "Первый вывод до оплаты",
-    text: "Сразу видите базовую рекомендацию и понимаете, насколько подходящий вектор."
+    text: "Сразу понимаете основной ориентир и главный риск перед покупкой."
   },
   {
-    title: "Понятная рекомендация",
-    text: "Без перегруза: ключевой вывод, главный риск и конкретный ориентир перед покупкой."
+    title: "Понятную рекомендацию",
+    text: "Не общий совет, а короткий вывод по вашей задаче."
   },
   {
-    title: "Следующий шаг перед покупкой",
-    text: "Получаете практичный чек-поинт, который снижает риск ошибки на следующем действии."
+    title: "Что проверить дальше",
+    text: "Получаете следующий шаг, который помогает не ошибиться."
   },
   {
-    title: "Полный разбор при необходимости",
-    text: "Открываете подробный результат только если нужно больше глубины и деталей."
+    title: "Полный разбор — только если нужен",
+    text: "Открываете подробный результат, когда хотите больше деталей."
   }
 ];
 
@@ -142,7 +169,7 @@ export default function HomePage() {
                   </TrackedLink>
 
                   <TrackedLink
-                    href="#how-it-works"
+                    href="/#how-it-works"
                     eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
                     eventPayload={{ module: "flow", cta_label: "Как это работает" }}
                     className="home-btn-secondary"
@@ -212,7 +239,7 @@ export default function HomePage() {
             </div>
           </section>
 
-          <section id="how-it-works" className="home-editorial-block p-6 sm:p-8">
+          <section id="how-it-works" className="home-editorial-block scroll-mt-28 p-6 sm:p-8">
             <h2 className="home-section-heading">Как это работает</h2>
             <div className="home-how-wrapper mt-7">
               <div className="home-how-line" aria-hidden="true" />
@@ -238,23 +265,32 @@ export default function HomePage() {
                 <article key={card.direction} className="home-result-card">
                   <p className="home-result-kicker">{card.direction}</p>
                   <h3 className="home-result-title">{card.title}</h3>
+                  <p className="home-result-subtitle">{card.intro}</p>
                   <ul className="mt-3 space-y-2 text-sm text-[#5d6a7d]">
                     {card.lines.map((line) => (
                       <li key={line}>- {line}</li>
                     ))}
                   </ul>
+                  <div className="home-result-paid mt-4">
+                    <p className="home-result-paid-label">После оплаты</p>
+                    <ul className="mt-2 space-y-1.5 text-xs text-[#5f6e84]">
+                      {card.paid.map((line) => (
+                        <li key={line}>- {line}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </article>
               ))}
             </div>
           </section>
 
           <section className="home-editorial-block p-6 sm:p-8">
-            <h2 className="home-section-heading">Для чего это полезно</h2>
-            <div className="mt-5 space-y-3">
+            <h2 className="home-section-heading">Когда это полезно</h2>
+            <div className="home-use-cases-grid mt-5">
               {usefulCases.map((item) => (
-                <p key={item} className="home-editorial-statement">
+                <article key={item} className="home-use-case">
                   {item}
-                </p>
+                </article>
               ))}
             </div>
           </section>
