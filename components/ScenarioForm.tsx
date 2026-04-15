@@ -5,11 +5,28 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getPreviewUsage, canUsePreview, getGuestId, registerPreviewUse } from "@/lib/guest";
 import { saveDraft } from "@/lib/flow";
+import { saveDraftImageInputs } from "@/lib/flow-images";
 import { ScenarioField, ScenarioId, getScenario } from "@/lib/scenarios";
 import { ANALYTICS_EVENT_NAMES, trackEvent } from "@/lib/analytics";
-import { getAiSmartFieldHint } from "@/lib/ai/router";
+import { fetchFormHints } from "@/lib/ai/http";
 
 const PREVIEW_LIMIT = 3;
+const MAX_IMAGE_DATA_URL_LENGTH = 650_000;
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("FileReader did not return a string result."));
+      }
+    };
+    reader.onerror = () => reject(new Error("FileReader failed to read image."));
+    reader.readAsDataURL(file);
+  });
+}
 
 type Props = {
   scenarioId: ScenarioId;
@@ -103,6 +120,7 @@ export function ScenarioForm({ scenarioId }: Props) {
   const [limitReached, setLimitReached] = useState(false);
   const [formStartedTracked, setFormStartedTracked] = useState(false);
   const [tourStep, setTourStep] = useState<number | null>(null);
+  const [smartHints, setSmartHints] = useState<Record<string, string>>({});
 
   useEffect(() => {
     getGuestId();
@@ -117,6 +135,29 @@ export function ScenarioForm({ scenarioId }: Props) {
       setTourStep(0);
     }
   }, []);
+
+  useEffect(() => {
+    if (!scenario) {
+      setSmartHints({});
+      return;
+    }
+
+    let isMounted = true;
+
+    fetchFormHints(scenario.id)
+      .then((hints) => {
+        if (!isMounted) return;
+        setSmartHints(hints);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setSmartHints({});
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [scenario]);
 
   if (!scenario) {
     return (
@@ -153,6 +194,7 @@ export function ScenarioForm({ scenarioId }: Props) {
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
     const inputs: Record<string, string> = {};
+    const imageInputs: Record<string, string> = {};
 
     for (const field of scenario.fields) {
       if (field.type === "multiselect") {
@@ -171,6 +213,17 @@ export function ScenarioForm({ scenarioId }: Props) {
           const cleanName = raw.name.replace(/\s+/g, "_");
           const kb = Math.max(1, Math.round(raw.size / 1024));
           inputs[field.name] = `upload:${cleanName}|${raw.type || "image/unknown"}|${kb}kb`;
+
+          if ((raw.type || "").startsWith("image/")) {
+            try {
+              const dataUrl = await fileToDataUrl(raw);
+              if (dataUrl.startsWith("data:image/") && dataUrl.length <= MAX_IMAGE_DATA_URL_LENGTH) {
+                imageInputs[field.name] = dataUrl;
+              }
+            } catch {
+              // Ignore image parsing errors and keep metadata-only fallback.
+            }
+          }
         } else {
           inputs[field.name] = "";
         }
@@ -191,6 +244,7 @@ export function ScenarioForm({ scenarioId }: Props) {
 
     registerPreviewUse();
     const draft = saveDraft(scenario.id, inputs);
+    saveDraftImageInputs(draft.id, imageInputs);
     router.push(`/preview/${scenario.id}?draft=${draft.id}`);
   };
 
@@ -245,7 +299,7 @@ export function ScenarioForm({ scenarioId }: Props) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             {scenario.fields.map((field) => {
-              const smartHint = getAiSmartFieldHint(scenario.id, field.name);
+              const smartHint = smartHints[field.name] ?? null;
 
               return (
                 <label

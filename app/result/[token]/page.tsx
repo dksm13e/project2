@@ -4,16 +4,15 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ANALYTICS_EVENT_NAMES, trackEvent } from "@/lib/analytics";
+import { AiFeatureImage } from "@/components/AiFeatureImage";
 import { getDraftById, getPurchasedResultByToken, type PurchasedResult } from "@/lib/flow";
+import { mergeInputsWithDraftImages } from "@/lib/flow-images";
 import { buildPdfHtmlTemplate, type PdfSection } from "@/lib/pdf-template";
 import { getScenario } from "@/lib/scenarios";
-import { runAiRoute } from "@/lib/ai/router";
-import type {
-  BeautyFullResultOutput,
-  FashionFullResultOutput,
-  HomeFullResultOutput,
-  PdfModeOutput
-} from "@/lib/ai/outputSchemas";
+import { fetchAiRoute } from "@/lib/ai/http";
+import { getCachedFullResult, setCachedFullResult } from "@/lib/ai/cache";
+import { buildPdfPayloadFromFullResult } from "@/lib/ai/pdf";
+import type { BeautyFullResultOutput, FashionFullResultOutput, HomeFullResultOutput } from "@/lib/ai/schemas";
 
 type FullOutput = FashionFullResultOutput | HomeFullResultOutput | BeautyFullResultOutput;
 
@@ -45,7 +44,7 @@ function formatDate(iso: string) {
 }
 
 function buildDisplayResult(full: FullOutput): DisplayResult {
-  const confidenceLine = `Confidence: ${full.confidence_level.toUpperCase()} (${full.confidence_score}/100)`;
+  const confidenceLine = `Точность: ${full.confidence_level.toUpperCase()} (${full.confidence_score}/100)`;
 
   if ("main_size" in full) {
     return {
@@ -154,6 +153,9 @@ export default function ResultPage() {
   const token = Array.isArray(params.token) ? params.token[0] : params.token;
 
   const [result, setResult] = useState<PurchasedResult | null>(null);
+  const [aiFull, setAiFull] = useState<FullOutput | null>(null);
+  const [aiError, setAiError] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
   const [shownTracked, setShownTracked] = useState(false);
 
@@ -169,33 +171,69 @@ export default function ResultPage() {
   const draftInputs = useMemo(() => {
     if (!result) return {};
     const draft = getDraftById(result.draftId);
-    return draft?.inputs ?? {};
+    if (!draft) return {};
+    return mergeInputsWithDraftImages(result.draftId, draft.inputs);
   }, [result]);
 
-  const aiFull = useMemo(() => {
-    if (!result) return null;
-    const routed = runAiRoute({
+  useEffect(() => {
+    if (!result) {
+      setAiFull(null);
+      setAiError("");
+      setIsAiLoading(false);
+      return;
+    }
+
+    const cached = getCachedFullResult(result.scenarioId, result.token);
+    if (cached) {
+      setAiFull(cached);
+      setAiError("");
+      setIsAiLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    setIsAiLoading(true);
+    setAiError("");
+
+    fetchAiRoute({
       scenarioId: result.scenarioId,
       mode: "full_result",
       inputs: draftInputs
-    });
-    return routed.output as FullOutput;
-  }, [result, draftInputs]);
+    })
+      .then((fullResult) => {
+        if (!isMounted) return;
+        const full = fullResult.output as FullOutput;
+        setAiFull(full);
+        setCachedFullResult({
+          scenarioId: result.scenarioId,
+          token: result.token,
+          fullResult: full
+        });
+      })
+      .catch((error) => {
+        if (!isMounted) return;
+        const message = error instanceof Error ? error.message : "Не удалось загрузить полный результат.";
+        setAiError(message);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsAiLoading(false);
+      });
 
-  const aiPdf = useMemo(() => {
-    if (!result) return null;
-    const routed = runAiRoute({
-      scenarioId: result.scenarioId,
-      mode: "pdf",
-      inputs: draftInputs
-    });
-    return routed.output as PdfModeOutput;
+    return () => {
+      isMounted = false;
+    };
   }, [result, draftInputs]);
 
   const structured = useMemo(() => {
     if (!aiFull) return null;
     return buildDisplayResult(aiFull);
   }, [aiFull]);
+
+  const aiPdf = useMemo(() => {
+    if (!aiFull || !scenario) return null;
+    return buildPdfPayloadFromFullResult(aiFull, scenario.title);
+  }, [aiFull, scenario]);
 
   useEffect(() => {
     if (!result || shownTracked) return;
@@ -247,16 +285,48 @@ export default function ResultPage() {
     }
   };
 
-  if (!result || !structured || !aiPdf) {
+  if (!result) {
     return (
       <section className="surface p-8">
         <h1 className="text-2xl font-semibold">Результат не найден</h1>
         <p className="mt-3 text-sm text-[#645747]">
           Этот токен не найден в локальном хранилище. Откройте результат по коду доступа или сформируйте новый.
         </p>
+        <AiFeatureImage
+          featureKind="result-empty"
+          alt="Пустое состояние результата"
+          className="mt-5 h-44 w-full rounded-2xl border border-[#ddcfbe] object-cover"
+        />
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/open-by-code" className="button-primary">
             Открыть по коду
+          </Link>
+          <Link href="/" className="button-secondary">
+            На главную
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  if (isAiLoading) {
+    return (
+      <section className="surface p-8">
+        <p className="pill inline-flex">Полный разбор</p>
+        <h1 className="mt-3 text-2xl font-semibold">Готовим полный результат...</h1>
+        <div className="mt-6 h-44 animate-pulse rounded-2xl bg-[#f2eadf]" />
+      </section>
+    );
+  }
+
+  if (!structured || !aiPdf || aiError) {
+    return (
+      <section className="surface p-8">
+        <h1 className="text-2xl font-semibold">Полный результат временно недоступен</h1>
+        <p className="mt-3 text-sm text-[#645747]">{aiError || "Не удалось сформировать AI-результат для этого токена."}</p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href="/open-by-code" className="button-primary">
+            Открыть другой результат
           </Link>
           <Link href="/" className="button-secondary">
             На главную
@@ -374,7 +444,7 @@ export default function ResultPage() {
 
           <div className="surface-muted p-6">
             <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">PDF-отчет</h2>
-            <p className="mt-2 text-sm text-[#5c4f40]">Сформирован на основе структурированного full result и готов к сохранению/печати.</p>
+            <p className="mt-2 text-sm text-[#5c4f40]">Сформирован на основе структурированного результата и готов к сохранению/печати.</p>
             <button onClick={downloadPdf} className="button-primary mt-4 inline-flex w-full justify-center">
               Скачать PDF
             </button>

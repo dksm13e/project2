@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+import Link from "next/link";
+import { AiFeatureImage } from "@/components/AiFeatureImage";
 import { pricingRows } from "@/lib/content";
 
 export default function PricingPage() {
@@ -27,6 +28,11 @@ export default function PricingPage() {
       </div>
 
       <div className="surface-muted p-6 text-sm text-[#5b4f40]">
+        <AiFeatureImage
+          featureKind="pricing"
+          alt="Иллюстрация раздела цен"
+          className="mb-4 h-36 w-full rounded-2xl border border-[#ddcfbe] object-cover"
+        />
         <p>В этой версии оплата эмулируется (fake success), чтобы протестировать реалистичный пользовательский flow.</p>
         <Link href="/" className="button-secondary mt-4 inline-flex">
           Вернуться к направлениям

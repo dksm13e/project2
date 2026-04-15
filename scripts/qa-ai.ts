@@ -1,5 +1,5 @@
 import { getAiGuideOutput, getAiSmartFieldHint, runAiRoute } from "@/lib/ai/router";
-import type { AiScenarioKey } from "@/lib/ai/outputSchemas";
+import type { AiScenarioKey } from "@/lib/ai/schemas";
 
 type Case = {
   name: string;
@@ -163,7 +163,7 @@ const snapshots: Array<{ caseName: string; mode: string; sample: string }> = [];
 for (const entry of CASES) {
   for (const modeSpec of MODE_SPECS) {
     try {
-      const result = runAiRoute({
+      const result = await runAiRoute({
         scenarioId: entry.scenarioId,
         mode: modeSpec.mode,
         inputs: entry.inputs
@@ -200,7 +200,7 @@ for (const entry of CASES) {
 }
 
 try {
-  const guide = getAiGuideOutput();
+  const guide = await getAiGuideOutput();
   const guideOk =
     typeof guide.welcome_title === "string" &&
     Array.isArray(guide.steps) &&
@@ -220,8 +220,8 @@ try {
 }
 
 try {
-  const hint = getAiSmartFieldHint("fashion-size", "desired_fit");
-  const missingHint = getAiSmartFieldHint("fashion-size", "unknown_field_name");
+  const hint = await getAiSmartFieldHint("fashion-size", "desired_fit");
+  const missingHint = await getAiSmartFieldHint("fashion-size", "unknown_field_name");
   if (!hint || missingHint !== null) {
     failures += 1;
     console.log("FAIL form-hints retrieval");

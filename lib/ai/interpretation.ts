@@ -2,6 +2,12 @@ import type { AiScenarioDomain } from "@/lib/ai/outputSchemas";
 
 type Inputs = Record<string, string>;
 
+export type AiInputImage = {
+  field: string;
+  image_url: string;
+  detail?: "low" | "high" | "auto";
+};
+
 export type ConfidenceLevel = "low" | "medium" | "high";
 
 type ImageSignal = {
@@ -143,6 +149,72 @@ function confidenceFromScore(score: number): ConfidenceLevel {
 
 function dedupe(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))];
+}
+
+function isDataImageUrl(value: string): boolean {
+  return /^data:image\/[a-z0-9.+-]+;base64,/i.test(value);
+}
+
+function isHttpImageUrl(value: string): boolean {
+  if (!/^https?:\/\//i.test(value)) return false;
+  return /(\.(png|jpe?g|webp|gif|avif|bmp|svg)(\?|#|$))|([/?&]image=)|([/?&]img=)/i.test(value);
+}
+
+function compactImageValue(value: string | undefined): string {
+  const raw = (value ?? "").trim();
+  if (!raw) return "";
+  if (isDataImageUrl(raw)) return "image-upload";
+  if (raw.startsWith("upload:")) return "image-upload";
+  return raw.length > 240 ? `${raw.slice(0, 240)}...` : raw;
+}
+
+export function sanitizeInputsForPrompt(inputs: Inputs): Inputs {
+  const sanitized: Inputs = {};
+
+  for (const [key, raw] of Object.entries(inputs)) {
+    const value = (raw ?? "").trim();
+    if (!value) {
+      sanitized[key] = "";
+      continue;
+    }
+
+    if (isDataImageUrl(value)) {
+      const mime = value.slice(5, value.indexOf(";base64,") > -1 ? value.indexOf(";base64,") : undefined) || "image";
+      const base64 = value.split(",", 2)[1] ?? "";
+      const bytesApprox = Math.max(0, Math.floor((base64.length * 3) / 4));
+      const kbApprox = Math.max(1, Math.round(bytesApprox / 1024));
+      sanitized[key] = `[image:${mime};~${kbApprox}kb]`;
+      continue;
+    }
+
+    sanitized[key] = value.length > 360 ? `${value.slice(0, 360)}...` : value;
+  }
+
+  return sanitized;
+}
+
+export function extractImageInputs(inputs: Inputs, maxImages = 4): AiInputImage[] {
+  const images: AiInputImage[] = [];
+  const fieldHintRe = /(photo|image|screenshot|room|interior|furniture|products|good_fit|item)/i;
+
+  for (const [field, raw] of Object.entries(inputs)) {
+    if (images.length >= maxImages) break;
+
+    const value = (raw ?? "").trim();
+    if (!value) continue;
+
+    const isData = isDataImageUrl(value);
+    const isHttp = isHttpImageUrl(value);
+    if (!isData && !(fieldHintRe.test(field) && isHttp)) continue;
+
+    images.push({
+      field,
+      image_url: value,
+      detail: "auto"
+    });
+  }
+
+  return images;
 }
 
 function normalizeKey(value: string): string {
@@ -380,6 +452,16 @@ function parseImageSignal(field: string, raw: string | undefined): ImageSignal {
     };
   }
 
+  if (isDataImageUrl(value)) {
+    return {
+      field,
+      source: "upload",
+      tags: [field.replace(/_/g, "-"), "image-upload"],
+      quality: "high",
+      note: "Добавлено изображение для визуальной интерпретации"
+    };
+  }
+
   if (value.startsWith("upload:")) {
     const payload = value.replace("upload:", "");
     const tags = serializeTokens(payload);
@@ -426,7 +508,7 @@ function interpretFashion(inputs: Inputs): FashionInterpretation {
   const knownBrand = knownBrands.has(brandNormalized);
 
   const explicitCategory = normalizeFashionCategory(inputs.item_category);
-  const productText = `${inputs.product_url ?? ""} ${inputs.product_title ?? ""} ${inputs.item_photo ?? ""}`.trim();
+  const productText = `${inputs.product_url ?? ""} ${inputs.product_title ?? ""} ${compactImageValue(inputs.item_photo)}`.trim();
   const categoryInference = inferCategoryFromTokens(serializeTokens(productText));
 
   const recognizedCategory =
@@ -763,7 +845,9 @@ function mapConcernAliases(raw: string[]): string[] {
 
 function interpretBeauty(inputs: Inputs): BeautyInterpretation {
   const concerns = mapConcernAliases(splitList(inputs.concerns));
-  const referenceText = `${inputs.reference_url ?? ""} ${inputs.product_url ?? ""} ${inputs.current_products_photo ?? ""} ${
+  const referenceText = `${inputs.reference_url ?? ""} ${inputs.product_url ?? ""} ${compactImageValue(
+    inputs.current_products_photo ?? inputs.products_photo
+  )} ${
     inputs.current_routine ?? ""
   } ${inputs.not_suitable_products ?? ""}`.trim();
 

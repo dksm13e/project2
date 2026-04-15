@@ -1,6 +1,7 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { SCENARIOS } from "@/lib/scenarios";
 import { ModulePageTracker } from "@/components/ModulePageTracker";
+import { HomeStyleGallery } from "@/components/HomeStyleGallery";
 
 const option = SCENARIOS["home-room-set"];
 
@@ -35,6 +36,8 @@ export default function HomeCategoryPage() {
           <span className="text-sm text-[#665949]">Разовый доступ от {option.priceRub} RUB</span>
         </div>
       </article>
+
+      <HomeStyleGallery />
     </section>
   );
 }

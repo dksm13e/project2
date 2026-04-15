@@ -1,11 +1,20 @@
-import type { FashionInterpretation } from "@/lib/ai/interpretation";
+import { getAiRuntimeConfig, requestStructuredJson } from "@/lib/ai/client";
+import { compactFullOutput, compactPaywallSummary, compactPdfOutput, compactPreviewOutput } from "@/lib/ai/compact";
+import {
+  extractImageInputs,
+  interpretScenarioInputs,
+  sanitizeInputsForPrompt,
+  type FashionInterpretation
+} from "@/lib/ai/interpretation";
+import { getLiveSystemPrompt, getLiveUserPrompt } from "@/lib/ai/prompts";
 import type {
   FashionFullResultOutput,
   FormHintsOutput,
   PaywallSummaryOutput,
   PdfModeOutput,
   PreviewModeOutput
-} from "@/lib/ai/outputSchemas";
+} from "@/lib/ai/schemas";
+import { validateAiOutput } from "@/lib/ai/schemas";
 
 type Inputs = Record<string, string>;
 
@@ -13,6 +22,64 @@ const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
 
 function asFashionInterpretation(interpretation: unknown): FashionInterpretation {
   return interpretation as FashionInterpretation;
+}
+
+function hasStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function clampConfidence(value: number) {
+  return Math.max(1, Math.min(99, Math.round(value)));
+}
+
+type FashionInterpretationPatch = {
+  interpretation_notes?: string[];
+  limitations?: string[];
+  confidence_score?: number;
+  confidence_level?: "low" | "medium" | "high";
+  recognized_category?: string;
+  source_category?: "explicit" | "inferred" | "fallback";
+};
+
+async function tryLiveFashionOutput<T extends PreviewModeOutput | FashionFullResultOutput | PdfModeOutput | PaywallSummaryOutput>(params: {
+  mode: "preview" | "full_result" | "pdf" | "paywall_summary";
+  inputs: Inputs;
+  interpretation: FashionInterpretation;
+  baseline: T;
+}): Promise<T | null> {
+  const runtime = getAiRuntimeConfig();
+  if (!runtime.textLiveEnabled) return null;
+
+  try {
+    const promptInputs = sanitizeInputsForPrompt(params.inputs);
+    const candidate = await requestStructuredJson<T>({
+      task: `fashion.${params.mode}`,
+      systemPrompt: getLiveSystemPrompt("fashion", params.mode),
+      userPrompt: getLiveUserPrompt({
+        domain: "fashion",
+        mode: params.mode,
+        inputs: promptInputs,
+        interpretation: params.interpretation,
+        baselineOutput: params.baseline
+      }),
+      maxOutputTokens:
+        params.mode === "preview"
+          ? 220
+          : params.mode === "paywall_summary"
+            ? 260
+            : params.mode === "full_result"
+              ? 920
+              : 700,
+      inputImages: extractImageInputs(params.inputs)
+    });
+
+    if (!validateAiOutput("fashion", params.mode, candidate)) {
+      return null;
+    }
+    return candidate;
+  } catch {
+    return null;
+  }
 }
 
 function normalizeSize(value: string): string {
@@ -288,4 +355,101 @@ export function runFashionFormHints(): FormHintsOutput {
       item_photo: "Фото товара полезно, когда ссылка не дает явной категории."
     }
   };
+}
+
+export async function interpretFashionInput(inputs: Inputs): Promise<FashionInterpretation> {
+  const baseline = interpretScenarioInputs("fashion", inputs) as FashionInterpretation;
+  const runtime = getAiRuntimeConfig();
+  if (!runtime.textLiveEnabled) return baseline;
+
+  try {
+    const promptInputs = sanitizeInputsForPrompt(inputs);
+    const patch = await requestStructuredJson<FashionInterpretationPatch>({
+      task: "fashion.interpretation",
+      systemPrompt:
+        "You refine fashion interpretation quality. Return only JSON patch with optional fields: interpretation_notes[], limitations[], confidence_score, confidence_level, recognized_category, source_category.",
+      userPrompt: [
+        "Improve interpretation only if data supports it. Never hallucinate missing facts.",
+        `Inputs JSON: ${JSON.stringify(promptInputs)}`,
+        `Baseline interpretation JSON: ${JSON.stringify(baseline)}`
+      ].join("\n"),
+      maxOutputTokens: 260,
+      inputImages: extractImageInputs(inputs)
+    });
+
+    const merged: FashionInterpretation = {
+      ...baseline,
+      normalized: {
+        ...baseline.normalized,
+        recognized_category:
+          typeof patch.recognized_category === "string" && patch.recognized_category.trim().length > 0
+            ? patch.recognized_category
+            : baseline.normalized.recognized_category,
+        source_category: patch.source_category ?? baseline.normalized.source_category
+      },
+      interpretation_notes: hasStringArray(patch.interpretation_notes) ? patch.interpretation_notes : baseline.interpretation_notes,
+      limitations: hasStringArray(patch.limitations) ? patch.limitations : baseline.limitations,
+      confidence_score:
+        typeof patch.confidence_score === "number" ? clampConfidence(patch.confidence_score) : baseline.confidence_score,
+      confidence_level: patch.confidence_level ?? baseline.confidence_level
+    };
+
+    return merged;
+  } catch {
+    return baseline;
+  }
+}
+
+export async function generateFashionPreview(
+  inputs: Inputs,
+  interpretation?: FashionInterpretation
+): Promise<PreviewModeOutput> {
+  const prepared = interpretation ?? (await interpretFashionInput(inputs));
+  const baseline = runFashionPreview(inputs, prepared);
+  const live = await tryLiveFashionOutput({
+    mode: "preview",
+    inputs,
+    interpretation: prepared,
+    baseline
+  });
+  return compactPreviewOutput(live ?? baseline);
+}
+
+export async function generateFashionPaywallSummary(
+  inputs: Inputs,
+  interpretation?: FashionInterpretation
+): Promise<PaywallSummaryOutput> {
+  const prepared = interpretation ?? (await interpretFashionInput(inputs));
+  const baseline = runFashionPaywall(inputs, prepared);
+  const live = await tryLiveFashionOutput({
+    mode: "paywall_summary",
+    inputs,
+    interpretation: prepared,
+    baseline
+  });
+  return compactPaywallSummary(live ?? baseline);
+}
+
+export async function generateFashionFullResult(
+  inputs: Inputs,
+  interpretation?: FashionInterpretation
+): Promise<FashionFullResultOutput> {
+  const prepared = interpretation ?? (await interpretFashionInput(inputs));
+  const baseline = runFashionFull(inputs, prepared);
+  const live = await tryLiveFashionOutput({
+    mode: "full_result",
+    inputs,
+    interpretation: prepared,
+    baseline
+  });
+  return compactFullOutput(live ?? baseline) as FashionFullResultOutput;
+}
+
+export async function generateFashionPdfPayload(
+  inputs: Inputs,
+  interpretation?: FashionInterpretation
+): Promise<PdfModeOutput> {
+  const prepared = interpretation ?? (await interpretFashionInput(inputs));
+  const baseline = runFashionPdf(inputs, prepared);
+  return compactPdfOutput(baseline);
 }

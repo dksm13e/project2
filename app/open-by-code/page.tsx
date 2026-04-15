@@ -1,10 +1,12 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { AiFeatureImage } from "@/components/AiFeatureImage";
 import { findTokenByAccessCode } from "@/lib/flow";
 import { ANALYTICS_EVENT_NAMES, trackEvent } from "@/lib/analytics";
+import { fetchRuntimeConfig } from "@/lib/ai/http";
 
 export default function OpenByCodePage() {
   const router = useRouter();
@@ -12,11 +14,31 @@ export default function OpenByCodePage() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [ttlDays, setTtlDays] = useState<number>(14);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     const prefill = query.get("prefill");
     if (prefill) setCode(prefill);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchRuntimeConfig()
+      .then((config) => {
+        if (!isMounted) return;
+        if (typeof config.resultTtlDays === "number") {
+          setTtlDays(config.resultTtlDays);
+        }
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setTtlDays(14);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -76,6 +98,12 @@ export default function OpenByCodePage() {
         </form>
 
         <aside className="surface-muted p-6">
+          <AiFeatureImage
+            featureKind="open-by-code"
+            alt="Иллюстрация повторного доступа по коду"
+            className="mb-4 h-40 w-full rounded-2xl border border-[#ddcfbe] object-cover"
+          />
+
           <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6e6150]">Как это работает</h2>
           <ol className="mt-3 space-y-2 text-sm text-[#584b3d]">
             <li>1. Завершите оплату в выбранном разделе.</li>
@@ -84,7 +112,7 @@ export default function OpenByCodePage() {
           </ol>
 
           <div className="mt-5 rounded-xl border border-[#d9ccbb] bg-white p-4 text-sm text-[#574a3b]">
-            В MVP результат хранится 14 дней (mock) и открывается по коду доступа без регистрации.
+            Результат хранится {ttlDays} дней и открывается по коду доступа без регистрации.
           </div>
 
           <Link href="/" className="button-secondary mt-5 inline-flex">

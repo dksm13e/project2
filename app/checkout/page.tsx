@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -7,8 +7,9 @@ import { createPurchasedResult, getDraftById, scenarioInputSummary, type Scenari
 import { getScenario } from "@/lib/scenarios";
 import { runCheckoutPayment } from "@/lib/payments/checkout";
 import { ANALYTICS_EVENT_NAMES, trackEvent } from "@/lib/analytics";
-import { runAiRoute } from "@/lib/ai/router";
-import type { PaywallSummaryOutput } from "@/lib/ai/outputSchemas";
+import { getCachedPaywallSummary, setCachedPaywallSummary } from "@/lib/ai/cache";
+import { buildFallbackPaywallSummaryFromScenario } from "@/lib/ai/paywall";
+import type { PaywallSummaryOutput } from "@/lib/ai/schemas";
 
 type QueryState = {
   scenarioId: string | null;
@@ -20,6 +21,9 @@ export default function CheckoutPage() {
 
   const [queryState, setQueryState] = useState<QueryState>({ scenarioId: null, draftId: null });
   const [draft, setDraft] = useState<ScenarioDraft | null>(null);
+  const [aiPaywall, setAiPaywall] = useState<PaywallSummaryOutput | null>(null);
+  const [isAiLoading, setIsAiLoading] = useState(true);
+  const [aiError, setAiError] = useState("");
   const [showPaymentStep, setShowPaymentStep] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [paymentError, setPaymentError] = useState("");
@@ -40,6 +44,33 @@ export default function CheckoutPage() {
   }, [queryState.draftId]);
 
   useEffect(() => {
+    if (!scenario || !draft || draft.scenarioId !== scenario.id) {
+      setAiPaywall(null);
+      setAiError("");
+      setIsAiLoading(false);
+      return;
+    }
+
+    const cached = getCachedPaywallSummary(scenario.id, draft.id);
+    if (cached) {
+      setAiPaywall(cached);
+      setAiError("");
+      setIsAiLoading(false);
+      return;
+    }
+
+    const fallbackPaywall = buildFallbackPaywallSummaryFromScenario(scenario);
+    setAiPaywall(fallbackPaywall);
+    setCachedPaywallSummary({
+      scenarioId: scenario.id,
+      draftId: draft.id,
+      paywallSummary: fallbackPaywall
+    });
+    setAiError("");
+    setIsAiLoading(false);
+  }, [scenario, draft]);
+
+  useEffect(() => {
     if (!scenario || !draft || draft.scenarioId !== scenario.id || paywallTracked) return;
 
     trackEvent(ANALYTICS_EVENT_NAMES.paywallShown, {
@@ -56,17 +87,7 @@ export default function CheckoutPage() {
     return scenarioInputSummary(draft);
   }, [draft]);
 
-  const aiPaywall = useMemo(() => {
-    if (!scenario || !draft) return null;
-    const routed = runAiRoute({
-      scenarioId: scenario.id,
-      mode: "paywall_summary",
-      inputs: draft.inputs
-    });
-    return routed.output as PaywallSummaryOutput;
-  }, [scenario, draft]);
-
-  if (!scenario || !draft || draft.scenarioId !== scenario.id || !aiPaywall) {
+  if (!scenario || !draft || draft.scenarioId !== scenario.id) {
     return (
       <section className="surface p-8">
         <h1 className="text-2xl font-semibold">Контекст оплаты не найден</h1>
@@ -74,6 +95,33 @@ export default function CheckoutPage() {
         <Link href="/" className="button-primary mt-5 inline-flex">
           На главную
         </Link>
+      </section>
+    );
+  }
+
+  if (isAiLoading) {
+    return (
+      <section className="surface p-8">
+        <p className="pill inline-flex">Шаг 3/3 · оплата</p>
+        <h1 className="mt-3 text-2xl font-semibold">Готовим экран оплаты...</h1>
+        <div className="mt-6 h-44 animate-pulse rounded-2xl bg-[#f2eadf]" />
+      </section>
+    );
+  }
+
+  if (!aiPaywall || aiError) {
+    return (
+      <section className="surface p-8">
+        <h1 className="text-2xl font-semibold">Экран оплаты временно недоступен</h1>
+        <p className="mt-3 text-sm text-[#695c4c]">{aiError || "Не удалось подготовить краткий вывод перед оплатой."}</p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href={`/preview/${scenario.id}?draft=${draft.id}`} className="button-primary">
+            Вернуться к предварительному выводу
+          </Link>
+          <Link href="/" className="button-secondary">
+            На главную
+          </Link>
+        </div>
       </section>
     );
   }

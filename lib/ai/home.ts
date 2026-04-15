@@ -1,16 +1,82 @@
-import type { HomeInterpretation } from "@/lib/ai/interpretation";
+import { getAiRuntimeConfig, requestStructuredJson } from "@/lib/ai/client";
+import { compactFullOutput, compactPaywallSummary, compactPdfOutput, compactPreviewOutput } from "@/lib/ai/compact";
+import {
+  extractImageInputs,
+  interpretScenarioInputs,
+  sanitizeInputsForPrompt,
+  type HomeInterpretation
+} from "@/lib/ai/interpretation";
+import { getLiveSystemPrompt, getLiveUserPrompt } from "@/lib/ai/prompts";
 import type {
   FormHintsOutput,
   HomeFullResultOutput,
   PaywallSummaryOutput,
   PdfModeOutput,
   PreviewModeOutput
-} from "@/lib/ai/outputSchemas";
+} from "@/lib/ai/schemas";
+import { validateAiOutput } from "@/lib/ai/schemas";
 
 type Inputs = Record<string, string>;
 
 function asHomeInterpretation(interpretation: unknown): HomeInterpretation {
   return interpretation as HomeInterpretation;
+}
+
+function hasStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function clampConfidence(value: number) {
+  return Math.max(1, Math.min(99, Math.round(value)));
+}
+
+type HomeInterpretationPatch = {
+  interpretation_notes?: string[];
+  limitations?: string[];
+  confidence_score?: number;
+  confidence_level?: "low" | "medium" | "high";
+  style_tags?: string[];
+};
+
+async function tryLiveHomeOutput<T extends PreviewModeOutput | HomeFullResultOutput | PdfModeOutput | PaywallSummaryOutput>(params: {
+  mode: "preview" | "full_result" | "pdf" | "paywall_summary";
+  inputs: Inputs;
+  interpretation: HomeInterpretation;
+  baseline: T;
+}): Promise<T | null> {
+  const runtime = getAiRuntimeConfig();
+  if (!runtime.textLiveEnabled) return null;
+
+  try {
+    const promptInputs = sanitizeInputsForPrompt(params.inputs);
+    const candidate = await requestStructuredJson<T>({
+      task: `home.${params.mode}`,
+      systemPrompt: getLiveSystemPrompt("home", params.mode),
+      userPrompt: getLiveUserPrompt({
+        domain: "home",
+        mode: params.mode,
+        inputs: promptInputs,
+        interpretation: params.interpretation,
+        baselineOutput: params.baseline
+      }),
+      maxOutputTokens:
+        params.mode === "preview"
+          ? 220
+          : params.mode === "paywall_summary"
+            ? 260
+            : params.mode === "full_result"
+              ? 920
+              : 700,
+      inputImages: extractImageInputs(params.inputs)
+    });
+
+    if (!validateAiOutput("home", params.mode, candidate)) {
+      return null;
+    }
+    return candidate;
+  } catch {
+    return null;
+  }
 }
 
 function areaBand(area: number | null): "compact" | "balanced" | "expanded" {
@@ -307,4 +373,86 @@ export function runHomeFormHints(): FormHintsOutput {
       existing_furniture_photo: "Фото текущей мебели помогает точнее оценить совместимость."
     }
   };
+}
+
+export async function interpretHomeInput(inputs: Inputs): Promise<HomeInterpretation> {
+  const baseline = interpretScenarioInputs("home", inputs) as HomeInterpretation;
+  const runtime = getAiRuntimeConfig();
+  if (!runtime.textLiveEnabled) return baseline;
+
+  try {
+    const promptInputs = sanitizeInputsForPrompt(inputs);
+    const patch = await requestStructuredJson<HomeInterpretationPatch>({
+      task: "home.interpretation",
+      systemPrompt:
+        "You refine home scenario interpretation. Return only JSON patch with optional fields: interpretation_notes[], limitations[], confidence_score, confidence_level, style_tags[].",
+      userPrompt: [
+        "Improve interpretation quality only when supported by input/image context.",
+        `Inputs JSON: ${JSON.stringify(promptInputs)}`,
+        `Baseline interpretation JSON: ${JSON.stringify(baseline)}`
+      ].join("\n"),
+      maxOutputTokens: 260,
+      inputImages: extractImageInputs(inputs)
+    });
+
+    return {
+      ...baseline,
+      style_tags: hasStringArray(patch.style_tags) ? patch.style_tags : baseline.style_tags,
+      interpretation_notes: hasStringArray(patch.interpretation_notes) ? patch.interpretation_notes : baseline.interpretation_notes,
+      limitations: hasStringArray(patch.limitations) ? patch.limitations : baseline.limitations,
+      confidence_score:
+        typeof patch.confidence_score === "number" ? clampConfidence(patch.confidence_score) : baseline.confidence_score,
+      confidence_level: patch.confidence_level ?? baseline.confidence_level
+    };
+  } catch {
+    return baseline;
+  }
+}
+
+export async function generateHomePreview(inputs: Inputs, interpretation?: HomeInterpretation): Promise<PreviewModeOutput> {
+  const prepared = interpretation ?? (await interpretHomeInput(inputs));
+  const baseline = runHomePreview(inputs, prepared);
+  const live = await tryLiveHomeOutput({
+    mode: "preview",
+    inputs,
+    interpretation: prepared,
+    baseline
+  });
+  return compactPreviewOutput(live ?? baseline);
+}
+
+export async function generateHomePaywallSummary(
+  inputs: Inputs,
+  interpretation?: HomeInterpretation
+): Promise<PaywallSummaryOutput> {
+  const prepared = interpretation ?? (await interpretHomeInput(inputs));
+  const baseline = runHomePaywall(inputs, prepared);
+  const live = await tryLiveHomeOutput({
+    mode: "paywall_summary",
+    inputs,
+    interpretation: prepared,
+    baseline
+  });
+  return compactPaywallSummary(live ?? baseline);
+}
+
+export async function generateHomeFullResult(
+  inputs: Inputs,
+  interpretation?: HomeInterpretation
+): Promise<HomeFullResultOutput> {
+  const prepared = interpretation ?? (await interpretHomeInput(inputs));
+  const baseline = runHomeFull(inputs, prepared);
+  const live = await tryLiveHomeOutput({
+    mode: "full_result",
+    inputs,
+    interpretation: prepared,
+    baseline
+  });
+  return compactFullOutput(live ?? baseline) as HomeFullResultOutput;
+}
+
+export async function generateHomePdfPayload(inputs: Inputs, interpretation?: HomeInterpretation): Promise<PdfModeOutput> {
+  const prepared = interpretation ?? (await interpretHomeInput(inputs));
+  const baseline = runHomePdf(inputs, prepared);
+  return compactPdfOutput(baseline);
 }

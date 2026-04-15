@@ -5,12 +5,16 @@ import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ANALYTICS_EVENT_NAMES, trackEvent } from "@/lib/analytics";
 import { TrackedLink } from "@/components/TrackedLink";
+import { AiFeatureImage } from "@/components/AiFeatureImage";
 import { getWeakPreviewForDraft } from "@/lib/flow";
+import { mergeInputsWithDraftImages } from "@/lib/flow-images";
 import { getScenario } from "@/lib/scenarios";
-import { runAiRoute } from "@/lib/ai/router";
-import type { PaywallSummaryOutput, PreviewModeOutput } from "@/lib/ai/outputSchemas";
+import { fetchAiRoute } from "@/lib/ai/http";
+import { getCachedPreviewBundle, setCachedPreviewBundle } from "@/lib/ai/cache";
+import { buildPaywallSummaryFromPreview } from "@/lib/ai/paywall";
+import type { PaywallSummaryOutput, PreviewModeOutput } from "@/lib/ai/schemas";
 
-const lockedItems = [
+const LOCKED_ITEMS = [
   "Подробная логика выбора",
   "Персональные рекомендации",
   "Альтернативные варианты",
@@ -19,12 +23,22 @@ const lockedItems = [
   "Код доступа"
 ];
 
+function getFeatureKind(scenarioId: string): string {
+  if (scenarioId.includes("fashion")) return "fashion-preview";
+  if (scenarioId.includes("home")) return "home-preview";
+  return "beauty-preview";
+}
+
 export default function PreviewPage() {
   const params = useParams<{ scenario: string }>();
 
   const scenario = getScenario(params.scenario);
   const [draftId, setDraftId] = useState<string | null>(null);
   const [previewState, setPreviewState] = useState<ReturnType<typeof getWeakPreviewForDraft>>(null);
+  const [aiPreview, setAiPreview] = useState<PreviewModeOutput | null>(null);
+  const [aiPaywall, setAiPaywall] = useState<PaywallSummaryOutput | null>(null);
+  const [aiError, setAiError] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
   const [shownTracked, setShownTracked] = useState(false);
 
   useEffect(() => {
@@ -37,7 +51,66 @@ export default function PreviewPage() {
   }, [draftId]);
 
   useEffect(() => {
-    if (!scenario || !previewState || shownTracked) return;
+    if (!scenario || !previewState || previewState.draft.scenarioId !== scenario.id) {
+      setAiPreview(null);
+      setAiPaywall(null);
+      setAiError("");
+      setIsAiLoading(false);
+      return;
+    }
+
+    const cached = getCachedPreviewBundle(scenario.id, previewState.draft.id);
+    if (cached) {
+      setAiPreview(cached.preview);
+      setAiPaywall(cached.paywallSummary);
+      setAiError("");
+      setIsAiLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    setIsAiLoading(true);
+    setAiError("");
+    const effectiveInputs = mergeInputsWithDraftImages(previewState.draft.id, previewState.draft.inputs);
+
+    fetchAiRoute({
+      scenarioId: scenario.id,
+      mode: "preview",
+      inputs: effectiveInputs
+    })
+      .then((previewResult) => {
+        if (!isMounted) return;
+        const preview = previewResult.output as PreviewModeOutput;
+        const paywallSummary = buildPaywallSummaryFromPreview({
+          scenario,
+          preview
+        });
+        setAiPreview(preview);
+        setAiPaywall(paywallSummary);
+        setCachedPreviewBundle({
+          scenarioId: scenario.id,
+          draftId: previewState.draft.id,
+          preview,
+          paywallSummary
+        });
+      })
+      .catch((error) => {
+        if (!isMounted) return;
+        const message = error instanceof Error ? error.message : "Не удалось получить AI-вывод.";
+        setAiError(message);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsAiLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [scenario, previewState]);
+
+  useEffect(() => {
+    if (!scenario || !previewState || !aiPreview || shownTracked) return;
     if (previewState.draft.scenarioId !== scenario.id) return;
 
     trackEvent(ANALYTICS_EVENT_NAMES.weakPreviewShown, {
@@ -45,27 +118,14 @@ export default function PreviewPage() {
       draft_id: previewState.draft.id
     });
     setShownTracked(true);
-  }, [scenario, previewState, shownTracked]);
+  }, [scenario, previewState, aiPreview, shownTracked]);
 
-  const aiPreview = useMemo(() => {
-    if (!scenario || !previewState) return null;
-    const routed = runAiRoute({
-      scenarioId: scenario.id,
-      mode: "preview",
-      inputs: previewState.draft.inputs
-    });
-    return routed.output as PreviewModeOutput;
-  }, [scenario, previewState]);
-
-  const aiPaywall = useMemo(() => {
-    if (!scenario || !previewState) return null;
-    const routed = runAiRoute({
-      scenarioId: scenario.id,
-      mode: "paywall_summary",
-      inputs: previewState.draft.inputs
-    });
-    return routed.output as PaywallSummaryOutput;
-  }, [scenario, previewState]);
+  const confidenceLabel = useMemo(() => {
+    if (!aiPreview) return "";
+    if (aiPreview.confidence === "high") return "высокий";
+    if (aiPreview.confidence === "medium") return "средний";
+    return "ограниченный";
+  }, [aiPreview]);
 
   if (!scenario) {
     return (
@@ -78,7 +138,7 @@ export default function PreviewPage() {
     );
   }
 
-  if (!previewState || previewState.draft.scenarioId !== scenario.id || !aiPreview || !aiPaywall) {
+  if (!previewState || previewState.draft.scenarioId !== scenario.id) {
     return (
       <section className="surface p-8">
         <h1 className="text-2xl font-semibold">Предварительный результат недоступен</h1>
@@ -90,6 +150,33 @@ export default function PreviewPage() {
     );
   }
 
+  if (isAiLoading) {
+    return (
+      <section className="surface p-8">
+        <p className="pill inline-flex">Шаг 2/3</p>
+        <h1 className="mt-3 text-2xl font-semibold">Готовим предварительный вывод...</h1>
+        <div className="mt-6 h-44 animate-pulse rounded-2xl bg-[#f2eadf]" />
+      </section>
+    );
+  }
+
+  if (!aiPreview || !aiPaywall || aiError) {
+    return (
+      <section className="surface p-8">
+        <h1 className="text-2xl font-semibold">AI-слой временно недоступен</h1>
+        <p className="mt-3 text-sm text-[#6e6150]">{aiError || "Не удалось построить предварительный вывод для этого черновика."}</p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href={scenario.route} className="button-primary">
+            Вернуться к форме
+          </Link>
+          <Link href="/" className="button-secondary">
+            На главную
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-7">
       <header className="space-y-3">
@@ -97,10 +184,7 @@ export default function PreviewPage() {
         <h1 className="display-title">Предварительный вывод готов</h1>
         <p className="max-w-3xl text-[#615444]">{aiPreview.preview_summary}</p>
         <p className="text-sm text-[#6d6051]">
-          Confidence:{" "}
-          <span className="font-medium text-[#3c3125]">
-            {aiPreview.confidence === "high" ? "высокий" : aiPreview.confidence === "medium" ? "средний" : "ограниченный"}
-          </span>
+          Точность оценки: <span className="font-medium text-[#3c3125]">{confidenceLabel}</span>
         </p>
       </header>
 
@@ -119,6 +203,12 @@ export default function PreviewPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <article className="surface p-6 sm:p-8">
+          <AiFeatureImage
+            featureKind={getFeatureKind(scenario.id)}
+            alt="Иллюстрация предварительного вывода"
+            className="mb-4 h-44 w-full rounded-2xl border border-[#ddcfbe] object-cover"
+          />
+
           <h2 className="text-lg font-semibold text-[#2e2419]">Что уже понятно</h2>
           <div className="mt-4 grid gap-3">
             <div className="rounded-2xl border border-[#dacbb9] bg-white p-4">
@@ -145,7 +235,7 @@ export default function PreviewPage() {
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#f3eee5] to-transparent" />
             <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#6f6150]">Разделы, которые пока скрыты</h2>
             <ul className="mt-3 space-y-2 text-sm text-[#5f5242]">
-              {lockedItems.map((item) => (
+              {LOCKED_ITEMS.map((item) => (
                 <li key={item} className="select-none rounded-xl border border-dashed border-[#cbb89e] bg-[#fff8ef]/70 px-3 py-2 blur-[1.8px]">
                   {item}
                 </li>

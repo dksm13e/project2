@@ -1,16 +1,84 @@
-import type { BeautyInterpretation } from "@/lib/ai/interpretation";
+import { getAiRuntimeConfig, requestStructuredJson } from "@/lib/ai/client";
+import { compactFullOutput, compactPaywallSummary, compactPdfOutput, compactPreviewOutput } from "@/lib/ai/compact";
+import {
+  extractImageInputs,
+  interpretScenarioInputs,
+  sanitizeInputsForPrompt,
+  type BeautyInterpretation
+} from "@/lib/ai/interpretation";
+import { getLiveSystemPrompt, getLiveUserPrompt } from "@/lib/ai/prompts";
 import type {
   BeautyFullResultOutput,
   FormHintsOutput,
   PaywallSummaryOutput,
   PdfModeOutput,
   PreviewModeOutput
-} from "@/lib/ai/outputSchemas";
+} from "@/lib/ai/schemas";
+import { validateAiOutput } from "@/lib/ai/schemas";
 
 type Inputs = Record<string, string>;
 
 function asBeautyInterpretation(interpretation: unknown): BeautyInterpretation {
   return interpretation as BeautyInterpretation;
+}
+
+function hasStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function clampConfidence(value: number) {
+  return Math.max(1, Math.min(99, Math.round(value)));
+}
+
+type BeautyInterpretationPatch = {
+  interpretation_notes?: string[];
+  limitations?: string[];
+  confidence_score?: number;
+  confidence_level?: "low" | "medium" | "high";
+  routine_state?: "underbuilt" | "balanced" | "overloaded";
+  irritation_load?: "low" | "medium" | "high";
+  product_roles?: string[];
+};
+
+async function tryLiveBeautyOutput<T extends PreviewModeOutput | BeautyFullResultOutput | PdfModeOutput | PaywallSummaryOutput>(params: {
+  mode: "preview" | "full_result" | "pdf" | "paywall_summary";
+  inputs: Inputs;
+  interpretation: BeautyInterpretation;
+  baseline: T;
+}): Promise<T | null> {
+  const runtime = getAiRuntimeConfig();
+  if (!runtime.textLiveEnabled) return null;
+
+  try {
+    const promptInputs = sanitizeInputsForPrompt(params.inputs);
+    const candidate = await requestStructuredJson<T>({
+      task: `beauty.${params.mode}`,
+      systemPrompt: getLiveSystemPrompt("beauty", params.mode),
+      userPrompt: getLiveUserPrompt({
+        domain: "beauty",
+        mode: params.mode,
+        inputs: promptInputs,
+        interpretation: params.interpretation,
+        baselineOutput: params.baseline
+      }),
+      maxOutputTokens:
+        params.mode === "preview"
+          ? 220
+          : params.mode === "paywall_summary"
+            ? 260
+            : params.mode === "full_result"
+              ? 920
+              : 700,
+      inputImages: extractImageInputs(params.inputs)
+    });
+
+    if (!validateAiOutput("beauty", params.mode, candidate)) {
+      return null;
+    }
+    return candidate;
+  } catch {
+    return null;
+  }
 }
 
 function concernLabel(code: string): string {
@@ -302,4 +370,94 @@ export function runBeautyFormHints(): FormHintsOutput {
       current_products_photo: "Фото текущих продуктов добавляет image-aware слой распознавания ролей."
     }
   };
+}
+
+export async function interpretBeautyInput(inputs: Inputs): Promise<BeautyInterpretation> {
+  const baseline = interpretScenarioInputs("beauty", inputs) as BeautyInterpretation;
+  const runtime = getAiRuntimeConfig();
+  if (!runtime.textLiveEnabled) return baseline;
+
+  try {
+    const promptInputs = sanitizeInputsForPrompt(inputs);
+    const patch = await requestStructuredJson<BeautyInterpretationPatch>({
+      task: "beauty.interpretation",
+      systemPrompt:
+        "You refine beauty interpretation quality. Return only JSON patch with optional fields: interpretation_notes[], limitations[], confidence_score, confidence_level, routine_state, irritation_load, product_roles[].",
+      userPrompt: [
+        "Refine only when evidence exists in input context. Never hallucinate product roles.",
+        `Inputs JSON: ${JSON.stringify(promptInputs)}`,
+        `Baseline interpretation JSON: ${JSON.stringify(baseline)}`
+      ].join("\n"),
+      maxOutputTokens: 260,
+      inputImages: extractImageInputs(inputs)
+    });
+
+    return {
+      ...baseline,
+      product_roles: hasStringArray(patch.product_roles) ? patch.product_roles : baseline.product_roles,
+      routine_state: patch.routine_state ?? baseline.routine_state,
+      irritation_load: patch.irritation_load ?? baseline.irritation_load,
+      interpretation_notes: hasStringArray(patch.interpretation_notes) ? patch.interpretation_notes : baseline.interpretation_notes,
+      limitations: hasStringArray(patch.limitations) ? patch.limitations : baseline.limitations,
+      confidence_score:
+        typeof patch.confidence_score === "number" ? clampConfidence(patch.confidence_score) : baseline.confidence_score,
+      confidence_level: patch.confidence_level ?? baseline.confidence_level
+    };
+  } catch {
+    return baseline;
+  }
+}
+
+export async function generateBeautyPreview(
+  inputs: Inputs,
+  interpretation?: BeautyInterpretation
+): Promise<PreviewModeOutput> {
+  const prepared = interpretation ?? (await interpretBeautyInput(inputs));
+  const baseline = runBeautyPreview(inputs, prepared);
+  const live = await tryLiveBeautyOutput({
+    mode: "preview",
+    inputs,
+    interpretation: prepared,
+    baseline
+  });
+  return compactPreviewOutput(live ?? baseline);
+}
+
+export async function generateBeautyPaywallSummary(
+  inputs: Inputs,
+  interpretation?: BeautyInterpretation
+): Promise<PaywallSummaryOutput> {
+  const prepared = interpretation ?? (await interpretBeautyInput(inputs));
+  const baseline = runBeautyPaywall(inputs, prepared);
+  const live = await tryLiveBeautyOutput({
+    mode: "paywall_summary",
+    inputs,
+    interpretation: prepared,
+    baseline
+  });
+  return compactPaywallSummary(live ?? baseline);
+}
+
+export async function generateBeautyFullResult(
+  inputs: Inputs,
+  interpretation?: BeautyInterpretation
+): Promise<BeautyFullResultOutput> {
+  const prepared = interpretation ?? (await interpretBeautyInput(inputs));
+  const baseline = runBeautyFull(inputs, prepared);
+  const live = await tryLiveBeautyOutput({
+    mode: "full_result",
+    inputs,
+    interpretation: prepared,
+    baseline
+  });
+  return compactFullOutput(live ?? baseline) as BeautyFullResultOutput;
+}
+
+export async function generateBeautyPdfPayload(
+  inputs: Inputs,
+  interpretation?: BeautyInterpretation
+): Promise<PdfModeOutput> {
+  const prepared = interpretation ?? (await interpretBeautyInput(inputs));
+  const baseline = runBeautyPdf(inputs, prepared);
+  return compactPdfOutput(baseline);
 }

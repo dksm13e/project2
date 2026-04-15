@@ -25,6 +25,13 @@ function resolveAliasFile(specifier) {
 }
 
 export async function resolve(specifier, context, defaultResolve) {
+  if (specifier === "server-only") {
+    return {
+      url: pathToFileURL(path.join(projectRoot, "scripts", "server-only-stub.mjs")).href,
+      shortCircuit: true
+    };
+  }
+
   const resolvedPath = resolveAliasFile(specifier);
   if (resolvedPath) {
     return {

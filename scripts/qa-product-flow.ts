@@ -109,29 +109,29 @@ for (const entry of CASES) {
     continue;
   }
 
-  const preview = runAiRoute({
+  const preview = (await runAiRoute({
     scenarioId: entry.scenarioId,
     mode: "preview",
     inputs: draft.inputs
-  }).output as Record<string, unknown>;
+  })).output as Record<string, unknown>;
 
-  const paywall = runAiRoute({
+  const paywall = (await runAiRoute({
     scenarioId: entry.scenarioId,
     mode: "paywall_summary",
     inputs: draft.inputs
-  }).output as Record<string, unknown>;
+  })).output as Record<string, unknown>;
 
-  const full = runAiRoute({
+  const full = (await runAiRoute({
     scenarioId: entry.scenarioId,
     mode: "full_result",
     inputs: draft.inputs
-  }).output as Record<string, unknown>;
+  })).output as Record<string, unknown>;
 
-  const pdf = runAiRoute({
+  const pdf = (await runAiRoute({
     scenarioId: entry.scenarioId,
     mode: "pdf",
     inputs: draft.inputs
-  }).output as Record<string, unknown>;
+  })).output as Record<string, unknown>;
 
   const payment = await runCheckoutPayment({
     scenarioId: entry.scenarioId,
