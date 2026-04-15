@@ -22,10 +22,10 @@ export default function FashionPage() {
         <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
           <div className="premium-note p-5">
             <p className="premium-stat">Сильная сторона</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#1f2a39]">Уменьшаем риск ошибки до оплаты</h2>
+            <h2 className="mt-2 text-2xl font-semibold text-[#1f2a39]">Спокойный первый ориентир до оплаты</h2>
             <p className="mt-2 text-sm text-[#5c6980]">
-              Вы получаете конкретный вектор по размеру и посадке ещё до платежа. Полный разбор открывается только
-              когда нужна глубина.
+              Перед оплатой вы получите спокойный первый вывод по размеру и посадке. Полный разбор открывается только
+              когда нужны детали.
             </p>
           </div>
 

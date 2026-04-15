@@ -15,7 +15,7 @@ export default function HomeCategoryPage() {
         <h1 className="premium-title">Подбор для дома</h1>
         <p className="premium-subtitle">
           Помогаем собрать комнату под ваш стиль, пространство и бюджет. В этом направлении можно добавить фото
-          комнаты, референса и существующей мебели для более точного вывода.
+          комнаты, референса и существующей мебели для более точного вывода и более персонального результата.
         </p>
       </header>
 
@@ -43,6 +43,10 @@ export default function HomeCategoryPage() {
       </article>
 
       <div className="premium-section p-6 sm:p-8">
+        <div className="premium-note mb-5 p-4 text-sm text-[#5f6c7f]">
+          Gallery ниже — это фиксированные стиль-референсы для быстрого выбора направления. В полном разборе визуал
+          формируется персонально по вашим данным и фото.
+        </div>
         <HomeStyleGallery />
       </div>
     </section>

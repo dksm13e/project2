@@ -112,6 +112,31 @@ const tourSteps = [
   }
 ] as const;
 
+const beautyEntryHints = {
+  simplify: {
+    title: "Сценарий: упростить уход",
+    text: "Сфокусируйтесь на базовых шагах и отметьте, какие средства хотите сократить."
+  },
+  "remove-extra": {
+    title: "Сценарий: убрать лишнее",
+    text: "В поле текущего ухода перечислите всё, что используете сейчас, чтобы убрать перегруз."
+  },
+  "base-scheme": {
+    title: "Сценарий: базовая схема",
+    text: "Укажите тип кожи и чувствительность — этого достаточно, чтобы собрать спокойный каркас AM/PM."
+  },
+  "reduce-reaction": {
+    title: "Сценарий: снизить риск реакции",
+    text: "Отметьте чувствительность и что уже не подошло — это снизит агрессивность рекомендаций."
+  },
+  "introduce-steps": {
+    title: "Сценарий: спокойно ввести новые шаги",
+    text: "Укажите отношение к активам и текущий уход, чтобы получить безопасный порядок введения."
+  }
+} as const;
+
+type BeautyEntryKey = keyof typeof beautyEntryHints;
+
 export function ScenarioForm({ scenarioId }: Props) {
   const router = useRouter();
   const scenario = useMemo(() => getScenario(scenarioId), [scenarioId]);
@@ -121,6 +146,7 @@ export function ScenarioForm({ scenarioId }: Props) {
   const [formStartedTracked, setFormStartedTracked] = useState(false);
   const [tourStep, setTourStep] = useState<number | null>(null);
   const [smartHints, setSmartHints] = useState<Record<string, string>>({});
+  const [entryHint, setEntryHint] = useState<{ title: string; text: string } | null>(null);
 
   useEffect(() => {
     getGuestId();
@@ -134,7 +160,19 @@ export function ScenarioForm({ scenarioId }: Props) {
     if (query.get("tour") === "1") {
       setTourStep(0);
     }
-  }, []);
+
+    if (scenario?.id === "beauty-routine") {
+      const entry = query.get("entry");
+      if (entry && entry in beautyEntryHints) {
+        setEntryHint(beautyEntryHints[entry as BeautyEntryKey]);
+      } else {
+        setEntryHint(null);
+      }
+      return;
+    }
+
+    setEntryHint(null);
+  }, [scenario]);
 
   useEffect(() => {
     if (!scenario) {
@@ -274,6 +312,13 @@ export function ScenarioForm({ scenarioId }: Props) {
               Пропустить подсказку
             </button>
           </div>
+        </div>
+      ) : null}
+
+      {entryHint ? (
+        <div className="surface border-[#cfd9e9] bg-[rgba(248,252,255,0.9)] p-4 text-sm text-[#586579]">
+          <p className="text-xs uppercase tracking-[0.16em] text-[#6f7b8d]">{entryHint.title}</p>
+          <p className="mt-2">{entryHint.text}</p>
         </div>
       ) : null}
 

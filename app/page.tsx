@@ -1,14 +1,8 @@
 import Link from "next/link";
-import { SCENARIOS } from "@/lib/scenarios";
 import { TrackedLink } from "@/components/TrackedLink";
 import { ANALYTICS_EVENT_NAMES } from "@/lib/analytics";
 import { HomeOnboardingGuide } from "@/components/HomeOnboardingGuide";
-
-const directionLinks = [
-  { label: "Одежда", href: SCENARIOS["fashion-size"].route, module: "fashion" },
-  { label: "Дом", href: SCENARIOS["home-room-set"].route, module: "home" },
-  { label: "Уход", href: SCENARIOS["beauty-routine"].route, module: "beauty" }
-];
+import { HomeDirectionSelector } from "@/components/HomeDirectionSelector";
 
 const howItWorksSteps = [
   {
@@ -33,6 +27,43 @@ const usefulCases = [
   "Когда важно не ошибиться с размером перед оплатой.",
   "Когда нужно собрать комнату спокойно и без хаоса.",
   "Когда хочется упростить уход и убрать лишнее."
+];
+
+const microProofItems = [
+  "Не ошибиться перед покупкой",
+  "Понять следующий шаг без перегруза",
+  "Снять лишние сомнения",
+  "Принять решение спокойнее и быстрее"
+];
+
+const resultExamples = [
+  {
+    direction: "Одежда",
+    title: "Размер и посадка",
+    lines: [
+      "Рекомендуемый размер: M",
+      "Альтернатива: L для более свободной посадки",
+      "Что проверить: плечи и длину рукава"
+    ]
+  },
+  {
+    direction: "Дом",
+    title: "Комната и стиль",
+    lines: [
+      "Базовый вектор: спокойная светлая база",
+      "Приоритет: хранение и мягкий свет",
+      "Что не покупать сразу: лишний мелкий декор"
+    ]
+  },
+  {
+    direction: "Уход",
+    title: "Спокойная схема ухода",
+    lines: [
+      "Утро: мягкое очищение и защита",
+      "Вечер: восстановление барьера",
+      "Что убрать: перегружающее сочетание активов"
+    ]
+  }
 ];
 
 const valueItems = [
@@ -102,9 +133,9 @@ export default function HomePage() {
                 <div className="flex flex-wrap gap-3">
                   <TrackedLink
                     id="onb-start-btn"
-                    href="#onb-directions"
+                    href="/fashion"
                     eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
-                    eventPayload={{ module: "start", cta_label: "Начать подбор" }}
+                    eventPayload={{ module: "fashion", cta_label: "Начать подбор" }}
                     className="home-btn-primary"
                   >
                     Начать подбор
@@ -129,22 +160,7 @@ export default function HomePage() {
                   </TrackedLink>
                 </div>
 
-                <div id="onb-directions" className="home-direction-select">
-                  <p className="text-xs uppercase tracking-[0.16em] text-[#6b7180]">Выберите направление</p>
-                  <div className="segment-group mt-2">
-                    {directionLinks.map((item) => (
-                      <TrackedLink
-                        key={item.href}
-                        href={item.href}
-                        eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
-                        eventPayload={{ module: item.module, cta_label: item.label }}
-                        className="segment-item"
-                      >
-                        {item.label}
-                      </TrackedLink>
-                    ))}
-                  </div>
-                </div>
+                <HomeDirectionSelector />
 
                 <p className="text-sm text-[#69707d]">Без регистрации • Без номера телефона • Код доступа после оплаты</p>
               </div>
@@ -172,8 +188,27 @@ export default function HomePage() {
                     <p className="home-snapshot-card-value">Сверить мерки</p>
                     <p className="home-snapshot-card-text">С таблицей конкретного бренда</p>
                   </article>
+                  <article className="home-snapshot-card">
+                    <p className="home-snapshot-card-label">После оплаты</p>
+                    <p className="home-snapshot-card-value">Полный разбор</p>
+                    <p className="home-snapshot-card-text">Альтернативы, риски, PDF и код доступа</p>
+                  </article>
                 </div>
               </aside>
+            </div>
+          </section>
+
+          <section className="home-editorial-block home-micro-proof p-6 sm:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="home-section-heading">Подходит, если вы хотите</h2>
+              <span className="pill">Коротко и по делу</span>
+            </div>
+            <div className="home-micro-proof-list mt-5">
+              {microProofItems.map((item) => (
+                <p key={item} className="home-micro-proof-item">
+                  {item}
+                </p>
+              ))}
             </div>
           </section>
 
@@ -190,6 +225,26 @@ export default function HomePage() {
                   </li>
                 ))}
               </ol>
+            </div>
+          </section>
+
+          <section className="home-editorial-block p-6 sm:p-8">
+            <h2 className="home-section-heading">Примеры результата</h2>
+            <p className="mt-2 text-sm text-[#617083]">
+              Короткие примеры, чтобы сразу понять, как выглядит итоговый формат разбора.
+            </p>
+            <div className="home-result-examples mt-5">
+              {resultExamples.map((card) => (
+                <article key={card.direction} className="home-result-card">
+                  <p className="home-result-kicker">{card.direction}</p>
+                  <h3 className="home-result-title">{card.title}</h3>
+                  <ul className="mt-3 space-y-2 text-sm text-[#5d6a7d]">
+                    {card.lines.map((line) => (
+                      <li key={line}>- {line}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
             </div>
           </section>
 
