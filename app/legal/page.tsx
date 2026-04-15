@@ -27,7 +27,7 @@ export default function LegalIndexPage() {
   return (
     <section className="space-y-6">
       <header className="space-y-3">
-        <p className="pill inline-flex">Legal</p>
+        <p className="pill inline-flex">Документы</p>
         <h1 className="display-title">Юридическая информация</h1>
         <p className="max-w-3xl text-[#615445]">Короткие и понятные страницы по условиям использования сервиса.</p>
       </header>

@@ -18,7 +18,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "AI Shopping",
+  title: "AI Подбор покупок",
   description:
     "Простой сервис подбора покупок: предварительный вывод, оплата, полный разбор, PDF и код доступа."
 };

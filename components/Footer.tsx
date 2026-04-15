@@ -2,10 +2,10 @@
 import { beautyDisclaimer, legalDisclaimer } from "@/lib/content";
 
 const legalLinks = [
-  { href: "/legal/privacy", label: "Privacy" },
-  { href: "/legal/terms", label: "Terms" },
-  { href: "/legal/disclaimer", label: "Disclaimer" },
-  { href: "/legal/cookies", label: "Cookies" }
+  { href: "/legal/privacy", label: "Конфиденциальность" },
+  { href: "/legal/terms", label: "Соглашение" },
+  { href: "/legal/disclaimer", label: "Дисклеймер" },
+  { href: "/legal/cookies", label: "Cookies и Local Storage" }
 ];
 
 const productLinks = [
@@ -20,13 +20,13 @@ export function Footer() {
     <footer className="mt-16 border-t border-[#d8ccbc] bg-[#f9f4ec]">
       <div className="container-shell grid gap-8 py-10 md:grid-cols-[1.4fr_1fr_1fr]">
         <div className="space-y-3 text-sm text-[#5f5447]">
-          <p className="font-medium text-[#342a1f]">AI Shopping</p>
+          <p className="font-medium text-[#342a1f]">AI Подбор покупок</p>
           <p>{legalDisclaimer}</p>
           <p>{beautyDisclaimer}</p>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#736656]">Product</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#736656]">Разделы</p>
           <ul className="mt-3 space-y-2 text-sm text-[#5f5345]">
             {productLinks.map((link) => (
               <li key={link.href}>
@@ -39,7 +39,7 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#736656]">Legal</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#736656]">Документы</p>
           <ul className="mt-3 space-y-2 text-sm text-[#5f5345]">
             {legalLinks.map((link) => (
               <li key={link.href}>

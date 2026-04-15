@@ -4,31 +4,39 @@ import { beautyDisclaimer, legalDisclaimer } from "@/lib/content";
 import { TrackedLink } from "@/components/TrackedLink";
 import { ANALYTICS_EVENT_NAMES } from "@/lib/analytics";
 import { HomeOnboardingGuide } from "@/components/HomeOnboardingGuide";
+import { AiFeatureImage } from "@/components/AiFeatureImage";
 
 const heroCtas = [
-  { label: "Подбор размера одежды", href: "/fashion/size", module: "fashion" },
-  { label: "Подбор для дома", href: "/home/room-set", module: "home" },
-  { label: "Подбор ухода", href: "/beauty/routine", module: "beauty" }
+  { label: "Начать с одежды", href: "/fashion/size", module: "fashion" },
+  { label: "Начать с дома", href: "/home/room-set", module: "home" },
+  { label: "Начать с ухода", href: "/beauty/routine", module: "beauty" }
 ];
 
 const directions = [
   {
     title: "Подбор размера одежды",
-    benefit: "Чтобы не ошибиться с размером перед заказом.",
-    instant: "Сразу: вероятный размер и один важный риск.",
-    href: SCENARIOS["fashion-size"].route
+    benefit: "Поймёте, какой размер брать перед заказом.",
+    instant: "Сразу увидите вероятный размер и главный риск посадки.",
+    cta: "Попробовать одежду",
+    href: SCENARIOS["fashion-size"].route,
+    highlight: "Одежда"
   },
   {
     title: "Подбор для дома",
-    benefit: "Чтобы собрать комнату спокойно и без лишних покупок.",
-    instant: "Сразу: базовый набор и ориентир по бюджету.",
-    href: SCENARIOS["home-room-set"].route
+    benefit: "Соберёте комнату без лишних покупок и перегруза.",
+    instant: "Сразу увидите стартовый набор, стиль и бюджетный вектор.",
+    cta: "Попробовать дом",
+    href: SCENARIOS["home-room-set"].route,
+    highlight: "Дом",
+    photoFocus: "Загрузите фото комнаты, референса и текущей мебели: так подбор для дома точнее."
   },
   {
     title: "Подбор ухода",
-    benefit: "Чтобы выстроить понятный уход без перегруза.",
-    instant: "Сразу: основной фокус и первый шаг.",
-    href: SCENARIOS["beauty-routine"].route
+    benefit: "Соберёте понятный уход без лишних банок.",
+    instant: "Сразу увидите фокус ухода и безопасный следующий шаг.",
+    cta: "Попробовать уход",
+    href: SCENARIOS["beauty-routine"].route,
+    highlight: "Уход"
   }
 ];
 
@@ -86,17 +94,19 @@ const howItWorksSteps = [
 ];
 
 const fullReviewIncludes = [
-  "Персональные рекомендации под ваш запрос",
-  "Варианты выбора в зависимости от цели",
-  "Пошаговый план перед покупкой",
-  "PDF и код доступа"
+  "Разбор вашей ситуации, а не общий шаблон",
+  "Подробные рекомендации с альтернативами",
+  "Риски, которые важно проверить до оплаты товара",
+  "Пошаговый план действий перед покупкой",
+  "PDF, который можно сохранить и пересмотреть",
+  "Код доступа для повторного открытия результата"
 ];
 
 const usefulCases = [
-  "Когда сомневаетесь, какой размер брать онлайн",
-  "Когда хотите обновить комнату и не выйти за бюджет",
-  "Когда уход стал сложным и хочется упростить",
-  "Когда нужно быстро принять решение перед покупкой"
+  "Сомневаетесь, какой размер брать онлайн и не хотите возврат.",
+  "Планируете обновить комнату и хотите уложиться в бюджет.",
+  "Уход перегружен, а хочется спокойной и рабочей схемы.",
+  "Нужно быстро принять решение перед покупкой, без долгого сравнения."
 ];
 
 const faqPreview = [
@@ -119,17 +129,18 @@ export default function HomePage() {
     <>
       <HomeOnboardingGuide />
 
-      <div className="space-y-10 sm:space-y-12">
-        <section className="hero-shell relative overflow-hidden rounded-[2rem] px-6 py-12 sm:px-10 sm:py-14">
-          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#e8d8c8]/70 blur-3xl" aria-hidden="true" />
-          <div className="absolute -bottom-16 -left-14 h-48 w-48 rounded-full bg-[#eadfce]/80 blur-3xl" aria-hidden="true" />
+      <div className="space-y-10 sm:space-y-14">
+        <section className="hero-shell relative overflow-hidden rounded-[2.2rem] px-6 py-12 sm:px-10 sm:py-14">
+          <div className="absolute -left-24 -top-20 h-52 w-52 rounded-full bg-[#e9ddd0]/80 blur-3xl" aria-hidden="true" />
+          <div className="absolute -bottom-24 right-0 h-56 w-56 rounded-full bg-[#ece0d2]/70 blur-3xl" aria-hidden="true" />
 
-          <div className="relative grid gap-7 lg:grid-cols-[1.2fr_0.85fr] lg:items-center">
+          <div className="relative grid gap-8 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
             <div className="space-y-6">
-              <p className="pill inline-flex">AI Shopping</p>
-              <h1 className="display-title max-w-4xl text-balance">Поможем выбрать и не ошибиться с покупкой</h1>
-              <p className="max-w-3xl text-base text-[#5f554a] sm:text-lg">
-                Ответьте на несколько вопросов и получите первый вывод меньше чем за минуту. Полный разбор открывается только если он вам нужен.
+              <p className="pill inline-flex">Личный цифровой советник по покупкам</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-[#7d6f60]">Выбирайте уверенно. Покупайте без ошибок.</p>
+              <h1 className="display-title max-w-4xl text-balance">Поймите, что покупать именно вам, ещё до оплаты товара</h1>
+              <p className="max-w-3xl text-base text-[#5d5247] sm:text-lg">
+                Ответьте на несколько вопросов и получите первый вывод меньше чем за минуту. Если нужен более глубокий разбор, откройте его позже.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -147,78 +158,82 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-2 text-xs sm:text-sm">
-                <span className="chip">Без регистрации</span>
-                <span className="chip">Без номера телефона</span>
-                <span className="chip">Бесплатный предварительный вывод</span>
-                <span className="chip">Код доступа после оплаты</span>
-              </div>
+              <p className="text-sm text-[#66594d]">
+                Без регистрации • Без номера телефона • Код доступа после оплаты
+              </p>
             </div>
 
-            <aside id="onb-quick-info" className="hero-card p-5 sm:p-6">
-              <p className="text-xs uppercase tracking-[0.16em] text-[#726757]">Пример первого вывода</p>
-              <ul className="mt-3 space-y-2 text-sm text-[#584c3d]">
-                <li>- Одна основная рекомендация по вашей задаче</li>
-                <li>- Один риск, который важно проверить</li>
-                <li>- Понятный следующий шаг перед покупкой</li>
-              </ul>
-              <p className="mt-4 text-sm font-medium text-[#3a2f22]">Полный разбор открывается по желанию.</p>
+            <aside id="onb-quick-info" className="hero-snapshot p-4 sm:p-5">
+              <AiFeatureImage
+                featureKind="home-preview"
+                alt="Снимок результата сервиса"
+                className="h-44 w-full rounded-2xl border border-[#d7ccbf] object-cover sm:h-52"
+              />
+
+              <div className="mt-4 rounded-2xl border border-[#d8ccbe] bg-white/95 p-4 shadow-[0_6px_18px_rgba(30,22,15,0.08)]">
+                <p className="text-xs uppercase tracking-[0.16em] text-[#7b6b5a]">Снимок результата</p>
+                <div className="mt-3 grid gap-2 text-sm text-[#4b4035]">
+                  <p className="rounded-lg bg-[#f8f2ea] px-3 py-2">Ключевая рекомендация по вашей задаче</p>
+                  <p className="rounded-lg bg-[#f8f2ea] px-3 py-2">Один риск, который важно проверить</p>
+                  <p className="rounded-lg bg-[#f8f2ea] px-3 py-2">Следующий шаг перед покупкой</p>
+                </div>
+              </div>
+
+              <p className="mt-4 rounded-xl border border-[#d9cdbf] bg-[#f5ede3] px-3 py-2 text-sm text-[#4f4337]">
+                Для подбора для дома можно добавить фото комнаты, референса и мебели. Это заметно повышает точность.
+              </p>
             </aside>
           </div>
         </section>
 
-        <section id="onb-directions" className="space-y-4">
+        <section className="how-flow-shell p-6 sm:p-8">
+          <h2 className="section-title">Как это работает</h2>
+          <div className="relative mt-6">
+            <div className="pointer-events-none absolute left-[10%] right-[10%] top-10 hidden h-px bg-[#d4c7b7] md:block" aria-hidden="true" />
+            <ol className="grid gap-3 md:grid-cols-4">
+              {howItWorksSteps.map((step, index) => (
+                <li key={step.title} className={`how-flow-step p-4 text-sm ${index === 2 ? "how-flow-step-active" : ""}`}>
+                  <p className="text-xs uppercase tracking-[0.16em] text-[#7a6a58]">Шаг {index + 1}</p>
+                  <span className="flow-icon mt-2">{step.icon}</span>
+                  <p className="mt-2 font-medium text-[#2b2118]">{step.title}</p>
+                  <p className="mt-1.5 text-[#605347]">{step.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <p className="mt-5 rounded-xl bg-white px-4 py-3 text-sm text-[#5f5245]">
+            Без регистрации • Бесплатный предварительный вывод • Полный разбор по желанию
+          </p>
+        </section>
+
+        <section id="onb-directions" className="space-y-5">
           <h2 className="section-title">Выберите направление</h2>
           <div className="grid gap-4 md:grid-cols-3">
             {directions.map((card) => (
-              <article key={card.title} className="product-card direction-card p-6">
-                <h3 className="text-lg font-semibold text-[#2f251b]">{card.title}</h3>
-                <p className="mt-2 text-sm text-[#5f5345]">{card.benefit}</p>
-                <p className="mt-3 rounded-lg border border-[#dfd5ca] bg-[#fffaf4] px-3 py-2 text-sm text-[#4e4233]">{card.instant}</p>
+              <article
+                key={card.title}
+                className={`direction-tile p-6 ${card.highlight === "Дом" ? "direction-tile-home" : ""}`}
+              >
+                <p className="text-xs uppercase tracking-[0.18em] text-[#7b6c5d]">{card.highlight}</p>
+                <h3 className="mt-2 text-lg font-semibold text-[#2f241b]">{card.title}</h3>
+                <p className="mt-2 text-sm text-[#605346]">{card.benefit}</p>
+                <p className="mt-4 rounded-xl bg-[#f8f2e9] px-3 py-2 text-sm text-[#4f4337]">{card.instant}</p>
+                {card.photoFocus ? (
+                  <p className="mt-3 rounded-xl border border-[#d7c9b8] bg-white px-3 py-2 text-sm text-[#4f4337]">{card.photoFocus}</p>
+                ) : null}
                 <Link href={card.href} className="button-secondary mt-5 inline-flex">
-                  Попробовать
+                  {card.cta}
                 </Link>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="flow-shell p-6 sm:p-8">
-          <h2 className="section-title">Как это работает</h2>
-          <div className="relative mt-5">
-            <div className="pointer-events-none absolute left-[10%] right-[10%] top-8 hidden h-px bg-[#d9cec2] md:block" aria-hidden="true" />
-            <ol className="grid gap-3 md:grid-cols-4">
-              {howItWorksSteps.map((step, index) => (
-                <li key={step.title} className={`flow-step p-4 text-sm text-[#504434] ${index === 2 ? "flow-step-highlight" : ""}`}>
-                  <p className="text-xs uppercase tracking-[0.14em] text-[#786a58]">Шаг {index + 1}</p>
-                  <span className="flow-icon mt-2">{step.icon}</span>
-                  <p className="mt-2 font-medium text-[#2f251a]">{step.title}</p>
-                  <p className="mt-1.5 text-[#655848]">{step.text}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-          <div className="mt-5 rounded-xl border border-[#ddd2c7] bg-white px-4 py-3 text-sm text-[#5d5041]">
-            Без регистрации • Бесплатный предварительный вывод • Полный разбор по желанию
-          </div>
-        </section>
-
-        <section className="surface p-6 sm:p-8">
-          <h2 className="section-title">Что входит в полный разбор</h2>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-[#4f4334]">
-            {fullReviewIncludes.map((item) => (
-              <li key={item} className="rounded-xl border border-[#dcccba] bg-white p-4">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </section>
-
         <section className="surface-muted p-6 sm:p-8">
           <h2 className="section-title">Когда это полезно</h2>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
             {usefulCases.map((item) => (
-              <article key={item} className="rounded-xl border border-[#dcccba] bg-white p-4 text-sm text-[#4e4233]">
+              <article key={item} className="rounded-2xl bg-white px-4 py-4 text-sm text-[#4f4337] shadow-[0_1px_1px_rgba(27,20,12,0.04)]">
                 {item}
               </article>
             ))}
@@ -226,7 +241,23 @@ export default function HomePage() {
         </section>
 
         <section className="surface p-6 sm:p-8">
-          <h2 className="section-title">FAQ</h2>
+          <h2 className="section-title">Что даёт полный разбор</h2>
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            {fullReviewIncludes.map((item) => (
+              <li key={item} className="rounded-2xl border border-[#d9ccbe] bg-[#fffcf9] px-4 py-3 text-sm text-[#4f4336]">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="surface p-6 sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="section-title">Частые вопросы</h2>
+            <Link href="/faq" className="button-secondary">
+              Смотреть все вопросы
+            </Link>
+          </div>
           <div className="mt-4 space-y-3">
             {faqPreview.map((item) => (
               <details key={item.question} className="faq-item px-4 py-3 text-sm text-[#4f4334]">
@@ -235,12 +266,9 @@ export default function HomePage() {
               </details>
             ))}
           </div>
-          <Link href="/faq" className="button-secondary mt-5 inline-flex">
-            Смотреть все вопросы
-          </Link>
         </section>
 
-        <section className="rounded-2xl border border-[#ddd3c8] bg-[#f8f4ef] p-6 text-sm text-[#615546]">
+        <section className="rounded-2xl border border-[#d9cfc3] bg-[#f9f4ee] p-6 text-sm text-[#605447]">
           <p>{legalDisclaimer}</p>
           <p className="mt-2">{beautyDisclaimer}</p>
         </section>
@@ -248,4 +276,3 @@ export default function HomePage() {
     </>
   );
 }
-
