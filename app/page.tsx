@@ -24,7 +24,7 @@ const howItWorksSteps = [
   },
   {
     title: "Ответьте на вопросы",
-    text: "Это займёт меньше минуты",
+    text: "Это займет меньше минуты",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
         <path d="M5 6.5h14M5 12h14M5 17.5h9" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
@@ -49,7 +49,7 @@ const howItWorksSteps = [
   },
   {
     title: "Откройте полный разбор",
-    text: "Только если нужны детали и PDF",
+    text: "Если нужны детали, риски и PDF",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
         <path
@@ -66,27 +66,27 @@ const howItWorksSteps = [
 ];
 
 const usefulCases = [
-  "Перед заказом одежды онлайн, когда не хочется ошибиться с размером.",
-  "Перед покупкой для дома, когда важно уложиться в бюджет и стиль.",
-  "Перед обновлением ухода, когда хочется убрать лишние шаги."
+  "Перед заказом одежды онлайн, когда важно не ошибиться с размером и посадкой.",
+  "Перед покупкой для дома, когда нужно сохранить стиль и уложиться в бюджет.",
+  "Перед обновлением ухода, когда хочется убрать лишние шаги и снизить риск реакции."
 ];
 
 const trustItems = [
   {
     title: "Без регистрации",
-    text: "Начинаете сразу, без аккаунта и длинных форм."
+    text: "Начинаете сразу, без личного кабинета и длинной настройки."
   },
   {
     title: "Без email и телефона",
-    text: "Контактные данные не нужны в основном пользовательском пути."
+    text: "Контактные данные не нужны для основного пользовательского пути."
   },
   {
     title: "Фото для дома",
     text: "В подборе для дома можно добавить фото комнаты, референса и мебели для более точного вывода."
   },
   {
-    title: "Повторный доступ по коду",
-    text: "После оплаты результат можно открыть снова по коду доступа."
+    title: "Доступ по коду",
+    text: "После оплаты результат можно открыть повторно по коду доступа."
   }
 ];
 
@@ -96,11 +96,11 @@ const faqPreview = [
     answer: "Нет. Сервис работает без личного кабинета."
   },
   {
-    question: "Сначала можно попробовать бесплатно?",
+    question: "Можно сначала попробовать бесплатно?",
     answer: "Да. Сначала вы получаете предварительный вывод."
   },
   {
-    question: "Что даёт полный разбор?",
+    question: "Что дает полный разбор?",
     answer: "Подробные рекомендации, риски, альтернативы, PDF и код доступа."
   }
 ];
@@ -110,151 +110,182 @@ export default function HomePage() {
     <>
       <HomeOnboardingGuide />
 
-      <div className="space-y-12 sm:space-y-14">
-        <section className="hero-shell relative overflow-hidden rounded-[2.5rem] px-6 py-12 sm:px-10 sm:py-16">
-          <div className="absolute -left-16 -top-20 h-52 w-52 rounded-full bg-[#e9dac9]/72 blur-3xl" aria-hidden="true" />
-          <div className="absolute -bottom-20 right-0 h-56 w-56 rounded-full bg-[#ede0d0]/68 blur-3xl" aria-hidden="true" />
+      <div className="home-premium-root">
+        <div className="home-atmosphere" aria-hidden="true">
+          <span className="home-shape home-shape-fashion" />
+          <span className="home-shape home-shape-home" />
+          <span className="home-shape home-shape-beauty" />
+          <span className="home-ink-line home-ink-line-a" />
+          <span className="home-ink-line home-ink-line-b" />
+        </div>
 
-          <div className="relative grid gap-8 lg:grid-cols-[1.03fr_0.97fr] lg:items-center">
-            <div className="space-y-6">
-              <p className="pill inline-flex">Персональный цифровой советник</p>
-              <p className="text-xs uppercase tracking-[0.2em] text-[#7a6b5b]">Выбирайте уверенно. Покупайте без ошибок.</p>
-              <h1 className="display-title max-w-4xl text-balance">Помогаем принять решение до покупки</h1>
-              <p className="max-w-2xl text-base text-[#5f5346] sm:text-lg">
-                Одежда, дом и уход в одном сервисе. Сначала вы видите короткий предварительный вывод и решаете, нужен ли полный разбор.
-              </p>
+        <div className="home-content space-y-12 sm:space-y-14">
+          <section className="home-hero-shell relative overflow-hidden rounded-[2.5rem] px-6 py-12 sm:px-10 sm:py-16">
+            <div className="relative grid gap-9 lg:grid-cols-[1.03fr_0.97fr] lg:items-center">
+              <div className="space-y-6">
+                <p className="home-status-badge inline-flex">Private digital advisor</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#746b63]">Выбирайте уверенно. Покупайте без ошибок.</p>
+                <h1 className="display-title max-w-4xl text-balance">Точное решение перед покупкой без лишнего риска</h1>
+                <p className="max-w-2xl text-base text-[#5a5148] sm:text-lg">
+                  Один сервис для одежды, дома и ухода. Сначала вы видите короткий предварительный вывод и
+                  решаете, нужен ли полный разбор.
+                </p>
 
-              <div className="flex flex-wrap gap-3">
-                <TrackedLink
-                  id="onb-start-btn"
-                  href="#onb-directions"
-                  eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
-                  eventPayload={{ module: "start", cta_label: "Начать подбор" }}
-                  className="button-primary"
-                >
-                  Начать подбор
-                </TrackedLink>
+                <div className="flex flex-wrap gap-3">
+                  <TrackedLink
+                    id="onb-start-btn"
+                    href="#onb-directions"
+                    eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
+                    eventPayload={{ module: "start", cta_label: "Начать подбор" }}
+                    className="button-primary"
+                  >
+                    Начать подбор
+                  </TrackedLink>
 
-                <TrackedLink
-                  href="#how-it-works"
-                  eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
-                  eventPayload={{ module: "flow", cta_label: "Как это работает" }}
-                  className="button-secondary"
-                >
-                  Как это работает
-                </TrackedLink>
+                  <TrackedLink
+                    href="#how-it-works"
+                    eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
+                    eventPayload={{ module: "flow", cta_label: "Как это работает" }}
+                    className="button-secondary"
+                  >
+                    Как это работает
+                  </TrackedLink>
 
-                <TrackedLink
-                  href="/open-by-code"
-                  eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
-                  eventPayload={{ module: "access", cta_label: "Открыть по коду" }}
-                  className="button-secondary"
-                >
-                  Открыть по коду
-                </TrackedLink>
-              </div>
-
-              <div id="onb-directions" className="hero-direction-strip">
-                <p className="text-xs uppercase tracking-[0.16em] text-[#7c6d5d]">Выберите направление</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {directionLinks.map((item) => (
-                    <TrackedLink
-                      key={item.href}
-                      href={item.href}
-                      eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
-                      eventPayload={{ module: item.module, cta_label: item.label }}
-                      className="hero-direction-link"
-                    >
-                      {item.label}
-                    </TrackedLink>
-                  ))}
+                  <TrackedLink
+                    href="/open-by-code"
+                    eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
+                    eventPayload={{ module: "access", cta_label: "Открыть по коду" }}
+                    className="button-secondary"
+                  >
+                    Открыть по коду
+                  </TrackedLink>
                 </div>
+
+                <div id="onb-directions" className="home-direction-strip">
+                  <p className="text-xs uppercase tracking-[0.16em] text-[#756b63]">Выберите направление</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {directionLinks.map((item) => (
+                      <TrackedLink
+                        key={item.href}
+                        href={item.href}
+                        eventName={ANALYTICS_EVENT_NAMES.heroCtaClick}
+                        eventPayload={{ module: item.module, cta_label: item.label }}
+                        className="home-direction-link"
+                      >
+                        {item.label}
+                      </TrackedLink>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="text-sm text-[#6a6158]">Без регистрации • Без номера телефона • Код доступа после оплаты</p>
               </div>
 
-              <p className="text-sm text-[#6a5d50]">Без регистрации • Без номера телефона • Код доступа после оплаты</p>
+              <aside id="onb-quick-info" className="home-preview-panel">
+                <div className="home-preview-media">
+                  <AiFeatureImage
+                    featureKind="home-preview"
+                    alt="Визуальный фрагмент сервиса"
+                    className="h-[21rem] w-full rounded-[1rem] object-cover sm:h-[23rem]"
+                  />
+                </div>
+
+                <div className="home-preview-sheet">
+                  <p className="home-preview-label">Пример полного разбора</p>
+                  <h3 className="home-preview-title">Рекомендованный размер: M</h3>
+                  <p className="home-preview-subtitle">Альтернатива: L для свободной посадки</p>
+
+                  <div className="home-preview-kpi">
+                    <div>
+                      <p className="home-preview-kpi-label">Уверенность</p>
+                      <p className="home-preview-kpi-value">82%</p>
+                    </div>
+                    <div>
+                      <p className="home-preview-kpi-label">Риск</p>
+                      <p className="home-preview-kpi-value">средний</p>
+                    </div>
+                  </div>
+
+                  <div className="home-preview-note">
+                    <p className="home-preview-note-title">Что важно проверить</p>
+                    <p className="home-preview-note-text">Запас по плечам и длину рукава в таблице бренда.</p>
+                  </div>
+                </div>
+
+                <div className="home-preview-float home-preview-float-risk">
+                  <p className="home-preview-float-label">Сигнал риска</p>
+                  <p className="home-preview-float-text">Материал малорастяжимый</p>
+                </div>
+                <div className="home-preview-float home-preview-float-next">
+                  <p className="home-preview-float-label">Следующий шаг</p>
+                  <p className="home-preview-float-text">Сверить мерки изделия</p>
+                </div>
+              </aside>
             </div>
+          </section>
 
-            <aside id="onb-quick-info" className="hero-visual-panel">
-              <AiFeatureImage
-                featureKind="home-preview"
-                alt="Премиальный визуальный срез сервиса"
-                className="h-[21rem] w-full rounded-[1.2rem] object-cover sm:h-[23rem]"
-              />
+          <section id="how-it-works" className="home-glass-panel p-6 sm:p-8">
+            <h2 className="home-section-title">Как это работает</h2>
+            <div className="relative mt-6">
+              <div className="home-flow-line" aria-hidden="true" />
+              <ol className="grid gap-3 md:grid-cols-4">
+                {howItWorksSteps.map((step, index) => (
+                  <li key={step.title} className={`home-step-card p-4 text-sm ${index === 2 ? "home-step-card-active" : ""}`}>
+                    <p className="text-xs uppercase tracking-[0.16em] text-[#b8ada2]">Шаг {index + 1}</p>
+                    <span className="home-flow-icon mt-2">{step.icon}</span>
+                    <p className="mt-2 font-medium text-[#f3eee8]">{step.title}</p>
+                    <p className="mt-1.5 text-[#c8beb4]">{step.text}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
 
-              <div className="hero-panel-chip hero-panel-chip-a">
-                <p className="text-xs uppercase tracking-[0.12em] text-[#7d6d5c]">Фокус</p>
-                <p className="mt-1 text-sm font-medium text-[#2f241a]">Рекомендация по вашей задаче</p>
-              </div>
-
-              <div className="hero-panel-chip hero-panel-chip-b">
-                <p className="text-xs uppercase tracking-[0.12em] text-[#7d6d5c]">Сигнал риска</p>
-                <p className="mt-1 text-sm font-medium text-[#2f241a]">Что проверить до покупки</p>
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        <section id="how-it-works" className="how-flow-shell p-6 sm:p-8">
-          <h2 className="section-title">Как это работает</h2>
-          <div className="relative mt-6">
-            <div className="pointer-events-none absolute left-[10%] right-[10%] top-10 hidden h-px bg-[#d5c8b8] md:block" aria-hidden="true" />
-            <ol className="grid gap-3 md:grid-cols-4">
-              {howItWorksSteps.map((step, index) => (
-                <li key={step.title} className={`how-flow-step p-4 text-sm ${index === 2 ? "how-flow-step-active" : ""}`}>
-                  <p className="text-xs uppercase tracking-[0.16em] text-[#7b6a58]">Шаг {index + 1}</p>
-                  <span className="flow-icon mt-2">{step.icon}</span>
-                  <p className="mt-2 font-medium text-[#2e241b]">{step.title}</p>
-                  <p className="mt-1.5 text-[#605347]">{step.text}</p>
-                </li>
+          <section className="home-glass-panel-soft p-6 sm:p-8">
+            <h2 className="home-section-title">Для чего это полезно</h2>
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              {usefulCases.map((item) => (
+                <article key={item} className="home-mini-card px-4 py-4 text-sm text-[#d6cdc4]">
+                  {item}
+                </article>
               ))}
-            </ol>
-          </div>
-        </section>
+            </div>
+          </section>
 
-        <section className="surface-muted p-6 sm:p-8">
-          <h2 className="section-title">Для чего это полезно</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {usefulCases.map((item) => (
-              <article key={item} className="rounded-2xl bg-white px-4 py-4 text-sm text-[#4f4337] shadow-[0_1px_1px_rgba(27,20,12,0.05)]">
-                {item}
-              </article>
-            ))}
-          </div>
-        </section>
+          <section className="home-glass-panel p-6 sm:p-8">
+            <h2 className="home-section-title">Почему нам доверяют</h2>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {trustItems.map((item) => (
+                <article key={item.title} className="home-trust-card px-4 py-4">
+                  <p className="text-sm font-semibold text-[#f2ebe3]">{item.title}</p>
+                  <p className="mt-2 text-sm text-[#c7bcaf]">{item.text}</p>
+                </article>
+              ))}
+            </div>
+          </section>
 
-        <section className="surface p-6 sm:p-8">
-          <h2 className="section-title">Почему нам доверяют</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {trustItems.map((item) => (
-              <article key={item.title} className="rounded-2xl border border-[#d8cbbb] bg-[#fffdf9] px-4 py-4">
-                <p className="text-sm font-semibold text-[#2f241b]">{item.title}</p>
-                <p className="mt-2 text-sm text-[#5c4f40]">{item.text}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+          <section className="home-glass-panel p-6 sm:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="home-section-title">Частые вопросы</h2>
+              <Link href="/faq" className="button-secondary">
+                Смотреть все вопросы
+              </Link>
+            </div>
+            <div className="mt-4 space-y-3">
+              {faqPreview.map((item) => (
+                <details key={item.question} className="home-faq-item px-4 py-3 text-sm">
+                  <summary className="cursor-pointer list-none font-medium text-[#f1eae2]">{item.question}</summary>
+                  <p className="mt-2 text-[#c8bcae]">{item.answer}</p>
+                </details>
+              ))}
+            </div>
+          </section>
 
-        <section className="surface p-6 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="section-title">Частые вопросы</h2>
-            <Link href="/faq" className="button-secondary">
-              Смотреть все вопросы
-            </Link>
-          </div>
-          <div className="mt-4 space-y-3">
-            {faqPreview.map((item) => (
-              <details key={item.question} className="faq-item px-4 py-3 text-sm text-[#4f4334]">
-                <summary className="cursor-pointer list-none font-medium text-[#2f251a]">{item.question}</summary>
-                <p className="mt-2 text-[#5e5142]">{item.answer}</p>
-              </details>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-[#d9cfc3] bg-[#faf5ee] p-6 text-sm text-[#605447]">
-          <p>{legalDisclaimer}</p>
-          <p className="mt-2">{beautyDisclaimer}</p>
-        </section>
+          <section className="home-disclaimer rounded-2xl p-6 text-sm text-[#bdb0a2]">
+            <p>{legalDisclaimer}</p>
+            <p className="mt-2">{beautyDisclaimer}</p>
+          </section>
+        </div>
       </div>
     </>
   );
